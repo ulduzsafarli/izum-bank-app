@@ -1,0 +1,160 @@
+package com.example.mybankapplication.service.impl;
+
+import com.example.mybankapplication.entities.AccountEntity;
+import com.example.mybankapplication.exception.DatabaseException;
+import com.example.mybankapplication.exception.NotDataFoundException;
+import com.example.mybankapplication.mapper.AccountMapper;
+import com.example.mybankapplication.mapper.CustomerMapper;
+import com.example.mybankapplication.model.accounts.AccountFilterDto;
+import com.example.mybankapplication.model.accounts.AccountRequest;
+import com.example.mybankapplication.model.accounts.AccountResponse;
+import com.example.mybankapplication.model.customers.CustomerResponse;
+import com.example.mybankapplication.repository.AccountRepository;
+import com.example.mybankapplication.service.AccountService;
+import com.example.mybankapplication.specifications.AccountSpecifications;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AccountServiceImpl implements AccountService {
+
+    public final AccountRepository accountRepository;
+    public final AccountMapper accountMapper;
+    private final CustomerServiceImpl customerService;
+    private final CustomerMapper customerMapper;
+
+    public Page<AccountResponse> findAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest) {
+        log.info("Searching accounts by filter: {}", accountFilterDto);
+        try {
+            Specification<AccountEntity> accountSpecification = AccountSpecifications.getAccountSpecification(accountFilterDto);
+            Page<AccountEntity> accountEntityPage = accountRepository.findAll(accountSpecification, pageRequest);
+            log.info("Successfully found accounts");
+            return accountEntityPage.map(accountMapper::toDto);
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Failed to find an account in the database", ex);
+        }
+    }
+
+    public List<AccountResponse> getAllAccounts() {
+        log.info("Retrieving all accounts");
+        try {
+            List<AccountEntity> accountEntityList = accountRepository.findAll();
+            List<AccountResponse> accountDtoList = accountEntityList.stream()
+                    .map(accountMapper::toDto).toList();
+            log.info("Successfully retrieved all accounts");
+            return accountDtoList;
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Failed to get all accounts from the database", ex);
+        }
+    }
+
+    public AccountResponse getAccountById(Long accountId) {
+        log.info("Retrieving account by ID: {}", accountId);
+        try {
+            AccountEntity accountEntity = accountRepository.findById(accountId)
+                    .orElseThrow(() -> new NotDataFoundException("Account with ID " + accountId + " not found"));
+            AccountResponse accountResponse = accountMapper.toDto(accountEntity);
+            log.info("Successfully retrieved account");
+            return accountResponse;
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Failed to get accounts by ID from the database", ex);
+        }
+    }
+
+    @Override
+    public AccountResponse getAccountByAccountNumber(String accountNumber) {
+        log.info("Retrieving account by account number: {}", accountNumber);
+        try {
+            AccountEntity accountEntity = accountRepository.findByAccountNumber(accountNumber)
+                    .orElseThrow(() -> new NotDataFoundException("Account with accountNumber " + accountNumber + " not found"));
+            AccountResponse accountResponse = accountMapper.toDto(accountEntity);
+            log.info("Successfully retrieved account");
+            return accountResponse;
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Failed to get accounts by account number from the database", ex);
+        }
+    }
+
+    public List<AccountResponse> getAllAccountsByCustomerId(Long customerId) {
+        log.info("Retrieving all accounts by customer ID: {}", customerId);
+        try {
+            CustomerResponse customerResponseList = customerService.getCustomerById(customerId);
+            List<AccountResponse> accountResponses = customerResponseList.getAccounts();
+            log.info("Successfully retrieved all accounts by customer ID: {}", customerId);
+            return accountResponses;
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Failed to get accounts by customer ID from the database", ex);
+        }
+    }
+
+    @Transactional
+    public void createAccount(Long customerId, AccountRequest account) {
+        log.info("Creating account for customer: {}", customerId);
+        try {
+            AccountEntity accountEntity = accountMapper.fromDto(account);
+            String newAccountNumber = generateAccountNumber();
+            accountEntity.setAccountNumber(newAccountNumber);
+            accountEntity.setCustomer(customerMapper.toEntity(customerService.getCustomerById(customerId)));
+            accountRepository.save(accountEntity);
+            log.info("Account created successfully");
+        } catch (NotDataFoundException ex) {
+            throw new NotDataFoundException("Failed to find customer with ID: " + customerId);
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Failed to add new account to the database", ex);
+        }
+    }
+
+    //Добавить кеширование
+    public String generateAccountNumber() {
+        log.info("Generating unique account number");
+        do {
+            // Генерация случайного числа в диапазоне от 1000000 до 9999999
+            String randomNumber = String.valueOf(ThreadLocalRandom.current().nextInt(1000000, 10000000));
+            // Проверка наличия сгенерированного числа в базе данных
+            boolean isUnique = !accountRepository.existsByAccountNumber(randomNumber);
+            if (isUnique) {
+                log.info("Account number generated successfully");
+                return randomNumber;
+            }
+        } while (true);
+    }
+
+    @Transactional
+    public void updateAccount(Long accountId, AccountRequest account) {
+        log.info("Updating account by ID: {}", accountId);
+        accountRepository.findById(accountId).ifPresentOrElse(
+                accountEntity -> {
+                    accountMapper.updateEntityFromDto(account, accountEntity);
+                    accountRepository.save(accountEntity);
+                    log.info("Account updated successfully");
+                },
+                () -> {
+                    throw new NotDataFoundException("Account with ID " + accountId + " not found");
+                }
+        );
+    }
+
+    public void deleteAccount(Long accountId) {
+        log.info("Deleting account by ID: {}", accountId);
+        if (accountRepository.existsById(accountId)) {
+            accountRepository.deleteById(accountId);
+            log.info("Account deleted successfully");
+        } else {
+            throw new NotDataFoundException("Account with ID " + accountId + " not found");
+        }
+    }
+
+}
+

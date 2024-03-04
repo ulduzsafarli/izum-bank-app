@@ -1,0 +1,19 @@
+package com.example.mybankapplication.mapper;
+
+import com.example.mybankapplication.entities.AccountEntity;
+import com.example.mybankapplication.model.accounts.AccountRequest;
+import com.example.mybankapplication.model.accounts.AccountResponse;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
+
+@Mapper(componentModel = "spring", uses = {CustomerMapper.class, PassportMapper.class})
+public interface AccountMapper {
+    @Mapping(source = "customer.id", target = "customerId")
+    AccountResponse toDto(AccountEntity accountEntity);
+
+    AccountEntity fromDto(AccountRequest accountRequest);
+
+    AccountEntity updateEntityFromDto(AccountRequest account, @MappingTarget AccountEntity accountEntity);
+}
