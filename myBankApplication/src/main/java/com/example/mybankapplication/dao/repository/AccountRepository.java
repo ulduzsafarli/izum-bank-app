@@ -1,6 +1,6 @@
-package com.example.mybankapplication.repository;
+package com.example.mybankapplication.dao.repository;
 
-import com.example.mybankapplication.entities.AccountEntity;
+import com.example.mybankapplication.dao.entities.AccountEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

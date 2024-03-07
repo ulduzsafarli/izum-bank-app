@@ -1,4 +1,4 @@
-package com.example.mybankapplication.model.customers;
+package com.example.mybankapplication.model.users;
 
 import com.example.mybankapplication.annotations.AdultBirthDate;
 import com.example.mybankapplication.model.PassportDto;
@@ -19,22 +19,27 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CustomerRequest {
+public class UserRequest {
+
     @NotBlank(message = "Firstname must not be null")
     @Size(min = 3, max = 20, message = "Invalid firstname format")
     private String firstName;
+
     @Size(min = 3, max = 20, message = "Invalid lastname format")
     @NotBlank(message = "Lastname must not be null")
     private String lastName;
+
     @AdultBirthDate
     private LocalDate birthDate;
+
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email must not be null")
-    private String email; //gmail.com
+    private String email;
+
     @NotBlank(message = "Phone number must not be null")
     @Pattern(regexp = "^0(?:50|51|55|70|77|10|60)\\d{7}$", message = "Invalid phone number format")
     private String phoneNumber;
 
-    private PassportDto passport;
+//    private PassportDto passport;
     private List<AccountRequest> accounts;
 }

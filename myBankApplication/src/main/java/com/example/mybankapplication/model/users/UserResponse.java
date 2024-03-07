@@ -1,4 +1,4 @@
-package com.example.mybankapplication.model.customers;
+package com.example.mybankapplication.model.users;
 
 import com.example.mybankapplication.model.PassportDto;
 import com.example.mybankapplication.model.accounts.AccountResponse;
@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CustomerResponse {
+public class UserResponse {
     private Long id;
     private String firstName;
     private String lastName;
@@ -20,6 +20,6 @@ public class CustomerResponse {
     private String email;
     //    private String cif;
     private String phoneNumber;
-    private PassportDto passport;
+//    private PassportDto passport;
     private List<AccountResponse> accounts;
 }

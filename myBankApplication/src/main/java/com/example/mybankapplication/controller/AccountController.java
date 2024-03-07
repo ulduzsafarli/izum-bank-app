@@ -3,13 +3,10 @@ package com.example.mybankapplication.controller;
 import com.example.mybankapplication.model.accounts.AccountRequest;
 import com.example.mybankapplication.model.accounts.AccountResponse;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
-import com.example.mybankapplication.model.customers.CustomerResponse;
 import com.example.mybankapplication.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -49,14 +46,14 @@ public class AccountController {
         return new ResponseEntity<>(accountService.getAccountByAccountNumber(accountNumber), HttpStatus.OK);
     }
 
-    @GetMapping("/customer/{customerId}/accounts")
-    public ResponseEntity<List<AccountResponse>> getAllAccountsByCustomerId(@PathVariable Long customerId) {
-        return new ResponseEntity<>(accountService.getAllAccountsByCustomerId(customerId), HttpStatus.OK);
+    @GetMapping("/user/{userId}/accounts")
+    public ResponseEntity<List<AccountResponse>> getAllAccountsByUserId(@PathVariable Long userId) {
+        return new ResponseEntity<>(accountService.getAllAccountsByUserId(userId), HttpStatus.OK);
     }
 
-    @PostMapping("/customer/{customerId}/accounts")
-    public ResponseEntity<AccountResponse> createAccount(@PathVariable Long customerId, @Valid @RequestBody AccountRequest account) {
-        accountService.createAccount(customerId, account);
+    @PostMapping("/user/{userId}/accounts")
+    public ResponseEntity<AccountResponse> createAccount(@PathVariable Long userId, @Valid @RequestBody AccountRequest account) {
+        accountService.createAccount(userId, account);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

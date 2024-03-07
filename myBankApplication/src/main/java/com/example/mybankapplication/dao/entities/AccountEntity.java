@@ -1,4 +1,4 @@
-package com.example.mybankapplication.entities;
+package com.example.mybankapplication.dao.entities;
 
 import com.example.mybankapplication.enumeration.AccountStatus;
 import com.example.mybankapplication.enumeration.AccountType;
@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedBy;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -56,17 +57,17 @@ public class AccountEntity {
     private String pin;
 
 
-//    @CreatedBy
-//    private String createdBy;
+    @CreatedBy
+    private String createdBy;
 
-//    @CreationTimestamp
-//    private String updatedAt;
+    @CreationTimestamp
+    private String updatedAt;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<TransactionEntity> transactions;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private CustomerEntity customer;
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
 }

@@ -1,4 +1,4 @@
-package com.example.mybankapplication.entities;
+package com.example.mybankapplication.dao.entities;
 
 import com.example.mybankapplication.enumeration.NotificationType;
 import jakarta.persistence.*;
@@ -22,7 +22,7 @@ public class NotificationEntity {
 
 
     @ManyToOne
-    @JoinColumn(name = "customer_id")
-    private CustomerEntity customer;
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
 
 }

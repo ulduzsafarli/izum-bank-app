@@ -1,15 +1,15 @@
 package com.example.mybankapplication.service.impl;
 
-import com.example.mybankapplication.entities.AccountEntity;
+import com.example.mybankapplication.dao.entities.AccountEntity;
 import com.example.mybankapplication.exception.DatabaseException;
-import com.example.mybankapplication.exception.NotDataFoundException;
+import com.example.mybankapplication.exception.NotFoundException;
 import com.example.mybankapplication.mapper.AccountMapper;
-import com.example.mybankapplication.mapper.CustomerMapper;
+import com.example.mybankapplication.mapper.UserMapper;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
 import com.example.mybankapplication.model.accounts.AccountRequest;
 import com.example.mybankapplication.model.accounts.AccountResponse;
-import com.example.mybankapplication.model.customers.CustomerResponse;
-import com.example.mybankapplication.repository.AccountRepository;
+import com.example.mybankapplication.model.users.UserResponse;
+import com.example.mybankapplication.dao.repository.AccountRepository;
 import com.example.mybankapplication.service.AccountService;
 import com.example.mybankapplication.specifications.AccountSpecifications;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -32,8 +31,8 @@ public class AccountServiceImpl implements AccountService {
 
     public final AccountRepository accountRepository;
     public final AccountMapper accountMapper;
-    private final CustomerServiceImpl customerService;
-    private final CustomerMapper customerMapper;
+    private final UserServiceImpl userService;
+    private final UserMapper userMapper;
 
     public Page<AccountResponse> findAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest) {
         log.info("Searching accounts by filter: {}", accountFilterDto);
@@ -64,7 +63,7 @@ public class AccountServiceImpl implements AccountService {
         log.info("Retrieving account by ID: {}", accountId);
         try {
             AccountEntity accountEntity = accountRepository.findById(accountId)
-                    .orElseThrow(() -> new NotDataFoundException("Account with ID " + accountId + " not found"));
+                    .orElseThrow(() -> new NotFoundException("Account with ID " + accountId + " not found"));
             AccountResponse accountResponse = accountMapper.toDto(accountEntity);
             log.info("Successfully retrieved account");
             return accountResponse;
@@ -78,7 +77,7 @@ public class AccountServiceImpl implements AccountService {
         log.info("Retrieving account by account number: {}", accountNumber);
         try {
             AccountEntity accountEntity = accountRepository.findByAccountNumber(accountNumber)
-                    .orElseThrow(() -> new NotDataFoundException("Account with accountNumber " + accountNumber + " not found"));
+                    .orElseThrow(() -> new NotFoundException("Account with accountNumber " + accountNumber + " not found"));
             AccountResponse accountResponse = accountMapper.toDto(accountEntity);
             log.info("Successfully retrieved account");
             return accountResponse;
@@ -87,30 +86,30 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    public List<AccountResponse> getAllAccountsByCustomerId(Long customerId) {
-        log.info("Retrieving all accounts by customer ID: {}", customerId);
+    public List<AccountResponse> getAllAccountsByUserId(Long userId) {
+        log.info("Retrieving all accounts by user ID: {}", userId);
         try {
-            CustomerResponse customerResponseList = customerService.getCustomerById(customerId);
-            List<AccountResponse> accountResponses = customerResponseList.getAccounts();
-            log.info("Successfully retrieved all accounts by customer ID: {}", customerId);
+            UserResponse userResponseList = userService.getUserById(userId);
+            List<AccountResponse> accountResponses = userResponseList.getAccounts();
+            log.info("Successfully retrieved all accounts by user ID: {}", userId);
             return accountResponses;
         } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to get accounts by customer ID from the database", ex);
+            throw new DatabaseException("Failed to get accounts by user ID from the database", ex);
         }
     }
 
     @Transactional
-    public void createAccount(Long customerId, AccountRequest account) {
-        log.info("Creating account for customer: {}", customerId);
+    public void createAccount(Long userId, AccountRequest account) {
+        log.info("Creating account for user: {}", userId);
         try {
             AccountEntity accountEntity = accountMapper.fromDto(account);
             String newAccountNumber = generateAccountNumber();
             accountEntity.setAccountNumber(newAccountNumber);
-            accountEntity.setCustomer(customerMapper.toEntity(customerService.getCustomerById(customerId)));
+            accountEntity.setUser(userMapper.toEntity(userService.getUserById(userId)));
             accountRepository.save(accountEntity);
             log.info("Account created successfully");
-        } catch (NotDataFoundException ex) {
-            throw new NotDataFoundException("Failed to find customer with ID: " + customerId);
+        } catch (NotFoundException ex) {
+            throw new NotFoundException("Failed to find user with ID: " + userId);
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to add new account to the database", ex);
         }
@@ -141,7 +140,7 @@ public class AccountServiceImpl implements AccountService {
                     log.info("Account updated successfully");
                 },
                 () -> {
-                    throw new NotDataFoundException("Account with ID " + accountId + " not found");
+                    throw new NotFoundException("Account with ID " + accountId + " not found");
                 }
         );
     }
@@ -152,7 +151,7 @@ public class AccountServiceImpl implements AccountService {
             accountRepository.deleteById(accountId);
             log.info("Account deleted successfully");
         } else {
-            throw new NotDataFoundException("Account with ID " + accountId + " not found");
+            throw new NotFoundException("Account with ID " + accountId + " not found");
         }
     }
 

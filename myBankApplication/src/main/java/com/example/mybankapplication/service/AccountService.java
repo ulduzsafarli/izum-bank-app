@@ -19,9 +19,9 @@ public interface AccountService {
 
     AccountResponse getAccountByAccountNumber(String accountNumber);
 
-    List<AccountResponse> getAllAccountsByCustomerId(Long customerId);
+    List<AccountResponse> getAllAccountsByUserId(Long userId);
 
-    void createAccount(Long customerId, AccountRequest account);
+    void createAccount(Long userId, AccountRequest account);
 
     void updateAccount(Long accountId, AccountRequest account);
 

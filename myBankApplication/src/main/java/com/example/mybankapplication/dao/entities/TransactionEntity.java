@@ -1,15 +1,15 @@
-package com.example.mybankapplication.entities;
+package com.example.mybankapplication.dao.entities;
 
 import com.example.mybankapplication.enumeration.TransactionStatus;
 import com.example.mybankapplication.enumeration.TransactionType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "transactions", schema = "public")
@@ -29,15 +29,20 @@ public class TransactionEntity {
     private Long operatorId;
     @Column(name = "transaction_uuid", unique = true)
     private String transactionUUID;
+
+    //     Limit транзакций: ограничения на ежедневные, еженедельные или ежемесячные транзакции
+    @Column(name = "transaction_limit")
+    private BigDecimal transactionLimit;
+
 //    @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     private LocalDateTime createdAt;
 
-//    @LastModifiedBy
-//    private String updatedBy;
+    @LastModifiedBy
+    private String updatedBy;
 
-//    @LastModifiedDate
-//    private LocalDateTime updatedAt;
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
 
     @ManyToOne
@@ -57,9 +62,7 @@ public class TransactionEntity {
     // @Column(name = "withdrawal_limit")
     // private BigDecimal withdrawalLimit;
 
-    // Limit транзакций: ограничения на ежедневные, еженедельные или ежемесячные транзакции
-    // @Column(name = "transaction_limit")
-    // private BigDecimal transactionLimit;
+
 
     // Информация о карте: если счет связан с дебетовой или кредитной картой
     // @Column(name = "card_information")
