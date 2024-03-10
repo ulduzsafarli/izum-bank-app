@@ -6,7 +6,6 @@ import com.example.mybankapplication.model.auth.AuthenticationResponseDto;
 import com.example.mybankapplication.model.auth.RegisterRequest;
 import com.example.mybankapplication.service.auth.AuthenticationService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
