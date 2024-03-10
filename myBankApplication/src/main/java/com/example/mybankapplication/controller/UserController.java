@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -56,8 +56,6 @@ public class UserController {
         userService.updateUser(id, user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    //UPDATE Could not commit JPA transaction
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {

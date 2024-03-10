@@ -1,6 +1,10 @@
 package com.example.mybankapplication.model.users;
 
+import com.example.mybankapplication.enumeration.auth.Role;
 import com.example.mybankapplication.model.accounts.AccountResponse;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,12 +17,20 @@ import java.util.List;
 @Data
 public class UserResponse {
     private Long id;
+
     private String firstName;
+
     private String lastName;
+
     private LocalDate birthDate;
+
     private String email;
-    //    private String cif;
+
+    private String password;
+
     private String phoneNumber;
-//    private PassportDto passport;
-    private List<AccountResponse> accounts;
+
+    private String cif;
+
+//    private List<AccountResponse> accounts;
 }

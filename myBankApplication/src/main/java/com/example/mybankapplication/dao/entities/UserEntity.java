@@ -43,6 +43,8 @@ public class UserEntity implements UserDetails {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
+    @Column(name = "cif", length = 5)
+    private String cif;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)

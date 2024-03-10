@@ -46,10 +46,10 @@ public class AccountController {
         return new ResponseEntity<>(accountService.getAccountByAccountNumber(accountNumber), HttpStatus.OK);
     }
 
-    @GetMapping("/user/{userId}/accounts")
-    public ResponseEntity<List<AccountResponse>> getAllAccountsByUserId(@PathVariable Long userId) {
-        return new ResponseEntity<>(accountService.getAllAccountsByUserId(userId), HttpStatus.OK);
-    }
+//    @GetMapping("/user/{userId}/accounts")
+//    public ResponseEntity<List<AccountResponse>> getAllAccountsByUserId(@PathVariable Long userId) {
+//        return new ResponseEntity<>(accountService.getAllAccountsByUserId(userId), HttpStatus.OK);
+//    }
 
     @PostMapping("/user/{userId}/accounts")
     public ResponseEntity<AccountResponse> createAccount(@PathVariable Long userId, @Valid @RequestBody AccountRequest account) {

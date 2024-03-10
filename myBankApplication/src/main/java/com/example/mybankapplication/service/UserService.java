@@ -19,7 +19,6 @@ public interface UserService {
     void updateUser(Long id, UserRequest userRequest);
     @Transactional
     void deleteUserById(Long id);
-    @Transactional
     void addUser(UserRequest userRequest);
 
 //    void deleteUserInfo(String email);

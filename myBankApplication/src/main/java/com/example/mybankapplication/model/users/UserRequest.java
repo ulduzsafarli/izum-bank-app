@@ -1,7 +1,6 @@
 package com.example.mybankapplication.model.users;
 
 import com.example.mybankapplication.annotations.AdultBirthDate;
-import com.example.mybankapplication.model.accounts.AccountRequest;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -12,7 +11,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -43,5 +41,11 @@ public class UserRequest {
     @Pattern(regexp = "^0(?:50|51|55|70|77|10|60)\\d{7}$", message = "Invalid phone number format")
     private String phoneNumber;
 
-    private List<AccountRequest> accounts;
+    @Pattern(regexp = "\\d{5}", message = "CIF must be a 5-digit number")
+    private String cif;
+
+    private String role;
+
+
+//    private List<AccountRequest> accounts;
 }

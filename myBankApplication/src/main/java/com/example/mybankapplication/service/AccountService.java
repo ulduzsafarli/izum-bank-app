@@ -19,7 +19,7 @@ public interface AccountService {
 
     AccountResponse getAccountByAccountNumber(String accountNumber);
 
-    List<AccountResponse> getAllAccountsByUserId(Long userId);
+//    List<AccountResponse> getAllAccountsByUserId(Long userId);
 
     void createAccount(Long userId, AccountRequest account);
 

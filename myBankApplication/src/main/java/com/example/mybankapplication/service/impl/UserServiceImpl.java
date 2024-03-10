@@ -13,6 +13,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Optional;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
@@ -97,22 +99,27 @@ public class UserServiceImpl implements UserService {
     public void addUser(UserRequest userRequest) {
         log.info("Adding new user: {}", userRequest);
         validateNewUserData(userRequest);
+        UserEntity user = userMapper.toEntity(userRequest);
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         try {
-            userRepository.save(userMapper.toEntity(userRequest));
+            userRepository.save(user);
             log.info("Successfully added new user");
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to add new user to the database", ex);
         }
     }
 
-    public void deleteUserInfo(String email) {
-        log.info("Deleting user by email: {}", email);
-        if (!userRepository.existsByEmail(email))
-            throw new NotFoundException("User not found with ID: " + email);
-        userRepository.deleteByEmail(email);
-        log.info("Successfully deleted user with ID: {}", email);
-    }
 
+//    public void deleteUserInfo(String email) {
+//        log.info("Deleting user by email: {}", email);
+//        if (!userRepository.existsByEmail(email))
+//            throw new NotFoundException("User not found with ID: " + email);
+//        userRepository.deleteByEmail(email);
+//        log.info("Successfully deleted user with ID: {}", email);
+//    }
+
+
+    //to-do: Cache system
     private synchronized void validateNewUserData(UserRequest userRequest) {
         Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(userRequest.getEmail());
         if (existingUserByEmail.isPresent())

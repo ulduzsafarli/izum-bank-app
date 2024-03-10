@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -39,6 +41,7 @@ public class AuthenticationService {
                 .birthDate(request.getBirthDate())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .cif(null)
                 .phoneNumber(request.getPhoneNumber())
                 .role(request.getRoles().isEmpty() ? Role.USER : request.getRoles().iterator().next())
                 .build();
@@ -76,5 +79,42 @@ public class AuthenticationService {
             throw new BadCredentialsException("Invalid username or password");
         }
     }
+    public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
+        log.info("Changing the password for user: {}", connectedUser.toString());
+
+        var user = (UserEntity) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalStateException("Wrong password");
+        }
+        if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
+            throw new IllegalStateException("Password are not the same");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        log.info("Change the password for user: {} successfully", user.getEmail());
+    }
+
+//    public void changePassword(String userEmail,String newPassword) {
+//        log.info("Changing the password for user: {}", userEmail);
+//
+//        UserEntity user = userRepository.findByEmail(userEmail)
+//                .orElseThrow(() -> new NotFoundException("User with email " + userEmail + " not found"));
+//
+//        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+//            throw new InvalidPasswordException("Incorrect old password");
+//        }
+//
+//        // Validate the new password (you can add more complex validation here)
+//        if (newPassword.length() < 8) {
+//            throw new InvalidPasswordException("New password must be at least 8 characters long");
+//        }
+//
+//        // Hash the new password
+//        String hashedPassword = passwordEncoder.encode(newPassword);
+//
+//        // Update the user's password
+//        user.setPassword(hashedPassword);
+//        userRepository.save(user);    }
 }
 

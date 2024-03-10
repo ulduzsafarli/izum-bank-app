@@ -86,20 +86,20 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    public List<AccountResponse> getAllAccountsByUserId(Long userId) {
-        log.info("Retrieving all accounts by user ID: {}", userId);
-        try {
-            UserResponse userResponseList = userService.getUserById(userId);
-            List<AccountResponse> accountResponses = userResponseList.getAccounts();
-            log.info("Successfully retrieved all accounts by user ID: {}", userId);
-            return accountResponses;
-        } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to get accounts by user ID from the database", ex);
-        }
-    }
+//    public List<AccountResponse> getAllAccountsByUserId(Long userId) {
+//        log.info("Retrieving all accounts by user ID: {}", userId);
+//        try {
+//            UserResponse userResponseList = userService.getUserById(userId);
+//            List<AccountResponse> accountResponses = userResponseList.getAccounts();
+//            log.info("Successfully retrieved all accounts by user ID: {}", userId);
+//            return accountResponses;
+//        } catch (DataAccessException ex) {
+//            throw new DatabaseException("Failed to get accounts by user ID from the database", ex);
+//        }
+//    }
 
     @Transactional
-    public void createAccount(Long userId, AccountRequest account) {
+    public void createAccount(Long userId, AccountRequest account) { //create cif
         log.info("Creating account for user: {}", userId);
         try {
             AccountEntity accountEntity = accountMapper.fromDto(account);
