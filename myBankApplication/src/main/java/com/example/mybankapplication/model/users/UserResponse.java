@@ -1,16 +1,10 @@
 package com.example.mybankapplication.model.users;
 
-import com.example.mybankapplication.enumeration.auth.Role;
-import com.example.mybankapplication.model.accounts.AccountResponse;
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor

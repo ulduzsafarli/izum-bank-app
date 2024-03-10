@@ -8,7 +8,6 @@ import com.example.mybankapplication.mapper.UserMapper;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
 import com.example.mybankapplication.model.accounts.AccountRequest;
 import com.example.mybankapplication.model.accounts.AccountResponse;
-import com.example.mybankapplication.model.users.UserResponse;
 import com.example.mybankapplication.dao.repository.AccountRepository;
 import com.example.mybankapplication.service.AccountService;
 import com.example.mybankapplication.specifications.AccountSpecifications;
