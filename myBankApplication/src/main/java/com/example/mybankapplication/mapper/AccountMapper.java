@@ -8,7 +8,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 
-@Mapper(componentModel = "spring", uses = {UserMapper.class, PassportMapper.class},
+@Mapper(componentModel = "spring", uses = {UserMapper.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AccountMapper {
 //    @Mapping(source = "customer.id", target = "customerId")

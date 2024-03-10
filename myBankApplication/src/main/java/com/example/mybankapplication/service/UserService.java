@@ -22,4 +22,5 @@ public interface UserService {
     @Transactional
     void addUser(UserRequest userRequest);
 
+    void deleteUserInfo(String email);
 }

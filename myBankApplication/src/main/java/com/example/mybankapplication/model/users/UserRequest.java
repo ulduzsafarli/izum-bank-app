@@ -1,7 +1,6 @@
 package com.example.mybankapplication.model.users;
 
 import com.example.mybankapplication.annotations.AdultBirthDate;
-import com.example.mybankapplication.model.PassportDto;
 import com.example.mybankapplication.model.accounts.AccountRequest;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -32,14 +31,17 @@ public class UserRequest {
     @AdultBirthDate
     private LocalDate birthDate;
 
-    @Email(message = "Invalid email format")
+    @Email(message = "Invalid email format", regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}")
     @NotBlank(message = "Email must not be null")
     private String email;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 4, message = "Password must be at least 4 characters long")
+    private String password;
 
     @NotBlank(message = "Phone number must not be null")
     @Pattern(regexp = "^0(?:50|51|55|70|77|10|60)\\d{7}$", message = "Invalid phone number format")
     private String phoneNumber;
 
-//    private PassportDto passport;
     private List<AccountRequest> accounts;
 }

@@ -11,7 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 
 
 @Entity
@@ -35,33 +34,25 @@ public class UserEntity implements UserDetails {
     @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
-    @Column(name = "fin", nullable = false, unique = true)
-    private String fin;
-
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password", nullable = false, length = 4)
     private String password;
 
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
+
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
 
-
-
-//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-//    private PassportEntity passport;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<AccountEntity> accounts;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<NotificationEntity> notifications;
-
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private List<AccountEntity> accounts;
+//
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+//    private List<NotificationEntity> notifications;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

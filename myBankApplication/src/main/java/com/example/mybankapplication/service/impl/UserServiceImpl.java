@@ -105,6 +105,14 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    public void deleteUserInfo(String email) {
+        log.info("Deleting user by email: {}", email);
+        if (!userRepository.existsByEmail(email))
+            throw new NotFoundException("User not found with ID: " + email);
+        userRepository.deleteByEmail(email);
+        log.info("Successfully deleted user with ID: {}", email);
+    }
+
     private synchronized void validateNewUserData(UserRequest userRequest) {
         Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(userRequest.getEmail());
         if (existingUserByEmail.isPresent())
