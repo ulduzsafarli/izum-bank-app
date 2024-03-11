@@ -27,5 +27,5 @@ public class AccountResponse {
     private BigDecimal availableBalance;
     private BigDecimal currentBalance;
     private String pin;
-    private Long customerId;
+    private Long userId;
 }

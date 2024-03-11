@@ -1,14 +1,21 @@
 package com.example.mybankapplication.service.impl;
 
 import com.example.mybankapplication.dao.entities.UserEntity;
+import com.example.mybankapplication.dao.entities.UserProfileEntity;
+import com.example.mybankapplication.dao.repository.UserProfileRepository;
 import com.example.mybankapplication.exception.*;
 import com.example.mybankapplication.mapper.UserMapper;
+import com.example.mybankapplication.mapper.UserProfileMapper;
+import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.users.*;
 import com.example.mybankapplication.dao.repository.UserRepository;
+import com.example.mybankapplication.model.users.profile.UserProfileDto;
+import com.example.mybankapplication.service.AccountService;
 import com.example.mybankapplication.service.UserService;
-import com.example.mybankapplication.specifications.UserSpecifications;
+import com.example.mybankapplication.specifications.UserProfileSpecifications;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,15 +33,24 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final UserProfileRepository userProfileRepository;
+    private final AccountService accountService;
     private final UserMapper userMapper;
+    private final UserProfileMapper userProfileMapper;
+
+    @Value("200")
+    private String responseCodeSuccess;
+
+    @Value("204")
+    private String responseCodeNoContent;
 
     @Override
-    public Page<UserResponse> findUsersByFilter(UserFilterDto filterDto, Pageable pageRequest) {
+    public Page<UserProfileDto> findUsersByFilter(UserProfileFilterDto filterDto, Pageable pageRequest) {
         log.info("Searching users by filter: {}", filterDto);
-        Specification<UserEntity> userSpecification = UserSpecifications.getUserSpecification(filterDto);
-        Page<UserEntity> userEntityPage = userRepository.findAll(userSpecification, pageRequest);
+        Specification<UserProfileEntity> userProfileSpecification = UserProfileSpecifications.getUserProfileSpecification(filterDto);
+        Page<UserProfileEntity> userProfileEntity = userProfileRepository.findAll(userProfileSpecification, pageRequest);
         log.info("Successfully found users");
-        return userEntityPage.map(userMapper::toDto);
+        return userProfileEntity.map(userProfileMapper::toDto);
     }
 
     @Override
@@ -47,7 +63,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUserById(Long id) {
+    public UserResponse readUserById(Long id) {
         log.info("Retrieving user by ID: {}", id);
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
@@ -57,7 +73,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUserByEmail(String email) {
+    public UserResponse readUserByEmail(String email) {
         log.info("Retrieving user by email: {}", email);
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found with email: " + email));
@@ -67,36 +83,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse getUserByPhoneNumber(String phoneNumber) {
-        log.info("Retrieving user by phone number: {}", phoneNumber);
-        UserEntity userEntity = userRepository.findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new NotFoundException("User not found with phone number: " + phoneNumber));
-        UserResponse userResponse = userMapper.toDto(userEntity);
-        log.info("Successfully retrieved user with phone number: {}", phoneNumber);
-        return userResponse;
-    }
-
-    @Override
-    public void updateUser(Long id, UserRequest userRequest) {
+    public ResponseDto updateUser(Long id, UserRequest userRequest) {
         log.info("Updating user with ID {} to: {}", id, userRequest);
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
         userEntity = userMapper.updateEntityFromRequest(userRequest, userEntity);
         userRepository.save(userEntity);
         log.info("Successfully updated user with ID: {}", id);
+        return ResponseDto.builder()
+                .responseMessage("User created successfully")
+                .responseCode(responseCodeSuccess).build();
     }
 
     @Override
-    public void deleteUserById(Long id) {
+    public ResponseDto deleteUserById(Long id) {
         log.info("Deleting user by ID: {}", id);
         if (!userRepository.existsById(id))
             throw new NotFoundException("User not found with ID: " + id);
         userRepository.deleteById(id);
         log.info("Successfully deleted user with ID: {}", id);
+        return ResponseDto.builder()
+                .responseMessage("User deleted successfully")
+                .responseCode(responseCodeNoContent).build();
     }
 
     @Override
-    public void addUser(UserRequest userRequest) {
+    public ResponseDto addUser(UserRequest userRequest) {
         log.info("Adding new user: {}", userRequest);
         validateNewUserData(userRequest);
         UserEntity user = userMapper.toEntity(userRequest);
@@ -104,6 +116,31 @@ public class UserServiceImpl implements UserService {
         try {
             userRepository.save(user);
             log.info("Successfully added new user");
+            return ResponseDto.builder()
+                    .responseMessage("User created successfully")
+                    .responseCode(responseCodeSuccess).build();
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Failed to add new user to the database", ex);
+        }
+    }
+
+    /**
+     * Retrieves a UserDto by the given accountId.
+     *
+     * @param accountId The account ID of the user.
+     * @return The UserDto object corresponding to the given accountId.
+     * @throws NotFoundException If the account or user is not found on the server.
+     */
+    @Override
+    public UserResponse readUserByAccountId(Long accountId) {
+        log.info("Reading user by account ID {}", accountId);
+        Long userId = accountService.readByAccountNumber(accountId).getUserId();
+        try {
+            var userResponse = userRepository.findById(userId)
+                    .map(userMapper::toDto)
+                    .orElseThrow(() -> new NotFoundException("User not found on the server"));
+            log.info("Read user by account ID {} successfully", accountId);
+            return userResponse;
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to add new user to the database", ex);
         }
@@ -125,9 +162,9 @@ public class UserServiceImpl implements UserService {
         if (existingUserByEmail.isPresent())
             throw new DuplicateDataException("User with email " + userRequest.getEmail() + " already exists");
 
-        Optional<UserEntity> existingUserByPhoneNumber = userRepository.findByPhoneNumber(userRequest.getPhoneNumber());
+        Optional<UserProfileEntity> existingUserByPhoneNumber = userProfileRepository.findByPhoneNumber(userRequest.getUserProfile().getPhoneNumber());
         if (existingUserByPhoneNumber.isPresent())
-            throw new DuplicateDataException("User with phone number " + userRequest.getPhoneNumber() + " already exists");
+            throw new DuplicateDataException("User with phone number " + userRequest.getUserProfile().getPhoneNumber() + " already exists");
     }
 
 }

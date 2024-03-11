@@ -1,16 +1,17 @@
 package com.example.mybankapplication.specifications;
 
 import com.example.mybankapplication.dao.entities.UserEntity;
-import com.example.mybankapplication.model.users.UserFilterDto;
+import com.example.mybankapplication.dao.entities.UserProfileEntity;
+import com.example.mybankapplication.model.users.UserProfileFilterDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class UserSpecifications {
+public class UserProfileSpecifications {
 
-    private UserSpecifications(){}
+    private UserProfileSpecifications(){}
     private static <T> Specification<T> likeIgnoreCase(String attribute, String value) {
         return (root, query, criteriaBuilder) ->
                 value == null || value.isBlank() ?
@@ -24,11 +25,12 @@ public class UserSpecifications {
                         null : criteriaBuilder.equal(root.get(attribute), value);
     }
 
-    public static Specification<UserEntity> getUserSpecification(UserFilterDto userFilterDto) {
-        log.debug("Get specification for user {}", userFilterDto.toString());
-        return Specification.<UserEntity>where(
-                        likeIgnoreCase("firstName", userFilterDto.getFirstName()))
-                .and(likeIgnoreCase("lastName", userFilterDto.getLastName()))
-                .and(isEqual("birthDate", userFilterDto.getBirthDate()));
+    public static Specification<UserProfileEntity> getUserProfileSpecification(UserProfileFilterDto userProfileFilterDto) {
+        log.debug("Get specification for user {}", userProfileFilterDto.toString());
+        return Specification.<UserProfileEntity>where(
+                        likeIgnoreCase("firstName", userProfileFilterDto.getFirstName()))
+                .and(likeIgnoreCase("lastName", userProfileFilterDto.getLastName()))
+                .and(isEqual("birthDate", userProfileFilterDto.getBirthDate()))
+                .and(isEqual("phoneNumber", userProfileFilterDto.getPhoneNumber()));
     }
 }

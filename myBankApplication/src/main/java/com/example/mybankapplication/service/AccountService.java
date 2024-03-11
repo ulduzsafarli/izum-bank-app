@@ -21,10 +21,11 @@ public interface AccountService {
 
 //    List<AccountResponse> getAllAccountsByUserId(Long userId);
 
-    void createAccount(Long userId, AccountRequest account);
+//    void createAccount(Long userId, AccountRequest account);
 
     void updateAccount(Long accountId, AccountRequest account);
 
     void deleteAccount(Long accountId);
 
+    AccountResponse readByAccountNumber(Long accountId);
 }

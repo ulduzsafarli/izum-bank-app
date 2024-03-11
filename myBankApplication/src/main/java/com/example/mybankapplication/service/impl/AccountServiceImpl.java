@@ -30,7 +30,7 @@ public class AccountServiceImpl implements AccountService {
 
     public final AccountRepository accountRepository;
     public final AccountMapper accountMapper;
-    private final UserServiceImpl userService;
+//    private final UserServiceImpl userService;
     private final UserMapper userMapper;
 
     public Page<AccountResponse> findAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest) {
@@ -97,22 +97,22 @@ public class AccountServiceImpl implements AccountService {
 //        }
 //    }
 
-    @Transactional
-    public void createAccount(Long userId, AccountRequest account) { //create cif
-        log.info("Creating account for user: {}", userId);
-        try {
-            AccountEntity accountEntity = accountMapper.fromDto(account);
-            String newAccountNumber = generateAccountNumber();
-            accountEntity.setAccountNumber(newAccountNumber);
-            accountEntity.setUser(userMapper.toEntity(userService.getUserById(userId)));
-            accountRepository.save(accountEntity);
-            log.info("Account created successfully");
-        } catch (NotFoundException ex) {
-            throw new NotFoundException("Failed to find user with ID: " + userId);
-        } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to add new account to the database", ex);
-        }
-    }
+//    @Transactional
+//    public void createAccount(Long userId, AccountRequest account) { //create cif
+//        log.info("Creating account for user: {}", userId);
+//        try {
+//            AccountEntity accountEntity = accountMapper.fromDto(account);
+//            String newAccountNumber = generateAccountNumber();
+//            accountEntity.setAccountNumber(newAccountNumber);
+//            accountEntity.setUser(userMapper.toEntity(userService.readUserById(userId)));
+//            accountRepository.save(accountEntity);
+//            log.info("Account created successfully");
+//        } catch (NotFoundException ex) {
+//            throw new NotFoundException("Failed to find user with ID: " + userId);
+//        } catch (DataAccessException ex) {
+//            throw new DatabaseException("Failed to add new account to the database", ex);
+//        }
+//    }
 
     //Добавить кеширование
     public String generateAccountNumber() {
@@ -152,6 +152,15 @@ public class AccountServiceImpl implements AccountService {
         } else {
             throw new NotFoundException("Account with ID " + accountId + " not found");
         }
+    }
+
+    //yeniden
+    @Override
+    public AccountResponse readByAccountNumber(Long accountId) {
+
+        return accountRepository.findById(accountId)
+                .map(accountMapper::toDto)
+                .orElseThrow(() -> new NotFoundException("Account with ID " + accountId + " not found"));
     }
 
 }

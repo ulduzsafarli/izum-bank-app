@@ -1,5 +1,7 @@
 databaseChangeLog:
   - include:
+      file: liquibase/changeset_v4/create_users_profile_table.sql
+  - include:
       file: liquibase/changeset_v4/create_users_table.sql
 #  - include:
 #      file: liquibase/changeset_v3/create_accounts_table.sql

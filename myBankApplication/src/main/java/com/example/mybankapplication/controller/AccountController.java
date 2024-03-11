@@ -51,11 +51,11 @@ public class AccountController {
 //        return new ResponseEntity<>(accountService.getAllAccountsByUserId(userId), HttpStatus.OK);
 //    }
 
-    @PostMapping("/user/{userId}/accounts")
-    public ResponseEntity<AccountResponse> createAccount(@PathVariable Long userId, @Valid @RequestBody AccountRequest account) {
-        accountService.createAccount(userId, account);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
+//    @PostMapping("/user/{userId}/accounts")
+//    public ResponseEntity<AccountResponse> createAccount(@PathVariable Long userId, @Valid @RequestBody AccountRequest account) {
+//        accountService.createAccount(userId, account);
+//        return new ResponseEntity<>(HttpStatus.CREATED);
+//    }
 
     @PutMapping("/accounts/{accountId}")
     public ResponseEntity<Void> updateAccount(@PathVariable Long accountId, @Valid @RequestBody AccountRequest account) {

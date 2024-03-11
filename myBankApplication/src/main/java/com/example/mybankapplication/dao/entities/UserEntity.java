@@ -1,5 +1,6 @@
 package com.example.mybankapplication.dao.entities;
 
+import com.example.mybankapplication.dao.entities.abstractentity.Auditable;
 import com.example.mybankapplication.enumeration.auth.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,20 +20,11 @@ import java.util.Collection;
 @NoArgsConstructor
 @Data
 @Builder
-public class UserEntity implements UserDetails {
+public class UserEntity extends Auditable implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
-
-    @Column(name = "birth_date", nullable = false)
-    private LocalDate birthDate;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -40,15 +32,20 @@ public class UserEntity implements UserDetails {
     @Column(name = "password", nullable = false, length = 4)
     private String password;
 
-    @Column(name = "phone_number", nullable = false)
-    private String phoneNumber;
-
     @Column(name = "cif", length = 5)
     private String cif;
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
+
+//    @OneToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
+//    private UserProfileEntity userProfile;
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
+    @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
+    private UserProfileEntity userProfile;
 
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 //    private List<AccountEntity> accounts;
