@@ -3,6 +3,7 @@ package com.example.mybankapplication.service.impl;
 import com.example.mybankapplication.dao.entities.UserEntity;
 import com.example.mybankapplication.dao.entities.UserProfileEntity;
 import com.example.mybankapplication.dao.repository.UserProfileRepository;
+import com.example.mybankapplication.enumeration.auth.Role;
 import com.example.mybankapplication.exception.*;
 import com.example.mybankapplication.mapper.UserMapper;
 import com.example.mybankapplication.mapper.UserProfileMapper;
@@ -113,6 +114,7 @@ public class UserServiceImpl implements UserService {
         validateNewUserData(userRequest);
         UserEntity user = userMapper.toEntity(userRequest);
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        user.setRole(userRequest.getRoles().isEmpty() ? Role.USER : userRequest.getRoles().iterator().next());
         try {
             userRepository.save(user);
             log.info("Successfully added new user");

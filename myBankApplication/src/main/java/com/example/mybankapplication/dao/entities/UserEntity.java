@@ -10,14 +10,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "users", schema = "public")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Builder
-public class UserEntity extends Auditable implements UserDetails {
+public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

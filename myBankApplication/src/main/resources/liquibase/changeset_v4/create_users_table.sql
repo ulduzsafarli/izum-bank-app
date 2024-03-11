@@ -18,10 +18,6 @@ CREATE TABLE users
     cif             VARCHAR(5),
     role            VARCHAR(50)  NOT NULL,
     user_profile_id INT,
-    created_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_by      VARCHAR(255) NOT NULL,
-    updated_at      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by      VARCHAR(255) NOT NULL,
     CONSTRAINT fk_user_profile_id
         FOREIGN KEY (user_profile_id)
             REFERENCES user_profile (user_profile_id)

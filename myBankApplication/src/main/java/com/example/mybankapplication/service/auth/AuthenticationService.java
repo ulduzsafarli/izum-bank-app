@@ -98,6 +98,9 @@ public class AuthenticationService {
         if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
             throw new IllegalStateException("Passwords are not the same");
         }
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+            throw new IllegalStateException("The same passwords");
+        }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
         log.info("Changed the password for user: {} successfully", user.getEmail());

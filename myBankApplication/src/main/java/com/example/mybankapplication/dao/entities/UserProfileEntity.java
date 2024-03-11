@@ -1,21 +1,22 @@
 package com.example.mybankapplication.dao.entities;
 
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import com.example.mybankapplication.dao.entities.abstractentity.Auditable;
 import com.example.mybankapplication.enumeration.Gender;
 import com.example.mybankapplication.enumeration.Nationality;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Entity
+@EqualsAndHashCode(callSuper = true)
+@Entity(name = "user_profile")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserProfileEntity {
+@EntityListeners(AuditingEntityListener.class)
+public class UserProfileEntity extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
