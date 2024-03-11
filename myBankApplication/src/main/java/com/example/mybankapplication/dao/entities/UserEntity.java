@@ -3,17 +3,14 @@ package com.example.mybankapplication.dao.entities;
 import com.example.mybankapplication.dao.entities.abstractentity.Auditable;
 import com.example.mybankapplication.enumeration.auth.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.util.Collection;
 
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "users", schema = "public")
 @AllArgsConstructor

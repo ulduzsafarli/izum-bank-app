@@ -31,7 +31,6 @@ public class AccountServiceImpl implements AccountService {
     public final AccountRepository accountRepository;
     public final AccountMapper accountMapper;
 //    private final UserServiceImpl userService;
-    private final UserMapper userMapper;
 
     public Page<AccountResponse> findAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest) {
         log.info("Searching accounts by filter: {}", accountFilterDto);
