@@ -4,7 +4,6 @@ import com.example.mybankapplication.dao.entities.AccountEntity;
 import com.example.mybankapplication.exception.DatabaseException;
 import com.example.mybankapplication.exception.NotFoundException;
 import com.example.mybankapplication.mapper.AccountMapper;
-import com.example.mybankapplication.mapper.UserMapper;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
 import com.example.mybankapplication.model.accounts.AccountRequest;
 import com.example.mybankapplication.model.accounts.AccountResponse;
