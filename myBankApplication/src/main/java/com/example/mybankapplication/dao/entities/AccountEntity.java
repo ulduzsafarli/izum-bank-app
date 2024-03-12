@@ -1,9 +1,7 @@
 package com.example.mybankapplication.dao.entities;
 
 import com.example.mybankapplication.dao.entities.abstractentity.Auditable;
-import com.example.mybankapplication.enumeration.accounts.AccountStatus;
-import com.example.mybankapplication.enumeration.accounts.AccountType;
-import com.example.mybankapplication.enumeration.accounts.CurrencyType;
+import com.example.mybankapplication.enumeration.accounts.*;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,6 +20,7 @@ public class AccountEntity extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 3)
     private String branchCode;
 
     @Column(unique = true, nullable = false, length = 7)

@@ -1,6 +1,7 @@
 package com.example.mybankapplication.service;
 
 import com.example.mybankapplication.model.auth.ResponseDto;
+import com.example.mybankapplication.model.users.UserRequestDto;
 import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
 import com.example.mybankapplication.model.users.UserRequest;
 import com.example.mybankapplication.model.users.UserResponse;
@@ -17,10 +18,10 @@ public interface UserService {
     UserResponse readUserById(Long id);
     UserResponse readUserByEmail(String email);
     @Transactional
-    ResponseDto updateUser(Long id, UserRequest userRequest);
+    ResponseDto updateUser(Long id, UserRequestDto userRequestDto);
     @Transactional
     ResponseDto deleteUserById(Long id);
-    ResponseDto addUser(UserRequest userRequest);
+    ResponseDto addUser(UserRequestDto userRequestDto);
 
     UserResponse readUserByAccountId(Long accountId);
 

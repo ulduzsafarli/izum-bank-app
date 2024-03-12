@@ -85,11 +85,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseDto updateUser(Long id, UserRequest userRequest) {
-        log.info("Updating user with ID {} to: {}", id, userRequest);
+    public ResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
+        log.info("Updating user with ID {} to: {}", id, userRequestDto);
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
-        userEntity = userMapper.updateEntityFromRequest(userRequest, userEntity);
+        userEntity = userMapper.updateEntityFromRequest(userRequestDto, userEntity);
         userRepository.save(userEntity);
         log.info("Successfully updated user with ID: {}", id);
         return ResponseDto.builder()
@@ -110,12 +110,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseDto addUser(UserRequest userRequest) {
-        log.info("Adding new user: {}", userRequest);
-        validateNewUserData(userRequest);
-        UserEntity user = userMapper.toEntity(userRequest);
-        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        user.setRole(userRequest.getRoles().isEmpty() ? Role.USER : userRequest.getRoles().iterator().next());
+    public ResponseDto addUser(UserRequestDto userRequestDto) {
+        log.info("Adding new user: {}", userRequestDto);
+        validateNewUserData(userRequestDto);
+        UserEntity user = userMapper.toEntity(userRequestDto);
+        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        user.setRole(userRequestDto.getRoles().isEmpty() ? Role.USER : userRequestDto.getRoles().iterator().next());
         try {
             userRepository.save(user);
             log.info("Successfully added new user");
@@ -160,14 +160,14 @@ public class UserServiceImpl implements UserService {
 
 
     //to-do: Cache system
-    private synchronized void validateNewUserData(UserRequest userRequest) {
-        Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(userRequest.getEmail());
+    private synchronized void validateNewUserData(UserRequestDto userRequestDto) {
+        Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(userRequestDto.getEmail());
         if (existingUserByEmail.isPresent())
-            throw new DuplicateDataException("User with email " + userRequest.getEmail() + " already exists");
+            throw new DuplicateDataException("User with email " + userRequestDto.getEmail() + " already exists");
 
-        Optional<UserProfileEntity> existingUserByPhoneNumber = userProfileRepository.findByPhoneNumber(userRequest.getUserProfile().getPhoneNumber());
+        Optional<UserProfileEntity> existingUserByPhoneNumber = userProfileRepository.findByPhoneNumber(userRequestDto.getUserProfile().getPhoneNumber());
         if (existingUserByPhoneNumber.isPresent())
-            throw new DuplicateDataException("User with phone number " + userRequest.getUserProfile().getPhoneNumber() + " already exists");
+            throw new DuplicateDataException("User with phone number " + userRequestDto.getUserProfile().getPhoneNumber() + " already exists");
     }
 
 }

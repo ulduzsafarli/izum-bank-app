@@ -1,6 +1,7 @@
 package com.example.mybankapplication.controller;
 
 import com.example.mybankapplication.model.auth.ResponseDto;
+import com.example.mybankapplication.model.users.UserRequestDto;
 import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
 import com.example.mybankapplication.model.users.UserResponse;
 import com.example.mybankapplication.model.users.UserRequest;
@@ -65,7 +66,7 @@ public class UserController {
      * @return the response entity containing the response.
      */
     @PostMapping
-    public ResponseEntity<ResponseDto> addUser(@Valid @RequestBody UserRequest user) {
+    public ResponseEntity<ResponseDto> addUser(@Valid @RequestBody UserRequestDto user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.addUser(user));
     }
 
@@ -77,7 +78,7 @@ public class UserController {
      * @return The response entity containing the response.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest user) {
+    public ResponseEntity<ResponseDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequestDto user) {
         return new ResponseEntity<>(userService.updateUser(id, user), HttpStatus.OK);
     }
 
