@@ -1,7 +1,7 @@
 package com.example.mybankapplication.specifications;
 
 import com.example.mybankapplication.dao.entities.UserProfileEntity;
-import com.example.mybankapplication.model.users.UserProfileFilterDto;
+import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;

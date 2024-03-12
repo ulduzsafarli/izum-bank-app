@@ -1,7 +1,7 @@
 package com.example.mybankapplication.dao.entities;
 
-import com.example.mybankapplication.enumeration.TransactionStatus;
-import com.example.mybankapplication.enumeration.TransactionType;
+import com.example.mybankapplication.enumeration.transaction.TransactionStatus;
+import com.example.mybankapplication.enumeration.transaction.TransactionType;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;

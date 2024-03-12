@@ -1,9 +1,8 @@
 package com.example.mybankapplication.model.accounts;
 
-import com.example.mybankapplication.enumeration.AccountStatus;
-import com.example.mybankapplication.enumeration.AccountType;
-import com.example.mybankapplication.enumeration.CurrencyType;
-import jakarta.persistence.Column;
+import com.example.mybankapplication.enumeration.accounts.AccountStatus;
+import com.example.mybankapplication.enumeration.accounts.AccountType;
+import com.example.mybankapplication.enumeration.accounts.CurrencyType;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,6 +25,7 @@ public class AccountRequest {
     private String branchCode;
     @Future(message = "Account expire date must be in the future")
     private LocalDate accountExpireDate;
+    @NotNull(message = "Currency type must not be null")
     private CurrencyType currencyType;
     @NotNull(message = "Account type must not be null")
     private AccountType accountType;

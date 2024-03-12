@@ -11,6 +11,7 @@ import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.users.*;
 import com.example.mybankapplication.dao.repository.UserRepository;
 import com.example.mybankapplication.model.users.profile.UserProfileDto;
+import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
 import com.example.mybankapplication.service.AccountService;
 import com.example.mybankapplication.service.UserService;
 import com.example.mybankapplication.specifications.UserProfileSpecifications;

@@ -35,6 +35,5 @@ public class UserRequest {
 
     private UserProfileDto userProfile;
 
-
 //    private List<AccountRequest> accounts;
 }

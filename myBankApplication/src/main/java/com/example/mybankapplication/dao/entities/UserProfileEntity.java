@@ -2,8 +2,8 @@ package com.example.mybankapplication.dao.entities;
 
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import com.example.mybankapplication.dao.entities.abstractentity.Auditable;
-import com.example.mybankapplication.enumeration.Gender;
-import com.example.mybankapplication.enumeration.Nationality;
+import com.example.mybankapplication.enumeration.users.Gender;
+import com.example.mybankapplication.enumeration.users.Nationality;
 import jakarta.persistence.*;
 import lombok.*;
 

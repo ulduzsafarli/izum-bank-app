@@ -1,8 +1,8 @@
 package com.example.mybankapplication.model.auth;
 
 import com.example.mybankapplication.annotations.AdultBirthDate;
-import com.example.mybankapplication.enumeration.Gender;
-import com.example.mybankapplication.enumeration.Nationality;
+import com.example.mybankapplication.enumeration.users.Gender;
+import com.example.mybankapplication.enumeration.users.Nationality;
 import com.example.mybankapplication.enumeration.auth.Role;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

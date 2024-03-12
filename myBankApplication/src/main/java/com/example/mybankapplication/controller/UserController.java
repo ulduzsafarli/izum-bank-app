@@ -1,7 +1,7 @@
 package com.example.mybankapplication.controller;
 
 import com.example.mybankapplication.model.auth.ResponseDto;
-import com.example.mybankapplication.model.users.UserProfileFilterDto;
+import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
 import com.example.mybankapplication.model.users.UserResponse;
 import com.example.mybankapplication.model.users.UserRequest;
 import com.example.mybankapplication.model.users.profile.UserProfileDto;

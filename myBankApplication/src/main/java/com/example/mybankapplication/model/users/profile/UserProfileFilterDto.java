@@ -1,4 +1,4 @@
-package com.example.mybankapplication.model.users;
+package com.example.mybankapplication.model.users.profile;
 
 import com.example.mybankapplication.annotations.AdultBirthDate;
 import jakarta.validation.constraints.NotBlank;

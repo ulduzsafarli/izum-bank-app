@@ -1,8 +1,8 @@
 package com.example.mybankapplication.model.users.profile;
 
 import com.example.mybankapplication.annotations.AdultBirthDate;
-import com.example.mybankapplication.enumeration.Gender;
-import com.example.mybankapplication.enumeration.Nationality;
+import com.example.mybankapplication.enumeration.users.Gender;
+import com.example.mybankapplication.enumeration.users.Nationality;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
