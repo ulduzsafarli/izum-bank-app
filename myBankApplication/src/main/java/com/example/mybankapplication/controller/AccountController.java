@@ -5,7 +5,9 @@ import com.example.mybankapplication.model.accounts.AccountResponse;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
 import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
+import com.example.mybankapplication.model.users.UserResponse;
 import com.example.mybankapplication.service.AccountService;
+import com.example.mybankapplication.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v1")
 public class AccountController {
 
     //branch
@@ -37,13 +40,13 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.getAllAccounts());
     }
 
-    @GetMapping("/accounts/{accountId}")
-    public ResponseEntity<AccountResponse> getAccountById(@PathVariable Long accountId) {
+    @GetMapping("/accounts/accountId")
+    public ResponseEntity<AccountResponse> getAccountById(@RequestParam Long accountId) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.getAccountById(accountId));
     }
 
-    @GetMapping("/accounts/{accountNumber}")
-    public ResponseEntity<AccountResponse> getAccountByAccountNumber(@PathVariable String accountNumber) {
+    @GetMapping("/accounts/accountNumber")
+    public ResponseEntity<AccountResponse> getAccountByAccountNumber(@RequestParam String accountNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.getAccountByAccountNumber(accountNumber));
     }
 
@@ -80,6 +83,12 @@ public class AccountController {
     @GetMapping("/accounts/balance")
     public ResponseEntity<String> getAccountBalance(@RequestParam String accountNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.getBalance(accountNumber));
+    }
+
+    //UserController
+    @GetMapping("user/accounts/")
+    public ResponseEntity<UserResponse> readUserByAccountNumber(@RequestParam Long accountId) {
+        return ResponseEntity.status(HttpStatus.OK).body(accountService.readUserByAccountId(accountId));
     }
 
 //    @GetMapping("/{accountId}/transactions")

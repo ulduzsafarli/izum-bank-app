@@ -1,6 +1,7 @@
 package com.example.mybankapplication.service.impl;
 
 import com.example.mybankapplication.dao.entities.AccountEntity;
+import com.example.mybankapplication.dao.repository.UserRepository;
 import com.example.mybankapplication.enumeration.accounts.AccountStatus;
 import com.example.mybankapplication.exception.*;
 import com.example.mybankapplication.mapper.AccountMapper;
@@ -13,6 +14,7 @@ import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.users.UserResponse;
 import com.example.mybankapplication.service.AccountService;
+import com.example.mybankapplication.service.UserService;
 import com.example.mybankapplication.specifications.AccountSpecifications;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +37,9 @@ public class AccountServiceImpl implements AccountService {
 
     public final AccountRepository accountRepository;
     public final AccountMapper accountMapper;
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
     @Value("200")
     private String responseCodeSuccess;
@@ -100,7 +103,7 @@ public class AccountServiceImpl implements AccountService {
     public List<AccountResponse> getAllAccountsByUserId(Long userId) {
         log.info("Retrieving all accounts by user ID: {}", userId);
         try {
-            UserResponse userResponseList = userService.readUserById(userId);
+            UserResponse userResponseList = userService.getUserById(userId);
             List<AccountResponse> accountResponses = userResponseList.getAccounts();
             log.info("Successfully retrieved all accounts by user ID: {}", userId);
             return accountResponses;
@@ -116,7 +119,7 @@ public class AccountServiceImpl implements AccountService {
             AccountEntity accountEntity = accountMapper.fromDto(account);
             String newAccountNumber = generateAccountNumber();
             accountEntity.setAccountNumber(newAccountNumber);
-            accountEntity.setUser(userMapper.toEntity(userService.readUserById(userId)));
+            accountEntity.setUser(userMapper.toEntity(userService.getUserById(userId)));
             accountRepository.save(accountEntity);
             log.info("Account created successfully");
             return ResponseDto.builder()
@@ -227,6 +230,21 @@ public class AccountServiceImpl implements AccountService {
                     return ResponseDto.builder().responseMessage("Account updated successfully").responseCode(responseCodeSuccess).build();
                 }).orElseThrow(() -> new NotFoundException("Account not on the server"));
 
+    }
+
+    @Override
+    public UserResponse readUserByAccountId(Long accountId) {
+        log.info("Reading user by account ID {}", accountId);
+        Long userId = readByAccountNumber(accountId).getUserId();
+        try {
+            var userResponse = userRepository.findById(userId)
+                    .map(userMapper::toDto)
+                    .orElseThrow(() -> new NotFoundException("User not found on the server"));
+            log.info("Read user by account ID {} successfully", accountId);
+            return userResponse;
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Failed to add new user to the database", ex);
+        }
     }
 
 }

@@ -17,17 +17,11 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRequestDto {
+public class UserUpdateDto {
 
     @Email(message = "Invalid email format", regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}")
     @NotBlank(message = "Email must not be null")
     private String email;
-
-    @NotBlank(message = "Password is required")
-    @Size(min = 4, message = "Password must be at least 4 characters long")
-    private String password;
-
-    private Set<Role> roles = Collections.singleton(Role.USER);
 
     private UserProfileDto userProfile;
 

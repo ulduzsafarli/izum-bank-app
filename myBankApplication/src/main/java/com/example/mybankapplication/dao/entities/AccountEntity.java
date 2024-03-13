@@ -37,13 +37,13 @@ public class AccountEntity extends Auditable {
     private AccountType accountType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "VARCHAR(255) DEFAULT 'Active'")
+    @Column(columnDefinition = "VARCHAR(255) DEFAULT 'Active'")
     private AccountStatus status;
 
-    @Column(name = "available_balance", nullable = false, columnDefinition = "NUMERIC(38,2) USING available_balance::numeric(38,2)")
+    @Column(nullable = false, columnDefinition = "NUMERIC(38,2) USING available_balance::numeric(38,2)")
     private BigDecimal availableBalance;
 
-    @Column(name = "current_balance", nullable = false, columnDefinition = "NUMERIC(38,2) USING current_balance::numeric(38,2)")
+    @Column(nullable = false, columnDefinition = "NUMERIC(38,2) USING current_balance::numeric(38,2)")
     private BigDecimal currentBalance;
 
     @Column(length = 4, nullable = false)

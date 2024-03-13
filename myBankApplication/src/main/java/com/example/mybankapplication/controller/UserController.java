@@ -1,7 +1,8 @@
 package com.example.mybankapplication.controller;
 
 import com.example.mybankapplication.model.auth.ResponseDto;
-import com.example.mybankapplication.model.users.UserRequestDto;
+import com.example.mybankapplication.model.users.UserCreateDto;
+import com.example.mybankapplication.model.users.UserUpdateDto;
 import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
 import com.example.mybankapplication.model.users.UserResponse;
 import com.example.mybankapplication.model.users.profile.UserProfileDto;
@@ -32,9 +33,9 @@ public class UserController {
      * @param userId the ID of the user to retrieve
      * @return the user details as a ResponseEntity
      */
-    @GetMapping("/userId/{userId}")
-    public ResponseEntity<UserResponse> readUserById(@PathVariable Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.readUserById(userId));
+    @GetMapping("/userId")
+    public ResponseEntity<UserResponse> getUserById(@RequestParam Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userId));
     }
     /**
      * Retrieves a user by their email.
@@ -43,9 +44,9 @@ public class UserController {
      * @return the user details as a ResponseEntity
      */
 
-    @GetMapping("email/{email}")
-    public ResponseEntity<UserResponse> readUserByEmail(@Valid @PathVariable String email) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.readUserByEmail(email));
+    @GetMapping("/email")
+    public ResponseEntity<UserResponse> getUserByEmail(@Valid @RequestParam String email) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserByEmail(email));
     }
 
     /**
@@ -65,7 +66,7 @@ public class UserController {
      * @return the response entity containing the response.
      */
     @PostMapping
-    public ResponseEntity<ResponseDto> addUser(@Valid @RequestBody UserRequestDto user) {
+    public ResponseEntity<ResponseDto> createUser(@Valid @RequestBody UserCreateDto user) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.addUser(user));
     }
 
@@ -76,8 +77,8 @@ public class UserController {
      * @param user The user to update.
      * @return The response entity containing the response.
      */
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponseDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequestDto user) {
+    @PutMapping
+    public ResponseEntity<ResponseDto> updateUser(@RequestParam Long id, @Valid @RequestBody UserUpdateDto user) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(id, user));
     }
 
@@ -87,25 +88,9 @@ public class UserController {
      * @param id The ID of the user to delete.
      * @return the response entity containing the response.
      */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDto> deleteUserById(@PathVariable Long id) {
+    @DeleteMapping
+    public ResponseEntity<ResponseDto> deleteUserById(@RequestParam Long id) {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(userService.deleteUserById(id));
     }
 
-
-//    @PatchMapping("/{id}")
-//    public ResponseEntity<ResponseDto> updateUserStatus(@PathVariable Long id, @RequestBody UserUpdateStatus userUpdate) {
-//        return new ResponseEntity<>(userService.updateUserStatus(id, userUpdate), HttpStatus.OK);
-//    }
-
-    /**
-     * Retrieves the user with the specified account ID.
-     *
-     * @param accountId The account ID of the user to retrieve.
-     * @return The user DTO associated with the account ID.
-     */
-    @GetMapping("/accounts/{accountId}")
-    public ResponseEntity<UserResponse> readUserByAccountNumber(@PathVariable Long accountId) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.readUserByAccountId(accountId));
-    }
 }

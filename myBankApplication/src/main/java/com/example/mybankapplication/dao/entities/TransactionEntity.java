@@ -1,20 +1,26 @@
 package com.example.mybankapplication.dao.entities;
 
+import com.example.mybankapplication.dao.entities.abstractentity.Auditable;
 import com.example.mybankapplication.enumeration.transaction.TransactionStatus;
 import com.example.mybankapplication.enumeration.transaction.TransactionType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "transactions", schema = "public")
 @Data
-public class TransactionEntity {
+@Entity
+@EqualsAndHashCode(callSuper = true)
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "transactions", schema = "public")
+public class TransactionEntity extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,25 +31,19 @@ public class TransactionEntity {
     private TransactionType type;
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
-    @Column(name = "operator_id")
     private Long operatorId;
-    @Column(name = "transaction_uuid", unique = true)
+    @Column(unique = true)
     private String transactionUUID;
+    @Size(max = 1000, message = "The max size of message is 1000")
+    private String comments;
 
     //     Limit транзакций: ограничения на ежедневные, еженедельные или ежемесячные транзакции
-    @Column(name = "transaction_limit")
     private BigDecimal transactionLimit;
 
-//    @Temporal(TemporalType.TIMESTAMP)
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @LastModifiedBy
-    private String updatedBy;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
+    //     Overdraft Protection: указывает, есть ли у счета защита от превышения лимита
+    private boolean overdraftProtection;
+    // Информация о карте: если счет связан с дебетовой или кредитной картой
+    private String cardInformation;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
@@ -54,18 +54,9 @@ public class TransactionEntity {
     // @Column(name = "interest_rate")
     // private BigDecimal interestRate;
 
-    // Overdraft Protection: указывает, есть ли у счета защита от превышения лимита
-    // @Column(name = "overdraft_protection")
-    // private boolean overdraftProtection;
 
     // Limit поля: для определенных счетов, лимит на сумму, которую можно снять
     // @Column(name = "withdrawal_limit")
     // private BigDecimal withdrawalLimit;
-
-
-
-    // Информация о карте: если счет связан с дебетовой или кредитной картой
-    // @Column(name = "card_information")
-    // private String cardInformation;
 
 }

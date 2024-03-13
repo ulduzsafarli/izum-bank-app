@@ -5,6 +5,7 @@ import com.example.mybankapplication.model.accounts.AccountRequest;
 import com.example.mybankapplication.model.accounts.AccountResponse;
 import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
+import com.example.mybankapplication.model.users.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -36,4 +37,6 @@ public interface AccountService {
     ResponseDto updateStatus(String accountNumber, AccountStatusUpdate accountStatusUpdate);
 
     String getBalance(String accountNumber);
+
+    UserResponse readUserByAccountId(Long accountId);
 }

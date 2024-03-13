@@ -12,7 +12,6 @@ import com.example.mybankapplication.model.users.*;
 import com.example.mybankapplication.dao.repository.UserRepository;
 import com.example.mybankapplication.model.users.profile.UserProfileDto;
 import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
-import com.example.mybankapplication.service.AccountService;
 import com.example.mybankapplication.service.UserService;
 import com.example.mybankapplication.specifications.UserProfileSpecifications;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,6 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final UserProfileRepository userProfileRepository;
-    private final AccountService accountService;
     private final UserMapper userMapper;
     private final UserProfileMapper userProfileMapper;
 
@@ -65,7 +63,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse readUserById(Long id) {
+    public UserResponse getUserById(Long id) {
         log.info("Retrieving user by ID: {}", id);
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
@@ -75,7 +73,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse readUserByEmail(String email) {
+    public UserResponse getUserByEmail(String email) {
         log.info("Retrieving user by email: {}", email);
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException("User not found with email: " + email));
@@ -85,11 +83,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
-        log.info("Updating user with ID {} to: {}", id, userRequestDto);
+    public ResponseDto updateUser(Long id, UserUpdateDto userUpdateDto) {
+        log.info("Updating user with ID {} to: {}", id, userUpdateDto);
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
-        userEntity = userMapper.updateEntityFromRequest(userRequestDto, userEntity);
+        userEntity = userMapper.updateEntityFromRequest(userUpdateDto, userEntity);
         userRepository.save(userEntity);
         log.info("Successfully updated user with ID: {}", id);
         return ResponseDto.builder()
@@ -110,40 +108,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseDto addUser(UserRequestDto userRequestDto) {
-        log.info("Adding new user: {}", userRequestDto);
-        validateNewUserData(userRequestDto);
-        UserEntity user = userMapper.toEntity(userRequestDto);
-        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
-        user.setRole(userRequestDto.getRoles().isEmpty() ? Role.USER : userRequestDto.getRoles().iterator().next());
+    public ResponseDto addUser(UserCreateDto userCreateDto) {
+        log.info("Adding new user: {}", userCreateDto);
+        validateNewUserData(userCreateDto);
+        UserEntity user = userMapper.toEntity(userCreateDto);
+        user.setPassword(passwordEncoder.encode(userCreateDto.getPassword()));
+        user.setRole(userCreateDto.getRoles().isEmpty() ? Role.USER : userCreateDto.getRoles().iterator().next());
         try {
             userRepository.save(user);
             log.info("Successfully added new user");
             return ResponseDto.builder()
                     .responseMessage("User created successfully")
                     .responseCode(responseCodeSuccess).build();
-        } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to add new user to the database", ex);
-        }
-    }
-
-    /**
-     * Retrieves a UserDto by the given accountId.
-     *
-     * @param accountId The account ID of the user.
-     * @return The UserDto object corresponding to the given accountId.
-     * @throws NotFoundException If the account or user is not found on the server.
-     */
-    @Override
-    public UserResponse readUserByAccountId(Long accountId) {
-        log.info("Reading user by account ID {}", accountId);
-        Long userId = accountService.readByAccountNumber(accountId).getUserId();
-        try {
-            var userResponse = userRepository.findById(userId)
-                    .map(userMapper::toDto)
-                    .orElseThrow(() -> new NotFoundException("User not found on the server"));
-            log.info("Read user by account ID {} successfully", accountId);
-            return userResponse;
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to add new user to the database", ex);
         }
@@ -160,14 +136,14 @@ public class UserServiceImpl implements UserService {
 
 
     //to-do: Cache system
-    private synchronized void validateNewUserData(UserRequestDto userRequestDto) {
-        Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(userRequestDto.getEmail());
+    private synchronized void validateNewUserData(UserCreateDto userCreateDto) {
+        Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(userCreateDto.getEmail());
         if (existingUserByEmail.isPresent())
-            throw new DuplicateDataException("User with email " + userRequestDto.getEmail() + " already exists");
+            throw new DuplicateDataException("User with email " + userCreateDto.getEmail() + " already exists");
 
-        Optional<UserProfileEntity> existingUserByPhoneNumber = userProfileRepository.findByPhoneNumber(userRequestDto.getUserProfile().getPhoneNumber());
+        Optional<UserProfileEntity> existingUserByPhoneNumber = userProfileRepository.findByPhoneNumber(userCreateDto.getUserProfile().getPhoneNumber());
         if (existingUserByPhoneNumber.isPresent())
-            throw new DuplicateDataException("User with phone number " + userRequestDto.getUserProfile().getPhoneNumber() + " already exists");
+            throw new DuplicateDataException("User with phone number " + userCreateDto.getUserProfile().getPhoneNumber() + " already exists");
     }
 
 }
