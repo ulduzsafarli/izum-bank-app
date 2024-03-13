@@ -1,6 +1,5 @@
 package com.example.mybankapplication.dao.entities;
 
-import com.example.mybankapplication.dao.entities.abstractentity.Auditable;
 import com.example.mybankapplication.enumeration.auth.Role;
 import jakarta.persistence.*;
 import lombok.*;

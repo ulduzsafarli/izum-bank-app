@@ -4,8 +4,8 @@ import com.example.mybankapplication.error.ErrorDetails;
 import com.example.mybankapplication.error.ValidationError;
 import com.example.mybankapplication.exception.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import io.micrometer.common.lang.NonNull;
 import jakarta.validation.ConstraintViolationException;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -113,7 +113,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
-            HttpMessageNotReadableException ex,
+            @NonNull HttpMessageNotReadableException ex,
             @NonNull HttpHeaders headers,
             HttpStatusCode status,
             @NonNull WebRequest request) {
