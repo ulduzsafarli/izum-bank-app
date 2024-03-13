@@ -26,17 +26,6 @@ public class AccountSpecifications {
                         null : criteriaBuilder.equal(root.get(attribute), value);
     }
 
-//    public static Specification<AccountEntity> getAccountSpecification(AccountFilterDto accountFilterDto) {
-//        return Specification.<AccountEntity>where(
-//                likeIgnoreCase("branchCode", accountFilterDto.getBranchCode()))
-//                .and(isEqual("accountOpenDate", accountFilterDto.getAccountOpenDate()))
-//                .and(isEqual("accountExpireDate", accountFilterDto.getAccountExpireDate()))
-//                .and(isEqual("currency", accountFilterDto.getCurrencyType()))
-//                .and(isEqual("accountType", accountFilterDto.getAccountType()))
-//                .and(isEqual("status", accountFilterDto.getStatus()))
-//                .and(isEqual("currentBalance", accountFilterDto.getCurrentBalance()));
-//    }
-
     public static Specification<AccountEntity> getAccountSpecification(AccountFilterDto accountFilterDto) {
         var spec = Specification.<AccountEntity>where(
                         likeIgnoreCase("branchCode", accountFilterDto.getBranchCode()))
@@ -46,9 +35,9 @@ public class AccountSpecifications {
                 .and(isEqual("status", accountFilterDto.getStatus()))
                 .and(isEqual("currentBalance", accountFilterDto.getCurrentBalance()));
 
-        if (accountFilterDto.getAccountOpenDate() != null) {
-            LocalDateTime startOfDay = accountFilterDto.getAccountOpenDate().atStartOfDay();
-            LocalDateTime endOfDay = accountFilterDto.getAccountOpenDate().atTime(23, 59, 59);
+        if (accountFilterDto.getCreatedAt() != null) {
+            LocalDateTime startOfDay = accountFilterDto.getCreatedAt().atStartOfDay();
+            LocalDateTime endOfDay = accountFilterDto.getCreatedAt().atTime(23, 59, 59);
             spec = spec.and((root, query, criteriaBuilder) ->
                     criteriaBuilder.between(root.get("accountOpenDate"), startOfDay, endOfDay));
         }

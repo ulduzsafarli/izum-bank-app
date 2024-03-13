@@ -3,6 +3,8 @@ package com.example.mybankapplication.service;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
 import com.example.mybankapplication.model.accounts.AccountRequest;
 import com.example.mybankapplication.model.accounts.AccountResponse;
+import com.example.mybankapplication.model.auth.AccountStatusUpdate;
+import com.example.mybankapplication.model.auth.ResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -19,13 +21,19 @@ public interface AccountService {
 
     AccountResponse getAccountByAccountNumber(String accountNumber);
 
-//    List<AccountResponse> getAllAccountsByUserId(Long userId);
+    List<AccountResponse> getAllAccountsByUserId(Long userId);
 
-//    void createAccount(Long userId, AccountRequest account);
+    ResponseDto createAccount(Long userId, AccountRequest account);
 
-    void updateAccount(Long accountId, AccountRequest account);
+    ResponseDto updateAccount(Long accountId, AccountRequest account);
 
-    void deleteAccount(Long accountId);
+    ResponseDto deleteAccount(Long accountId);
 
     AccountResponse readByAccountNumber(Long accountId);
+
+    ResponseDto closeAccount(String accountNumber);
+
+    ResponseDto updateStatus(String accountNumber, AccountStatusUpdate accountStatusUpdate);
+
+    String getBalance(String accountNumber);
 }

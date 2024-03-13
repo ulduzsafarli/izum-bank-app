@@ -4,7 +4,6 @@ import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.users.UserRequestDto;
 import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
 import com.example.mybankapplication.model.users.UserResponse;
-import com.example.mybankapplication.model.users.UserRequest;
 import com.example.mybankapplication.model.users.profile.UserProfileDto;
 import com.example.mybankapplication.service.UserService;
 import jakarta.validation.Valid;
@@ -35,7 +34,7 @@ public class UserController {
      */
     @GetMapping("/userId/{userId}")
     public ResponseEntity<UserResponse> readUserById(@PathVariable Long userId) {
-        return ResponseEntity.ok(userService.readUserById(userId));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.readUserById(userId));
     }
     /**
      * Retrieves a user by their email.
@@ -46,7 +45,7 @@ public class UserController {
 
     @GetMapping("email/{email}")
     public ResponseEntity<UserResponse> readUserByEmail(@Valid @PathVariable String email) {
-        return ResponseEntity.ok(userService.readUserByEmail(email));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.readUserByEmail(email));
     }
 
     /**
@@ -56,7 +55,7 @@ public class UserController {
      */
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUser() {
-        return ResponseEntity.ok(userService.getAllUser());
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUser());
     }
 
     /**
@@ -79,7 +78,7 @@ public class UserController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<ResponseDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserRequestDto user) {
-        return new ResponseEntity<>(userService.updateUser(id, user), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(id, user));
     }
 
     /**
@@ -107,6 +106,6 @@ public class UserController {
      */
     @GetMapping("/accounts/{accountId}")
     public ResponseEntity<UserResponse> readUserByAccountNumber(@PathVariable Long accountId) {
-        return ResponseEntity.ok(userService.readUserByAccountId(accountId));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.readUserByAccountId(accountId));
     }
 }

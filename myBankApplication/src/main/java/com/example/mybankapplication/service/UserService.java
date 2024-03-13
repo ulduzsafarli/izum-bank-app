@@ -3,7 +3,6 @@ package com.example.mybankapplication.service;
 import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.users.UserRequestDto;
 import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
-import com.example.mybankapplication.model.users.UserRequest;
 import com.example.mybankapplication.model.users.UserResponse;
 import com.example.mybankapplication.model.users.profile.UserProfileDto;
 import jakarta.transaction.Transactional;

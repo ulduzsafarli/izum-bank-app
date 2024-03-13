@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 
 @Entity
@@ -35,17 +36,13 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
-//    private UserProfileEntity userProfile;
-
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
     @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
     private UserProfileEntity userProfile;
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<AccountEntity> accounts;
-//
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<AccountEntity> accounts;
+
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 //    private List<NotificationEntity> notifications;
 

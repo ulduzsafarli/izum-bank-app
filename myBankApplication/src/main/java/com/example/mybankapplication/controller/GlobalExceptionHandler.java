@@ -2,9 +2,7 @@ package com.example.mybankapplication.controller;
 
 import com.example.mybankapplication.error.ErrorDetails;
 import com.example.mybankapplication.error.ValidationError;
-import com.example.mybankapplication.exception.DuplicateDataException;
-import com.example.mybankapplication.exception.DatabaseException;
-import com.example.mybankapplication.exception.NotFoundException;
+import com.example.mybankapplication.exception.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.NonNull;
@@ -31,21 +29,33 @@ import java.util.*;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
-    public ResponseEntity<ErrorDetails> handleDatabaseException(
+    public ResponseEntity<ErrorDetails> handle(
             DatabaseException ex, WebRequest webRequest) {
+        log.error("Exception occurred", ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            AccountClosingException ex, WebRequest webRequest) {
+        log.error("Exception occurred", ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            AccountStatusException ex, WebRequest webRequest) {
         log.error("Exception occurred", ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorDetails> handleDatabaseException(
+    public ResponseEntity<ErrorDetails> handle(
             ConstraintViolationException ex, WebRequest webRequest) {
         log.error("Exception occurred", ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorDetails> handleDatabaseException(
+    public ResponseEntity<ErrorDetails> handle(
             AuthenticationException ex, WebRequest webRequest) {
         log.error("Exception occurred", ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);

@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class AccountFilterDto {
 //    @Size(max = 3, message = "Branch code must contain 3 digits")
     private String branchCode;
-    private LocalDate accountOpenDate;
+    private LocalDate createdAt;
     private LocalDate accountExpireDate;
     private CurrencyType currencyType;
     private AccountType accountType;
