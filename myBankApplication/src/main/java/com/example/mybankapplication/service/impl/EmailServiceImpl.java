@@ -32,7 +32,7 @@ public class EmailServiceImpl implements EmailService {
             sendMimeMessage(mimeMessage);
             log.info("Email sent successfully to: {}", to);
         } catch (MessagingException | MailException e) {
-            throw new RuntimeException("Error while sending email", e);
+            throw new RuntimeException("Error while sending response email", e);
         }
     }
 
@@ -42,7 +42,7 @@ public class EmailServiceImpl implements EmailService {
             sendMimeMessage(mimeMessage);
             log.info("Support email sent successfully");
         } catch (MessagingException | MailException e) {
-            throw new RuntimeException("Error while sending email", e);
+            throw new RuntimeException("Error while sending support email", e);
         }
     }
 

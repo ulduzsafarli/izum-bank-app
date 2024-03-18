@@ -10,5 +10,4 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface SupportMapper {
     SupportEntity toEntity(SupportDto supportDto);
-    SupportDto toDto(SupportEntity supportEntity);
 }
