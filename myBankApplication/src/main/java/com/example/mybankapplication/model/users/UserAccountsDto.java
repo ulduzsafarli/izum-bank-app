@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class UserResponse {
+public class UserAccountsDto {
     private Long id;
 
     private String email;
@@ -22,4 +22,7 @@ public class UserResponse {
     private Role role;
 
     private UserProfileDto userProfile;
+
+    private List<AccountResponse> accounts;
+
 }

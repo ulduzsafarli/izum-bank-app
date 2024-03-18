@@ -12,5 +12,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     boolean existsByEmail(String email);
 
+    boolean existsByCif(String randomNumber);
+
 //    void deleteByEmail(String email);
 }

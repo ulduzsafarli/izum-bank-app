@@ -1,6 +1,7 @@
 package com.example.mybankapplication.dao.repository;
 
 import com.example.mybankapplication.dao.entities.AccountEntity;
+import com.example.mybankapplication.enumeration.accounts.AccountType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,4 +15,5 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
     boolean existsByAccountNumber(String accountNumber);
 
     Optional<AccountEntity> findByAccountNumber(String accountNumber);
+
 }

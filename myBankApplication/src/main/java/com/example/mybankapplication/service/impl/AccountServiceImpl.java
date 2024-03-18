@@ -1,18 +1,16 @@
 package com.example.mybankapplication.service.impl;
 
 import com.example.mybankapplication.dao.entities.AccountEntity;
-import com.example.mybankapplication.dao.repository.UserRepository;
 import com.example.mybankapplication.enumeration.accounts.AccountStatus;
 import com.example.mybankapplication.exception.*;
 import com.example.mybankapplication.mapper.AccountMapper;
-import com.example.mybankapplication.mapper.UserMapper;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
 import com.example.mybankapplication.model.accounts.AccountRequest;
 import com.example.mybankapplication.model.accounts.AccountResponse;
 import com.example.mybankapplication.dao.repository.AccountRepository;
 import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
-import com.example.mybankapplication.model.users.UserResponse;
+import com.example.mybankapplication.model.users.UserAccountsDto;
 import com.example.mybankapplication.service.AccountService;
 import com.example.mybankapplication.service.UserService;
 import com.example.mybankapplication.specifications.AccountSpecifications;
@@ -23,6 +21,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,11 +34,10 @@ import java.util.concurrent.ThreadLocalRandom;
 @Slf4j
 public class AccountServiceImpl implements AccountService {
 
+    private final PasswordEncoder passwordEncoder;
     public final AccountRepository accountRepository;
     public final AccountMapper accountMapper;
     private final UserService userService;
-    private final UserMapper userMapper;
-    private final UserRepository userRepository;
 
     @Value("200")
     private String responseCodeSuccess;
@@ -103,7 +101,7 @@ public class AccountServiceImpl implements AccountService {
     public List<AccountResponse> getAllAccountsByUserId(Long userId) {
         log.info("Retrieving all accounts by user ID: {}", userId);
         try {
-            UserResponse userResponseList = userService.getUserById(userId);
+            UserAccountsDto userResponseList = userService.getUserByIdForAccount(userId);
             List<AccountResponse> accountResponses = userResponseList.getAccounts();
             log.info("Successfully retrieved all accounts by user ID: {}", userId);
             return accountResponses;
@@ -117,9 +115,10 @@ public class AccountServiceImpl implements AccountService {
         log.info("Creating account for user: {}", userId);
         try {
             AccountEntity accountEntity = accountMapper.fromDto(account);
-            String newAccountNumber = generateAccountNumber();
-            accountEntity.setAccountNumber(newAccountNumber);
-            accountEntity.setUser(userMapper.toEntity(userService.getUserById(userId)));
+            var user = userService.getUserByIdForAccount(userId); //cif null qalir
+            user.setCif(userService.generateCif());
+            accountEntity.setPin(passwordEncoder.encode(account.getPin()));
+            accountEntity.setAccountNumber(generateAccountNumber());
             accountRepository.save(accountEntity);
             log.info("Account created successfully");
             return ResponseDto.builder()
@@ -132,13 +131,33 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+//    public ResponseDto createAccount(Long userId, AccountRequest account) {
+//
+//        UserAccountsDto user = userService.getUserByIdForAccount(userId);
+//
+//
+//        accountRepository.findByAccountIdAndAccountType(userId, String.valueOf(account.getAccountType()))
+//                .ifPresent(accountDto -> {
+//                    throw new DuplicateDataException("Account already exists on the server");
+//                });
+//
+//        Account account = accountMapper.convertToEntity(accountDto);
+//        account.setAccountNumber(ACC_PREFIX + String.format("%07d",sequenceService.generateAccountNumber().getAccountNumber()));
+//        account.setAccountStatus(AccountStatus.PENDING);
+//        account.setAvailableBalance(BigDecimal.valueOf(0));
+//        account.setAccountType(AccountType.valueOf(accountDto.getAccountType()));
+//        accountRepository.save(account);
+//        return Response.builder()
+//                .responseCode(success)
+//                .message(" Account created successfully").build();
+//    }
+
+
     //Добавить кеширование
     public String generateAccountNumber() {
         log.info("Generating unique account number");
         do {
-            // Генерация случайного числа в диапазоне от 1000000 до 9999999
             String randomNumber = String.valueOf(ThreadLocalRandom.current().nextInt(1000000, 10000000));
-            // Проверка наличия сгенерированного числа в базе данных
             boolean isUnique = !accountRepository.existsByAccountNumber(randomNumber);
             if (isUnique) {
                 log.info("Account number generated successfully");
@@ -174,16 +193,6 @@ public class AccountServiceImpl implements AccountService {
         } else {
             throw new NotFoundException("Account with ID " + accountId + " not found");
         }
-    }
-
-    //yeniden
-    @Override
-    public AccountResponse readByAccountNumber(Long accountId) {
-        log.info("Closing account: {}", accountId);
-
-        return accountRepository.findById(accountId)
-                .map(accountMapper::toDto)
-                .orElseThrow(() -> new NotFoundException("Account with ID " + accountId + " not found"));
     }
 
     @Override
@@ -232,20 +241,51 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
+
+    //yeniden
     @Override
-    public UserResponse readUserByAccountId(Long accountId) {
-        log.info("Reading user by account ID {}", accountId);
-        Long userId = readByAccountNumber(accountId).getUserId();
+    public AccountResponse getByAccountNumber(Long accountId) {
+        log.info("Closing account: {}", accountId);
+
+        return accountRepository.findById(accountId)
+                .map(accountMapper::toDto)
+                .orElseThrow(() -> new NotFoundException("Account with ID " + accountId + " not found"));
+    }
+
+//    @Override
+//    public UserAccountsDto readUserByAccountId(String accountNumber) {
+//        log.info("Reading user by account number {}", accountNumber);
+//        var userResponse = accountRepository.findByAccountNumber(accountNumber)
+//                .map(AccountEntity::getUser)
+//                .orElseThrow(() -> new NotFoundException("Account with number " + accountNumber + " not found"));
+//        try {
+//            UserAccountsDto userAccountsDto = userRepository.findById(userResponse.getId())
+//                    .map(userMapper::toAccountsDto)
+//                    .orElseThrow(() -> new NotFoundException("User with ID " + userResponse.getId() + " not found"));
+//
+//            log.info("Read user by account number {} successfully", accountNumber);
+//            return userAccountsDto;
+//        } catch (DataAccessException ex) {
+//            throw new DatabaseException("Failed to read user by account id", ex);
+//        }
+//    }
+
+    @Override
+    public UserAccountsDto readUserByAccountId(String accountNumber) {
+        log.info("Reading user by account number {}", accountNumber);
+
         try {
-            var userResponse = userRepository.findById(userId)
-                    .map(userMapper::toDto)
-                    .orElseThrow(() -> new NotFoundException("User not found on the server"));
-            log.info("Read user by account ID {} successfully", accountId);
-            return userResponse;
+            var userAccountsDto = accountRepository.findByAccountNumber(accountNumber)
+                    .map(AccountEntity::getUser)
+                    .map(userEntity -> userService.getUserByIdForAccount(userEntity.getId()))
+                    .orElseThrow(() -> new NotFoundException("Account with number " + accountNumber + " not found"));
+            log.info("Read user by account number {} successfully", accountNumber);
+            return userAccountsDto;
         } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to add new user to the database", ex);
+            throw new DatabaseException("Failed to read user by account number", ex);
         }
     }
+
 
 }
 

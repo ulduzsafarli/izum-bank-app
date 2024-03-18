@@ -1,6 +1,7 @@
 package com.example.mybankapplication.service;
 
 import com.example.mybankapplication.model.auth.ResponseDto;
+import com.example.mybankapplication.model.users.UserAccountsDto;
 import com.example.mybankapplication.model.users.UserCreateDto;
 import com.example.mybankapplication.model.users.UserUpdateDto;
 import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
@@ -16,12 +17,15 @@ public interface UserService {
     Page<UserProfileDto> findUsersByFilter(UserProfileFilterDto filterDto, Pageable pageRequest);
     List<UserResponse> getAllUser();
     UserResponse getUserById(Long id);
+    UserAccountsDto getUserByIdForAccount(Long id);
     UserResponse getUserByEmail(String email);
     @Transactional
     ResponseDto updateUser(Long id, UserUpdateDto userCreateDto);
     @Transactional
     ResponseDto deleteUserById(Long id);
     ResponseDto addUser(UserCreateDto userCreateDto);
+
+    String generateCif();
 
 //    void deleteUserInfo(String email);
 }

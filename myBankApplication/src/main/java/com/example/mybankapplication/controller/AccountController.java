@@ -5,9 +5,8 @@ import com.example.mybankapplication.model.accounts.AccountResponse;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
 import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
-import com.example.mybankapplication.model.users.UserResponse;
+import com.example.mybankapplication.model.users.UserAccountsDto;
 import com.example.mybankapplication.service.AccountService;
-import com.example.mybankapplication.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -87,8 +86,8 @@ public class AccountController {
 
     //UserController
     @GetMapping("user/accounts/")
-    public ResponseEntity<UserResponse> readUserByAccountNumber(@RequestParam Long accountId) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.readUserByAccountId(accountId));
+    public ResponseEntity<UserAccountsDto> readUserByAccountNumber(@RequestParam String accountNumber) {
+        return ResponseEntity.status(HttpStatus.OK).body(accountService.readUserByAccountId(accountNumber));
     }
 
 //    @GetMapping("/{accountId}/transactions")

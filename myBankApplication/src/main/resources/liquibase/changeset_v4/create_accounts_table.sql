@@ -45,7 +45,7 @@ CREATE TABLE accounts
     status              VARCHAR(255) DEFAULT 'Active',
     available_balance   NUMERIC(38, 2)    NOT NULL,
     current_balance     NUMERIC(38, 2)    NOT NULL,
-    pin                 VARCHAR(4)        NOT NULL,
+    pin                 VARCHAR(255)        NOT NULL,
     created_at          TIMESTAMP         NOT NULL,
     created_by          VARCHAR(255)      NOT NULL,
     updated_at          TIMESTAMP         NOT NULL,

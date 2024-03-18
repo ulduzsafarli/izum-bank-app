@@ -5,7 +5,7 @@ import com.example.mybankapplication.model.accounts.AccountRequest;
 import com.example.mybankapplication.model.accounts.AccountResponse;
 import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
-import com.example.mybankapplication.model.users.UserResponse;
+import com.example.mybankapplication.model.users.UserAccountsDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -30,7 +30,7 @@ public interface AccountService {
 
     ResponseDto deleteAccount(Long accountId);
 
-    AccountResponse readByAccountNumber(Long accountId);
+    AccountResponse getByAccountNumber(Long accountId);
 
     ResponseDto closeAccount(String accountNumber);
 
@@ -38,5 +38,5 @@ public interface AccountService {
 
     String getBalance(String accountNumber);
 
-    UserResponse readUserByAccountId(Long accountId);
+    UserAccountsDto readUserByAccountId(String accountNumber);
 }

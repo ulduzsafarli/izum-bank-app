@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -56,10 +57,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getAllUser() {
         log.info("Retrieving all users");
-        List<UserResponse> userRespons = userRepository.findAll().stream()
+        List<UserResponse> userResponse = userRepository.findAll().stream()
                 .map(userMapper::toDto).toList();
         log.info("Successfully retrieved all users");
-        return userRespons;
+        return userResponse;
     }
 
     @Override
@@ -68,6 +69,16 @@ public class UserServiceImpl implements UserService {
         UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
         UserResponse userResponse = userMapper.toDto(userEntity);
+        log.info("Successfully retrieved User with ID: {}", id);
+        return userResponse;
+    }
+
+    @Override
+    public UserAccountsDto getUserByIdForAccount(Long id) {
+        log.info("Retrieving user by ID: {}", id);
+        UserEntity userEntity = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
+        UserAccountsDto userResponse = userMapper.toAccountsDto(userEntity);
         log.info("Successfully retrieved User with ID: {}", id);
         return userResponse;
     }
@@ -101,6 +112,7 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(id))
             throw new NotFoundException("User not found with ID: " + id);
         userRepository.deleteById(id);
+        userProfileRepository.deleteById(id);
         log.info("Successfully deleted user with ID: {}", id);
         return ResponseDto.builder()
                 .responseMessage("User deleted successfully")
@@ -123,6 +135,19 @@ public class UserServiceImpl implements UserService {
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to add new user to the database", ex);
         }
+    }
+
+    @Override
+    public String generateCif() {
+        log.info("Generating unique cif for user");
+        do {
+            String randomNumber = String.valueOf(ThreadLocalRandom.current().nextInt(10000, 100000));
+            boolean isUnique = !userRepository.existsByCif(randomNumber);
+            if (isUnique) {
+                log.info("CIF generated successfully {}", randomNumber);
+                return randomNumber;
+            }
+        } while (true);
     }
 
 
