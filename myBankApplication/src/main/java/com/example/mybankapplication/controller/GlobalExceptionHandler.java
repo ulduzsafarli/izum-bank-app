@@ -28,6 +28,8 @@ import java.util.*;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    //for email handling
+
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
             DatabaseException ex, WebRequest webRequest) {
