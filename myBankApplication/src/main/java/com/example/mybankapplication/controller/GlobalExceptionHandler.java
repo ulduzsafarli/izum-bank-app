@@ -52,6 +52,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
+            UnsupportedCurrencyException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            CurrencyRateFormatException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
             CurrencyFileSavingException ex, WebRequest webRequest) {
         log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);

@@ -1,5 +1,7 @@
 package com.example.mybankapplication.controller;
 
+import com.example.mybankapplication.model.ExchangeRequestDto;
+import com.example.mybankapplication.model.ExchangeResponseDto;
 import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.service.ExchangeService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,15 @@ public class ExchangeController {
     @GetMapping("/fetch-currencies")
     public ResponseEntity<ResponseDto> fetchCurrenciesAndSave() {
         return ResponseEntity.status(HttpStatus.OK).body(exchangeService.fetchCurrenciesAndSave());
+    }
+
+    @PostMapping("/exchange-from-AZN")
+    public ResponseEntity<ExchangeResponseDto> exchangeFromAZN(@RequestBody ExchangeRequestDto exchangeResponseDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(exchangeService.performExchangeFromAZN(exchangeResponseDto));
+    }
+    @PostMapping("/exchange-to-AZN")
+    public ResponseEntity<ExchangeResponseDto> exchangeToAZN(@RequestBody ExchangeRequestDto exchangeResponseDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(exchangeService.performExchangeToAZN(exchangeResponseDto));
     }
 
 

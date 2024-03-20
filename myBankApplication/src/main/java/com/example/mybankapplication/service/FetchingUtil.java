@@ -3,17 +3,23 @@ package com.example.mybankapplication.service;
 import com.example.mybankapplication.enumeration.accounts.CurrencyType;
 import com.example.mybankapplication.exception.CurrencyFileSavingException;
 import com.example.mybankapplication.exception.CurrencyFilteringException;
+import com.example.mybankapplication.exception.CurrencyRateFormatException;
 import com.example.mybankapplication.exception.FetchingDataException;
 import com.example.mybankapplication.model.CurrencyData;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Component
 public class FetchingUtil {
+
+    private static final String FILEPATH = "currencies.txt";
 
     public String fetchXmlData(String url) {
         try {
@@ -72,11 +78,39 @@ public class FetchingUtil {
 
 
     public void saveCurrenciesToFile(String currencies) {
-        String filePath = "currencies.txt";
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILEPATH))) {
             writer.write(currencies);
         } catch (IOException e) {
             throw new CurrencyFileSavingException("Failed to save filtered currencies to file: " + e.getMessage(), e);
         }
     }
+
+    public Map<String, BigDecimal> fetchRates() {
+        Map<String, BigDecimal> rates = new HashMap<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILEPATH))) {
+            String line;
+            String code = null;
+            while ((line = reader.readLine()) != null) {
+                String trim = line.substring(line.indexOf(":") + 1).trim();
+                if (line.startsWith("Currency Code:")) {
+                    code = trim;
+                } else if (line.startsWith("Currency Rate:")) {
+                    if (code != null) {
+                        BigDecimal rate = new BigDecimal(trim);
+                        rates.put(code, rate);
+                    } else {
+                        throw new CurrencyFilteringException("Currency code is missing for rate: " + line);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new CurrencyFilteringException("Failed to read rates from file: " + e.getMessage(), e);
+        } catch (NumberFormatException e) {
+            throw new CurrencyRateFormatException("Invalid rate format, message: " + e.getMessage(), e);
+        }
+
+        return rates;
+    }
+
 }
