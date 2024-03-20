@@ -32,7 +32,11 @@ public class SecurityConfiguration {
             "/webjars/**",
             "/swagger-ui.html",
             "/api/v1/support",
-            "/api/v1/support/respond" //admin
+            "/api/v1/support/respond", //admin
+            "/api/v1/exchange/fetch", //admin
+            "/api/v1/exchange/fetching", //admin
+            "/api/v1/exchange/fetchCurrenciesAndSave" //admin
+
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
