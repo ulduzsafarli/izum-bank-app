@@ -1,4 +1,4 @@
-package com.example.mybankapplication.service.impl;
+package com.example.mybankapplication.service;
 
 import com.example.mybankapplication.enumeration.accounts.CurrencyType;
 import org.springframework.stereotype.Service;
@@ -9,20 +9,9 @@ import java.util.EnumSet;
 import java.util.Objects;
 
 @Service
-public class ExchangeServiceI {
-    private static final String URL = "https://www.cbar.az/currencies/19.03.2024.xml";
+public class FetchingUtil {
 
-    public void fetchCurrenciesAndSave() {
-        String xmlData = fetchXmlData();
-        if (xmlData != null) {
-            String filteredCurrencies = filterCurrencies(xmlData);
-            saveCurrenciesToFile(filteredCurrencies);
-        } else {
-            throw new RuntimeException("Failed to fetch XML data from URL");
-        }
-    }
-
-    private String fetchXmlData() {
+    protected String fetchXmlData(String URL) {
         try {
             RestTemplate restTemplate = new RestTemplate();
             return restTemplate.getForObject(URL, String.class);
@@ -31,7 +20,7 @@ public class ExchangeServiceI {
         }
     }
 
-    private String filterCurrencies(String xmlData) {
+    protected String filterCurrencies(String xmlData) {
         StringBuilder filteredData = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new StringReader(Objects.requireNonNull(xmlData)))) {
             String line;
@@ -63,12 +52,13 @@ public class ExchangeServiceI {
                     name = null;
                     value = null;
                 } else if (isCurrencyData) {
+                    String trim = line.substring(line.indexOf(">") + 1).trim();
                     if (line.contains("<Nominal>")) {
-                        nominal = line.substring(line.indexOf(">") + 1).trim();
+                        nominal = trim;
                     } else if (line.contains("<Name>")) {
-                        name = line.substring(line.indexOf(">") + 1).trim();
+                        name = trim;
                     } else if (line.contains("<Value>")) {
-                        value = line.substring(line.indexOf(">") + 1).trim();
+                        value = trim;
                     }
                 }
             }
@@ -78,9 +68,7 @@ public class ExchangeServiceI {
         return filteredData.toString();
     }
 
-
-
-    private void saveCurrenciesToFile(String currencies) {
+    protected void saveCurrenciesToFile(String currencies) {
         String filePath = "currencies.txt";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             writer.write(currencies);
