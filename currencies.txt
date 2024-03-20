@@ -1,35 +1,35 @@
 Currency Code: USD
-Currency Nominal: 1</Nominal>
-Currency Name: 1 ABÅ dollarÄ±</Name>
-Currency Rate: 1.7</Value>
+Currency Nominal: 1
+Currency Name: 1 ABÅ dollarÄ±
+Currency Rate: 1.7
 ---------------------------
 Currency Code: EUR
-Currency Nominal: 1</Nominal>
-Currency Name: 1 Avro</Name>
-Currency Rate: 1.8477</Value>
+Currency Nominal: 1
+Currency Name: 1 Avro
+Currency Rate: 1.8477
 ---------------------------
 Currency Code: GBP
-Currency Nominal: 1</Nominal>
-Currency Name: 1 Ä°ngiltÉrÉ funt sterlinqi</Name>
-Currency Rate: 2.162</Value>
+Currency Nominal: 1
+Currency Name: 1 Ä°ngiltÉrÉ funt sterlinqi
+Currency Rate: 2.162
 ---------------------------
 Currency Code: CHF
-Currency Nominal: 1</Nominal>
-Currency Name: 1 Ä°sveÃ§rÉ frankÄ±</Name>
-Currency Rate: 1.9137</Value>
+Currency Nominal: 1
+Currency Name: 1 Ä°sveÃ§rÉ frankÄ±
+Currency Rate: 1.9137
 ---------------------------
 Currency Code: CAD
-Currency Nominal: 1</Nominal>
-Currency Name: 1 Kanada dollarÄ±</Name>
-Currency Rate: 1.2545</Value>
+Currency Nominal: 1
+Currency Name: 1 Kanada dollarÄ±
+Currency Rate: 1.2545
 ---------------------------
 Currency Code: RUB
-Currency Nominal: 1</Nominal>
-Currency Name: 1 Rusiya rublu</Name>
-Currency Rate: 0.0185</Value>
+Currency Nominal: 1
+Currency Name: 1 Rusiya rublu
+Currency Rate: 0.0185
 ---------------------------
 Currency Code: JPY
-Currency Nominal: 100</Nominal>
-Currency Name: 100 Yaponiya yeni</Name>
-Currency Rate: 1.1323</Value>
+Currency Nominal: 100
+Currency Name: 100 Yaponiya yeni
+Currency Rate: 1.1323
 ---------------------------

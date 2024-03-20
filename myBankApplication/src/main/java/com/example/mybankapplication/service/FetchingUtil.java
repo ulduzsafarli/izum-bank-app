@@ -1,79 +1,82 @@
 package com.example.mybankapplication.service;
 
 import com.example.mybankapplication.enumeration.accounts.CurrencyType;
-import org.springframework.stereotype.Service;
+import com.example.mybankapplication.exception.CurrencyFileSavingException;
+import com.example.mybankapplication.exception.CurrencyFilteringException;
+import com.example.mybankapplication.exception.FetchingDataException;
+import com.example.mybankapplication.model.CurrencyData;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.util.EnumSet;
 import java.util.Objects;
 
-@Service
+@Component
 public class FetchingUtil {
 
-    protected String fetchXmlData(String URL) {
+    public String fetchXmlData(String url) {
         try {
             RestTemplate restTemplate = new RestTemplate();
-            return restTemplate.getForObject(URL, String.class);
+            return restTemplate.getForObject(url, String.class);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch XML data from URL: " + e.getMessage(), e);
+            throw new FetchingDataException("Failed to fetch XML data from URL: " + e.getMessage(), e);
         }
     }
 
-    protected String filterCurrencies(String xmlData) {
+    public String filterCurrencies(String xmlData) {
         StringBuilder filteredData = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new StringReader(Objects.requireNonNull(xmlData)))) {
             String line;
-            boolean isCurrencyData = false;
-            String currencyCode = null;
-            String nominal = null;
-            String name = null;
-            String value = null;
+            CurrencyData currency = null;
             while ((line = reader.readLine()) != null) {
+                if (line.contains("</Valute>")) continue;
+
                 if (line.contains("<Valute")) {
-                    isCurrencyData = true;
-                    currencyCode = line.substring(line.indexOf("Code=\"") + 6, line.indexOf("\"", line.indexOf("Code=\"") + 6));
-                } else if (line.contains("</Valute>")) {
-                    isCurrencyData = false;
-                    if (currencyCode != null && nominal != null && name != null && value != null) {
-                        String finalCurrencyCode = currencyCode;
-                        if (EnumSet.allOf(CurrencyType.class).stream().anyMatch(c -> c.name().equals(finalCurrencyCode))) {
-                            // Структурированная запись в файл
-                            filteredData.append("Currency Code: ").append(currencyCode).append("\n")
-                                    .append("Currency Nominal: ").append(nominal).append("\n")
-                                    .append("Currency Name: ").append(name).append("\n")
-                                    .append("Currency Rate: ").append(value).append("\n")
-                                    .append("---------------------------").append("\n");
-                        }
-                    }
-                    // Сбросим значения переменных для следующей валюты
-                    currencyCode = null;
-                    nominal = null;
-                    name = null;
-                    value = null;
-                } else if (isCurrencyData) {
-                    String trim = line.substring(line.indexOf(">") + 1).trim();
+                    currency = new CurrencyData();
+                    currency.setCode(extractAttribute(line));
+                } else if (currency != null) {
                     if (line.contains("<Nominal>")) {
-                        nominal = trim;
+                        currency.setNominal(extractTagContent(line).trim()); // Trim extra spaces
                     } else if (line.contains("<Name>")) {
-                        name = trim;
+                        currency.setName(extractTagContent(line).trim());  // Trim extra spaces
                     } else if (line.contains("<Value>")) {
-                        value = trim;
+                        currency.setValue(Double.valueOf(extractTagContent(line)));
                     }
+                }
+
+                if (currency != null && currency.isComplete() && isValidCurrencyCode(currency.getCode())) {
+                    filteredData.append(currency).append("\n---------------------------\n");
+                    currency = null;
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to filter currencies: " + e.getMessage(), e);
+            throw new CurrencyFilteringException("Failed to filter currencies: " + e.getMessage(), e);
         }
-        return filteredData.toString();
+        return filteredData.toString().trim(); // Trim any trailing spaces from the final string
     }
 
-    protected void saveCurrenciesToFile(String currencies) {
+    private String extractAttribute(String line) {
+        int startIndex = line.indexOf("Code" + "=\"") + "Code".length() + 2;
+        int endIndex = line.indexOf("\"", startIndex);
+        return line.substring(startIndex, endIndex);
+    }
+
+    private String extractTagContent(String line) {
+        return line.replaceAll("<[^>]+>([^<]*)<[^>]+>", "$1");
+    }
+
+    private boolean isValidCurrencyCode(String currencyCode) {
+        return EnumSet.allOf(CurrencyType.class).stream().anyMatch(c -> c.name().equals(currencyCode));
+    }
+
+
+    public void saveCurrenciesToFile(String currencies) {
         String filePath = "currencies.txt";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
             writer.write(currencies);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to save filtered currencies to file: " + e.getMessage(), e);
+            throw new CurrencyFileSavingException("Failed to save filtered currencies to file: " + e.getMessage(), e);
         }
     }
 }

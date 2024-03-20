@@ -28,45 +28,71 @@ import java.util.*;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private static final String EXCEPTION_OCCURRED_MESSAGE = "Exception occurred";
+
     //for email handling
 
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
             DatabaseException ex, WebRequest webRequest) {
-        log.error("Exception occurred", ex);
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            FetchingDataException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            CurrencyFetchingException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            CurrencyFileSavingException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            CurrencyFilteringException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
             AccountClosingException ex, WebRequest webRequest) {
-        log.error("Exception occurred", ex);
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
             AccountStatusException ex, WebRequest webRequest) {
-        log.error("Exception occurred", ex);
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
             ConstraintViolationException ex, WebRequest webRequest) {
-        log.error("Exception occurred", ex);
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
             AuthenticationException ex, WebRequest webRequest) {
-        log.error("Exception occurred", ex);
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handleInvalidFormatException(
             InvalidFormatException ex, WebRequest webRequest) {
-        log.error("Exception occurred", ex);
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
 
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
@@ -75,20 +101,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handleNotDataFoundException(
             NotFoundException ex, WebRequest webRequest) {
-        log.error("Exception occurred", ex);
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handleDuplicateDataException(
             DuplicateDataException ex, WebRequest webRequest) {
-        log.error("Exception occurred", ex);
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({RuntimeException.class})
     public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
-        log.error("Exception occurred", ex);
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 
