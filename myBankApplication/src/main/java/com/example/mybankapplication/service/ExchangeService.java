@@ -13,4 +13,6 @@ public interface ExchangeService {
     ExchangeResponseDto performExchangeFromAZN(ExchangeRequestDto exchange);
 
     ExchangeResponseDto performExchangeToAZN(ExchangeRequestDto exchangeResponseDto);
+
+    String getCurrencyFileContent();
 }

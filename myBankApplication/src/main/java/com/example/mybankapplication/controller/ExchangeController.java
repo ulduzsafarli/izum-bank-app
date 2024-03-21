@@ -20,6 +20,10 @@ public class ExchangeController {
     public ResponseEntity<ResponseDto> fetchCurrenciesAndSave() {
         return ResponseEntity.status(HttpStatus.OK).body(exchangeService.fetchCurrenciesAndSave());
     }
+    @GetMapping("/currency-file")
+    public ResponseEntity<String> getCurrencyFile() {
+        return ResponseEntity.status(HttpStatus.OK).body(exchangeService.getCurrencyFileContent());
+    }
 
     @PostMapping("/exchange-from-AZN")
     public ResponseEntity<ExchangeResponseDto> exchangeFromAZN(@RequestBody ExchangeRequestDto exchangeResponseDto) {
@@ -29,6 +33,5 @@ public class ExchangeController {
     public ResponseEntity<ExchangeResponseDto> exchangeToAZN(@RequestBody ExchangeRequestDto exchangeResponseDto) {
         return ResponseEntity.status(HttpStatus.OK).body(exchangeService.performExchangeToAZN(exchangeResponseDto));
     }
-
 
 }

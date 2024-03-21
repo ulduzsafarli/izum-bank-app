@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 
@@ -21,20 +23,36 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class ExchangeServiceImpl implements ExchangeService {
-    private static final String URL = "https://www.cbar.az/currencies/19.03.2024.xml";
-    private final FetchingUtil fetchingUtil;
+    private static final String URL_PREFIX = "https://www.cbar.az/currencies/";
 
+
+    private String generateUrlWithDate() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        String formattedDate = dateFormat.format(new Date());
+        return URL_PREFIX + formattedDate + ".xml";
+    }
+
+    @Override
     public ResponseDto fetchCurrenciesAndSave() {
-        log.info("Fetching and saving from URL: {}", URL);
-        String xmlData = fetchingUtil.fetchXmlData(URL);
+        String currentUrl = generateUrlWithDate();
+        log.info("Fetching and saving from URL: {}", currentUrl);
+        String xmlData = FetchingUtil.fetchXmlData(currentUrl);
         if (xmlData != null) {
-            String filteredCurrencies = fetchingUtil.filterCurrencies(xmlData);
-            fetchingUtil.saveCurrenciesToFile(filteredCurrencies);
-            log.info("Successfully fetch and save currency from URL: {}", URL);
+            String filteredCurrencies = FetchingUtil.filterCurrencies(xmlData);
+            FetchingUtil.saveCurrenciesToFile(filteredCurrencies);
+            log.info("Successfully fetch and save currency from URL: {}", currentUrl);
             return ResponseDto.builder().responseCode("200").responseMessage("Data fetched successfully!").build();
         } else {
             throw new CurrencyFetchingException("Failed to fetch XML data from URL");
         }
+    }
+
+    @Override
+    public String getCurrencyFileContent() {
+        log.info("Getting the latest currency file");
+        String content = FetchingUtil.readCurrencyFile();
+        log.info("Successfully read the latest currency file");
+        return content;
     }
 
     @Override
@@ -51,7 +69,7 @@ public class ExchangeServiceImpl implements ExchangeService {
         log.info("Performing exchange {} {} with amount {}", isFromAZN ? "from AZN to" : "to AZN from", exchange.getCurrencyType(),
                 exchange.getAmount());
 
-        Map<String, BigDecimal> rates = fetchingUtil.fetchRates();
+        Map<String, BigDecimal> rates = FetchingUtil.fetchRates();
         if (!rates.containsKey(exchange.getCurrencyType().name())) {
             throw new UnsupportedCurrencyException("Unsupported currency: " + exchange.getCurrencyType());
         }
@@ -60,6 +78,9 @@ public class ExchangeServiceImpl implements ExchangeService {
         BigDecimal originalAmount = BigDecimal.valueOf(exchange.getAmount());
         BigDecimal convertedAmount = isFromAZN ? originalAmount.divide(rate, 2, RoundingMode.HALF_EVEN) :
                 originalAmount.multiply(rate).setScale(2, RoundingMode.HALF_EVEN);
+
+        log.info("Successfully Performing exchange {} {} with amount {}", isFromAZN ? "from AZN to" : "to AZN from",
+                exchange.getCurrencyType(), exchange.getAmount());
 
         return ExchangeResponseDto.builder()
                 .amount(exchange.getAmount())

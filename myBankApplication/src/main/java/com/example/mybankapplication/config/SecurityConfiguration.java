@@ -36,6 +36,7 @@ public class SecurityConfiguration {
             "/api/v1/exchange/fetch-currencies", //admin
             "/api/v1/exchange/exchange-from-AZN", //USER
             "/api/v1/exchange/exchange-to-AZN", //USER
+            "/api/v1/exchange/currency-file", //admin
 
     };
     private final JwtAuthenticationFilter jwtAuthFilter;

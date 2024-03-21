@@ -1,12 +1,12 @@
 package com.example.mybankapplication.service;
 
 import com.example.mybankapplication.enumeration.accounts.CurrencyType;
-import com.example.mybankapplication.exception.CurrencyFileSavingException;
+import com.example.mybankapplication.exception.CurrencyFileException;
 import com.example.mybankapplication.exception.CurrencyFilteringException;
 import com.example.mybankapplication.exception.CurrencyRateFormatException;
 import com.example.mybankapplication.exception.FetchingDataException;
 import com.example.mybankapplication.model.CurrencyData;
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
@@ -16,12 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-@Component
+@UtilityClass
 public class FetchingUtil {
 
     private static final String FILEPATH = "currencies.txt";
 
-    public String fetchXmlData(String url) {
+    public static String fetchXmlData(String url) {
         try {
             RestTemplate restTemplate = new RestTemplate();
             return restTemplate.getForObject(url, String.class);
@@ -30,7 +30,7 @@ public class FetchingUtil {
         }
     }
 
-    public String filterCurrencies(String xmlData) {
+    public static String filterCurrencies(String xmlData) {
         StringBuilder filteredData = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new StringReader(Objects.requireNonNull(xmlData)))) {
             String line;
@@ -62,17 +62,17 @@ public class FetchingUtil {
         return filteredData.toString().trim(); // Trim any trailing spaces from the final string
     }
 
-    private String extractAttribute(String line) {
+    private static String extractAttribute(String line) {
         int startIndex = line.indexOf("Code" + "=\"") + "Code".length() + 2;
         int endIndex = line.indexOf("\"", startIndex);
         return line.substring(startIndex, endIndex);
     }
 
-    private String extractTagContent(String line) {
+    private static String extractTagContent(String line) {
         return line.replaceAll("<[^>]+>([^<]*)<[^>]+>", "$1");
     }
 
-    private boolean isValidCurrencyCode(String currencyCode) {
+    private static boolean isValidCurrencyCode(String currencyCode) {
         return EnumSet.allOf(CurrencyType.class).stream().anyMatch(c -> c.name().equals(currencyCode));
     }
 
@@ -81,8 +81,21 @@ public class FetchingUtil {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILEPATH))) {
             writer.write(currencies);
         } catch (IOException e) {
-            throw new CurrencyFileSavingException("Failed to save filtered currencies to file: " + e.getMessage(), e);
+            throw new CurrencyFileException("Failed to save filtered currencies to file: " + e.getMessage(), e);
         }
+    }
+
+    public String readCurrencyFile() {
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILEPATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            throw new CurrencyFileException("Failed to read currency file: " + e.getMessage(), e);
+        }
+        return content.toString();
     }
 
     public Map<String, BigDecimal> fetchRates() {
