@@ -2,6 +2,7 @@ package com.example.mybankapplication.controller;
 
 import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.users.UserCreateDto;
+import com.example.mybankapplication.model.users.UserFilteringDto;
 import com.example.mybankapplication.model.users.UserUpdateDto;
 import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
 import com.example.mybankapplication.model.users.UserResponse;
@@ -24,8 +25,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/search")
-    public Page<UserProfileDto> getUsersByFilter(@Valid UserProfileFilterDto userProfileFilterDto, Pageable pageable) {
-        return userService.findUsersByFilter(userProfileFilterDto, pageable);
+    public Page<UserProfileDto> getUsersByFilter(UserFilteringDto userFilteringDto, Pageable pageable) {
+        return userService.findUsersByFilter(userFilteringDto, pageable);
     }
     /**
      * Retrieves a user by their ID.

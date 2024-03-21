@@ -85,7 +85,7 @@ public class AccountController {
     }
 
     //UserController
-    @GetMapping("user/accounts/")
+    @GetMapping("/user/accounts/")
     public ResponseEntity<UserAccountsDto> readUserByAccountNumber(@RequestParam String accountNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.readUserByAccountId(accountNumber));
     }

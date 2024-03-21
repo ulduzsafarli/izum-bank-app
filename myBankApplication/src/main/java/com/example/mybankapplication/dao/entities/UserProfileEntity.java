@@ -1,7 +1,5 @@
 package com.example.mybankapplication.dao.entities;
 
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import com.example.mybankapplication.dao.entities.abstractentity.Auditable;
 import com.example.mybankapplication.enumeration.users.Gender;
 import com.example.mybankapplication.enumeration.users.Nationality;
 import jakarta.persistence.*;
@@ -9,14 +7,12 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity(name = "user_profile")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
-public class UserProfileEntity extends Auditable {
+public class UserProfileEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

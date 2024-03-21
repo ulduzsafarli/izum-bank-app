@@ -1,8 +1,10 @@
 package com.example.mybankapplication.dao.entities;
 
+import com.example.mybankapplication.dao.entities.abstractentity.Auditable;
 import com.example.mybankapplication.enumeration.auth.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -10,13 +12,15 @@ import java.util.Collection;
 import java.util.List;
 
 
+@Data
 @Entity
-@Table(name = "users", schema = "public")
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-@Builder
-public class UserEntity implements UserDetails {
+@EqualsAndHashCode(callSuper = true)
+@Table(name = "users", schema = "public")
+@EntityListeners(AuditingEntityListener.class)
+public class UserEntity extends Auditable implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

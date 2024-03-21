@@ -1,17 +1,15 @@
-package com.example.mybankapplication.specifications;
+package com.example.mybankapplication.util.specifications;
 
 import com.example.mybankapplication.dao.entities.AccountEntity;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
+import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-@Component
+@UtilityClass
 public class AccountSpecifications {
 
-    private AccountSpecifications() {
-    }
 
     private static <T> Specification<T> likeIgnoreCase(String attribute, String value) {
         return (root, query, criteriaBuilder) ->

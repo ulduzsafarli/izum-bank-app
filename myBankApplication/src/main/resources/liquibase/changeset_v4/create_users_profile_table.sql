@@ -6,9 +6,5 @@ CREATE TABLE user_profile
     birth_date      DATE         NOT NULL,
     phone_number    VARCHAR(20)  NOT NULL,
     gender          VARCHAR(10)  NOT NULL,
-    nationality     VARCHAR(50)  NOT NULL,
-    created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    created_by      VARCHAR(255),
-    updated_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    updated_by      VARCHAR(255)
+    nationality     VARCHAR(50)  NOT NULL
 );

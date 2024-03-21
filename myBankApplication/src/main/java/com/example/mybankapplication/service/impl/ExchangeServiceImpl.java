@@ -41,7 +41,7 @@ public class ExchangeServiceImpl implements ExchangeService {
             String filteredCurrencies = FetchingUtil.filterCurrencies(xmlData);
             FetchingUtil.saveCurrenciesToFile(filteredCurrencies);
             log.info("Successfully fetch and save currency from URL: {}", currentUrl);
-            return ResponseDto.builder().responseCode("200").responseMessage("Data fetched successfully!").build();
+            return ResponseDto.builder().responseMessage("Data fetched successfully!").build();
         } else {
             throw new CurrencyFetchingException("Failed to fetch XML data from URL");
         }

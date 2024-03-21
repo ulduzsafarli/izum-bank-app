@@ -13,10 +13,10 @@ import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.users.UserAccountsDto;
 import com.example.mybankapplication.service.AccountService;
 import com.example.mybankapplication.service.UserService;
-import com.example.mybankapplication.specifications.AccountSpecifications;
+import com.example.mybankapplication.util.GenerateRandom;
+import com.example.mybankapplication.util.specifications.AccountSpecifications;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,23 +27,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AccountServiceImpl implements AccountService {
 
+    private static final String WITH_ID_NOT_FOUND = "Account with ID not found: ";
+    private static final String WITH_NUMBER_NOT_FOUND = "Account with number not found: ";
+
+
     private final PasswordEncoder passwordEncoder;
     public final AccountRepository accountRepository;
     public final AccountMapper accountMapper;
     private final UserService userService;
-
-    @Value("200")
-    private String responseCodeSuccess;
-
-    @Value("204")
-    private String responseCodeNoContent;
 
     public Page<AccountResponse> findAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest) {
         log.info("Searching accounts by filter: {}", accountFilterDto);
@@ -60,9 +57,7 @@ public class AccountServiceImpl implements AccountService {
     public List<AccountResponse> getAllAccounts() {
         log.info("Retrieving all accounts");
         try {
-            List<AccountEntity> accountEntityList = accountRepository.findAll();
-            List<AccountResponse> accountDtoList = accountEntityList.stream()
-                    .map(accountMapper::toDto).toList();
+            var accountDtoList = accountRepository.findAll().stream().map(accountMapper::toDto).toList();
             log.info("Successfully retrieved all accounts");
             return accountDtoList;
         } catch (DataAccessException ex) {
@@ -74,7 +69,7 @@ public class AccountServiceImpl implements AccountService {
         log.info("Retrieving account by ID: {}", accountId);
         try {
             AccountEntity accountEntity = accountRepository.findById(accountId)
-                    .orElseThrow(() -> new NotFoundException("Account with ID " + accountId + " not found"));
+                    .orElseThrow(() -> new NotFoundException(WITH_ID_NOT_FOUND + accountId));
             AccountResponse accountResponse = accountMapper.toDto(accountEntity);
             log.info("Successfully retrieved account");
             return accountResponse;
@@ -88,7 +83,7 @@ public class AccountServiceImpl implements AccountService {
         log.info("Retrieving account by account number: {}", accountNumber);
         try {
             AccountEntity accountEntity = accountRepository.findByAccountNumber(accountNumber)
-                    .orElseThrow(() -> new NotFoundException("Account with accountNumber " + accountNumber + " not found"));
+                    .orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + accountNumber));
             AccountResponse accountResponse = accountMapper.toDto(accountEntity);
             log.info("Successfully retrieved account");
             return accountResponse;
@@ -97,7 +92,8 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    @Transactional
+    //Добавить кеширование
+    @Override
     public List<AccountResponse> getAllAccountsByUserId(Long userId) {
         log.info("Retrieving all accounts by user ID: {}", userId);
         try {
@@ -110,20 +106,20 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    @Override
     @Transactional
     public ResponseDto createAccount(Long userId, AccountRequest account) {
         log.info("Creating account for user: {}", userId);
         try {
             AccountEntity accountEntity = accountMapper.fromDto(account);
             var user = userService.getUserByIdForAccount(userId); //cif null qalir
-            user.setCif(userService.generateCif());
+            user.setCif(GenerateRandom.generateCif());
             accountEntity.setPin(passwordEncoder.encode(account.getPin()));
-            accountEntity.setAccountNumber(generateAccountNumber());
+            accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
             accountRepository.save(accountEntity);
             log.info("Account created successfully");
             return ResponseDto.builder()
-                    .responseMessage("Account created successfully")
-                    .responseCode(responseCodeSuccess).build();
+                    .responseMessage("Account created successfully").build();
         } catch (NotFoundException ex) {
             throw new NotFoundException("Failed to find user with ID: " + userId);
         } catch (DataAccessException ex) {
@@ -131,41 +127,7 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-//    public ResponseDto createAccount(Long userId, AccountRequest account) {
-//
-//        UserAccountsDto user = userService.getUserByIdForAccount(userId);
-//
-//
-//        accountRepository.findByAccountIdAndAccountType(userId, String.valueOf(account.getAccountType()))
-//                .ifPresent(accountDto -> {
-//                    throw new DuplicateDataException("Account already exists on the server");
-//                });
-//
-//        Account account = accountMapper.convertToEntity(accountDto);
-//        account.setAccountNumber(ACC_PREFIX + String.format("%07d",sequenceService.generateAccountNumber().getAccountNumber()));
-//        account.setAccountStatus(AccountStatus.PENDING);
-//        account.setAvailableBalance(BigDecimal.valueOf(0));
-//        account.setAccountType(AccountType.valueOf(accountDto.getAccountType()));
-//        accountRepository.save(account);
-//        return Response.builder()
-//                .responseCode(success)
-//                .message(" Account created successfully").build();
-//    }
-
-
-    //Добавить кеширование
-    public String generateAccountNumber() {
-        log.info("Generating unique account number");
-        do {
-            String randomNumber = String.valueOf(ThreadLocalRandom.current().nextInt(1000000, 10000000));
-            boolean isUnique = !accountRepository.existsByAccountNumber(randomNumber);
-            if (isUnique) {
-                log.info("Account number generated successfully");
-                return randomNumber;
-            }
-        } while (true);
-    }
-
+    @Override
     @Transactional
     public ResponseDto updateAccount(Long accountId, AccountRequest account) {
         log.info("Updating account by ID: {}", accountId);
@@ -173,25 +135,26 @@ public class AccountServiceImpl implements AccountService {
                 accountEntity -> {
                     accountMapper.updateEntityFromDto(account, accountEntity);
                     accountRepository.save(accountEntity);
-                    log.info("Account updated successfully");
+                    log.info("Successfully updated account {}", account);
                 },
                 () -> {
-                    throw new NotFoundException("Account with ID " + accountId + " not found");
+                    throw new NotFoundException(WITH_ID_NOT_FOUND + accountId);
                 }
         );
         return ResponseDto.builder()
-                .responseMessage(responseCodeSuccess)
                 .responseMessage("Account updated successfully").build();
     }
 
+    @Override
+    @Transactional
     public ResponseDto deleteAccount(Long accountId) {
         log.info("Deleting account by ID: {}", accountId);
         if (accountRepository.existsById(accountId)) {
             accountRepository.deleteById(accountId);
             log.info("Account deleted successfully");
-            return ResponseDto.builder().responseCode(responseCodeNoContent).responseMessage("Account deleted successfully").build();
+            return ResponseDto.builder().responseMessage("Account deleted successfully").build();
         } else {
-            throw new NotFoundException("Account with ID " + accountId + " not found");
+            throw new NotFoundException(WITH_ID_NOT_FOUND + accountId);
         }
     }
 
@@ -204,24 +167,15 @@ public class AccountServiceImpl implements AccountService {
                         throw new AccountClosingException("Balance should be zero");
                     }
                     account.setStatus(AccountStatus.CLOSED);
-                    return ResponseDto.builder()
-                            .responseCode(responseCodeSuccess)
-                            .responseMessage("Account closed successfully")
-                            .build();
-                }).orElseThrow(() -> new NotFoundException("Account " + accountNumber + " not found"));
+                    return ResponseDto.builder().responseMessage("Account closed successfully").build();
+                }).orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + accountNumber));
     }
-
-//    public String getBalance(String accountNumber) {
-//        return accountRepository.findByAccountNumber(accountNumber)
-//                .map(account -> account.getAvailableBalance().toString())
-//                .orElseThrow(() -> new NotFoundException("Account " + accountNumber + " not found"));
-//    }
 
     @Override
     public String getBalance(String accountNumber) {
         log.info("Getting current balance from account {}", accountNumber);
         AccountEntity account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new NotFoundException("Account " + accountNumber + " not found"));
+                .orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + accountNumber));
         log.info("Get current balance from account {} successfully", accountNumber);
         return account.getAvailableBalance().toString();
     }
@@ -236,11 +190,10 @@ public class AccountServiceImpl implements AccountService {
                     }
                     account.setStatus(accountUpdate.getAccountStatus());
                     accountRepository.save(account);
-                    return ResponseDto.builder().responseMessage("Account updated successfully").responseCode(responseCodeSuccess).build();
+                    return ResponseDto.builder().responseMessage("Account updated successfully").build();
                 }).orElseThrow(() -> new NotFoundException("Account not on the server"));
 
     }
-
 
     //yeniden
     @Override
@@ -249,26 +202,8 @@ public class AccountServiceImpl implements AccountService {
 
         return accountRepository.findById(accountId)
                 .map(accountMapper::toDto)
-                .orElseThrow(() -> new NotFoundException("Account with ID " + accountId + " not found"));
+                .orElseThrow(() -> new NotFoundException(WITH_ID_NOT_FOUND + accountId));
     }
-
-//    @Override
-//    public UserAccountsDto readUserByAccountId(String accountNumber) {
-//        log.info("Reading user by account number {}", accountNumber);
-//        var userResponse = accountRepository.findByAccountNumber(accountNumber)
-//                .map(AccountEntity::getUser)
-//                .orElseThrow(() -> new NotFoundException("Account with number " + accountNumber + " not found"));
-//        try {
-//            UserAccountsDto userAccountsDto = userRepository.findById(userResponse.getId())
-//                    .map(userMapper::toAccountsDto)
-//                    .orElseThrow(() -> new NotFoundException("User with ID " + userResponse.getId() + " not found"));
-//
-//            log.info("Read user by account number {} successfully", accountNumber);
-//            return userAccountsDto;
-//        } catch (DataAccessException ex) {
-//            throw new DatabaseException("Failed to read user by account id", ex);
-//        }
-//    }
 
     @Override
     public UserAccountsDto readUserByAccountId(String accountNumber) {
@@ -278,7 +213,7 @@ public class AccountServiceImpl implements AccountService {
             var userAccountsDto = accountRepository.findByAccountNumber(accountNumber)
                     .map(AccountEntity::getUser)
                     .map(userEntity -> userService.getUserByIdForAccount(userEntity.getId()))
-                    .orElseThrow(() -> new NotFoundException("Account with number " + accountNumber + " not found"));
+                    .orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + accountNumber));
             log.info("Read user by account number {} successfully", accountNumber);
             return userAccountsDto;
         } catch (DataAccessException ex) {

@@ -1,16 +1,13 @@
-package com.example.mybankapplication.specifications;
+package com.example.mybankapplication.util.specifications;
 
 import com.example.mybankapplication.dao.entities.UserProfileEntity;
 import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
-import lombok.extern.slf4j.Slf4j;
+import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Component;
 
-@Component
-@Slf4j
+@UtilityClass
 public class UserProfileSpecifications {
 
-    private UserProfileSpecifications(){}
     private static <T> Specification<T> likeIgnoreCase(String attribute, String value) {
         return (root, query, criteriaBuilder) ->
                 value == null || value.isBlank() ?
@@ -25,7 +22,6 @@ public class UserProfileSpecifications {
     }
 
     public static Specification<UserProfileEntity> getUserProfileSpecification(UserProfileFilterDto userProfileFilterDto) {
-        log.debug("Get specification for user {}", userProfileFilterDto.toString());
         return Specification.<UserProfileEntity>where(
                         likeIgnoreCase("firstName", userProfileFilterDto.getFirstName()))
                 .and(likeIgnoreCase("lastName", userProfileFilterDto.getLastName()))

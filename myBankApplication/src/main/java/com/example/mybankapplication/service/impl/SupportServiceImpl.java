@@ -27,9 +27,6 @@ public class SupportServiceImpl implements SupportService {
     private final SupportMapper supportMapper;
     private final EmailSending emailSending;
 
-    @Value("200")
-    private String responseCodeSuccess;
-
     @Override
     public ResponseDto sendSupport(SupportDto supportDto) {
         log.info("Processing support request: {}", supportDto);
@@ -38,9 +35,7 @@ public class SupportServiceImpl implements SupportService {
             supportRepository.save(supportMapper.toEntity(supportDto));
             emailSending.sendSupportEmail(supportDto);
             log.info("Contact form sent successfully: {}", supportDto);
-            return ResponseDto.builder()
-                    .responseMessage("Form submitted successfully")
-                    .responseCode(responseCodeSuccess).build();
+            return ResponseDto.builder().responseMessage("Form submitted successfully").build();
         } catch (RuntimeException e) {
             throw new EmailSendingException("Error while processing support request", e);
         }
@@ -57,9 +52,7 @@ public class SupportServiceImpl implements SupportService {
             supportEntity.setAnswered(true);
             supportRepository.save(supportEntity);
             log.info("Response email sent successfully to {}", supportEntity.getEmail());
-            return ResponseDto.builder()
-                    .responseMessage("Form responses successfully")
-                    .responseCode(responseCodeSuccess).build();
+            return ResponseDto.builder().responseMessage("Form responses successfully").build();
         } catch (RuntimeException e) {
             log.error("Failed to send response email to {}", supportEntity.getEmail(), e);
             throw new EmailSendingException("Error while sending response email", e);
