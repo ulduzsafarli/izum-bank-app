@@ -1,7 +1,7 @@
 package com.example.mybankapplication.service;
 
-import com.example.mybankapplication.model.ExchangeRequestDto;
-import com.example.mybankapplication.model.ExchangeResponseDto;
+import com.example.mybankapplication.model.exchange.ExchangeRequestDto;
+import com.example.mybankapplication.model.exchange.ExchangeResponseDto;
 import com.example.mybankapplication.model.auth.ResponseDto;
 import org.springframework.stereotype.Service;
 

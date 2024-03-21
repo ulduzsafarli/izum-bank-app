@@ -33,6 +33,8 @@ public class SecurityConfiguration {
             "/swagger-ui.html",
             "/api/v1/support",
             "/api/v1/support/respond", //admin
+            "/api/v1/support/all-requests", //admin
+            "/api/v1/support/all-unanswered-requests", //admin
             "/api/v1/exchange/fetch-currencies", //admin
             "/api/v1/exchange/exchange-from-AZN", //USER
             "/api/v1/exchange/exchange-to-AZN", //USER

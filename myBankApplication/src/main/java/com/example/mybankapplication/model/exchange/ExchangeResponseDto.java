@@ -1,4 +1,4 @@
-package com.example.mybankapplication.model;
+package com.example.mybankapplication.model.exchange;
 
 import com.example.mybankapplication.enumeration.accounts.CurrencyType;
 import lombok.*;

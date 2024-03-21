@@ -1,11 +1,11 @@
-package com.example.mybankapplication.service;
+package com.example.mybankapplication.util;
 
 import com.example.mybankapplication.enumeration.accounts.CurrencyType;
 import com.example.mybankapplication.exception.CurrencyFileException;
 import com.example.mybankapplication.exception.CurrencyFilteringException;
 import com.example.mybankapplication.exception.CurrencyRateFormatException;
 import com.example.mybankapplication.exception.FetchingDataException;
-import com.example.mybankapplication.model.CurrencyData;
+import com.example.mybankapplication.model.exchange.CurrencyData;
 import lombok.experimental.UtilityClass;
 import org.springframework.web.client.RestTemplate;
 

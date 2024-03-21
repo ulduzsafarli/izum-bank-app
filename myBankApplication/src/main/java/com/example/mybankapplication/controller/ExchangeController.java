@@ -1,7 +1,7 @@
 package com.example.mybankapplication.controller;
 
-import com.example.mybankapplication.model.ExchangeRequestDto;
-import com.example.mybankapplication.model.ExchangeResponseDto;
+import com.example.mybankapplication.model.exchange.ExchangeRequestDto;
+import com.example.mybankapplication.model.exchange.ExchangeResponseDto;
 import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.service.ExchangeService;
 import lombok.RequiredArgsConstructor;
