@@ -3,6 +3,7 @@ package com.example.mybankapplication.model.accounts;
 import com.example.mybankapplication.enumeration.accounts.AccountStatus;
 import com.example.mybankapplication.enumeration.accounts.AccountType;
 import com.example.mybankapplication.enumeration.accounts.CurrencyType;
+import com.example.mybankapplication.model.transactions.TransactionResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -26,4 +28,6 @@ public class AccountResponse {
     private BigDecimal availableBalance;
     private BigDecimal currentBalance;
     private Long userId;
+    private BigDecimal transactionLimit;
+    private List<TransactionResponse> transactionResponseList;
 }

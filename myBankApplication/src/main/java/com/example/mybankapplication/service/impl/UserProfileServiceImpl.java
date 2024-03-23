@@ -44,4 +44,10 @@ public class UserProfileServiceImpl implements UserProfileService {
                 .orElseThrow(() -> new NotFoundException("User profile with phone number " + phoneNumber + " not found "));
     }
 
+    @Override
+    public boolean existingUserprofileByPhoneNumber(String phoneNumber) {
+        return userProfileRepository.existsByPhoneNumber(phoneNumber);
+    }
+
+
 }

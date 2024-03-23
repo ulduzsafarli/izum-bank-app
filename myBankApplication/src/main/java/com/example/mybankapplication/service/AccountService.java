@@ -5,6 +5,8 @@ import com.example.mybankapplication.model.accounts.AccountRequest;
 import com.example.mybankapplication.model.accounts.AccountResponse;
 import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
+import com.example.mybankapplication.model.transactions.TransactionAccountRequest;
+import com.example.mybankapplication.model.transactions.TransactionResponse;
 import com.example.mybankapplication.model.users.UserAccountsDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,4 +41,8 @@ public interface AccountService {
     String getBalance(String accountNumber);
 
     UserAccountsDto readUserByAccountId(String accountNumber);
+
+    List<TransactionResponse> getTransactionsFromAccountId(Long accountId);
+
+    ResponseDto transferMoneyToAccount(Long fromAccountId, String toAccountNumber, TransactionAccountRequest transactionAccountRequest);
 }

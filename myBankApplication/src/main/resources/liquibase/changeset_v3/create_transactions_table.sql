@@ -14,13 +14,11 @@
 CREATE TABLE transactions
 (
     id                SERIAL PRIMARY KEY,
-    description       VARCHAR(255),
     amount            DECIMAL(19, 4),
     type              VARCHAR(50),
     status            VARCHAR(50),
-    operator_id       BIGINT,
     transaction_uuid  VARCHAR(255) UNIQUE,
-    transaction_limit NUMERIC(38,2),
+    comments       VARCHAR(255),
     created_at        TIMESTAMP,
     updated_by        VARCHAR(255),
     updated_at        TIMESTAMP,

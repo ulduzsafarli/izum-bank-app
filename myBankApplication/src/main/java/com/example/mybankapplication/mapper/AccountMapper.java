@@ -14,7 +14,8 @@ public interface AccountMapper {
 //    @Mapping(source = "customer.id", target = "customerId")
     AccountResponse toDto(AccountEntity accountEntity);
 
-    AccountEntity fromDto(AccountRequest accountRequest);
+    AccountEntity fromRequestDto(AccountRequest accountRequest);
+    AccountEntity fromResponseDto(AccountResponse accountResponse);
 
     AccountEntity updateEntityFromDto(AccountRequest account, @MappingTarget AccountEntity accountEntity);
 }

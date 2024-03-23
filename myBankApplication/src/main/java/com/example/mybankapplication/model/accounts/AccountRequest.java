@@ -3,10 +3,7 @@ package com.example.mybankapplication.model.accounts;
 import com.example.mybankapplication.enumeration.accounts.AccountStatus;
 import com.example.mybankapplication.enumeration.accounts.AccountType;
 import com.example.mybankapplication.enumeration.accounts.CurrencyType;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +32,8 @@ public class AccountRequest {
     private BigDecimal availableBalance;
     @NotNull(message = "Current balance must not be null")
     private BigDecimal currentBalance;
+    @DecimalMax(value = "10000", message = "Transaction limit must be at most 10000")
+    private BigDecimal transactionLimit;
     @NotBlank(message = "PIN must not be null")
     @Pattern(regexp = "\\d{4}", message = "PIN should contain 4 digits")
     private String pin;

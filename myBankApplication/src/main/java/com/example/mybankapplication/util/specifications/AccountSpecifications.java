@@ -31,9 +31,10 @@ public class AccountSpecifications {
                 .and(isEqual("currency", accountFilterDto.getCurrencyType()))
                 .and(isEqual("accountType", accountFilterDto.getAccountType()))
                 .and(isEqual("status", accountFilterDto.getStatus()))
-                .and(isEqual("currentBalance", accountFilterDto.getCurrentBalance()));
+                .and(isEqual("currentBalance", accountFilterDto.getCurrentBalance()))
+                .and(isEqual("transactionLimit", accountFilterDto.getTransactionLimit()));
 
-        if (accountFilterDto.getCreatedAt() != null) {
+        if (accountFilterDto.getCreatedAt() != null) { //TODO analyze
             LocalDateTime startOfDay = accountFilterDto.getCreatedAt().atStartOfDay();
             LocalDateTime endOfDay = accountFilterDto.getCreatedAt().atTime(23, 59, 59);
             spec = spec.and((root, query, criteriaBuilder) ->

@@ -23,6 +23,8 @@ public interface UserService {
     @Transactional
     ResponseDto addUser(UserCreateDto userCreateDto);
 
+    void createCif(Long userId);
+
 
 //    void deleteUserInfo(String email);
 }

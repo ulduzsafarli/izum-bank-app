@@ -2,6 +2,8 @@ package com.example.mybankapplication.service.impl;
 
 import com.example.mybankapplication.dao.entities.AccountEntity;
 import com.example.mybankapplication.enumeration.accounts.AccountStatus;
+import com.example.mybankapplication.enumeration.transaction.TransactionStatus;
+import com.example.mybankapplication.enumeration.transaction.TransactionType;
 import com.example.mybankapplication.exception.*;
 import com.example.mybankapplication.mapper.AccountMapper;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
@@ -10,8 +12,11 @@ import com.example.mybankapplication.model.accounts.AccountResponse;
 import com.example.mybankapplication.dao.repository.AccountRepository;
 import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
+import com.example.mybankapplication.model.transactions.TransactionAccountRequest;
+import com.example.mybankapplication.model.transactions.TransactionResponse;
 import com.example.mybankapplication.model.users.UserAccountsDto;
 import com.example.mybankapplication.service.AccountService;
+import com.example.mybankapplication.service.TransactionService;
 import com.example.mybankapplication.service.UserService;
 import com.example.mybankapplication.util.GenerateRandom;
 import com.example.mybankapplication.util.specifications.AccountSpecifications;
@@ -41,6 +46,7 @@ public class AccountServiceImpl implements AccountService {
     public final AccountRepository accountRepository;
     public final AccountMapper accountMapper;
     private final UserService userService;
+    private final TransactionService transactionService;
 
     public Page<AccountResponse> findAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest) {
         log.info("Searching accounts by filter: {}", accountFilterDto);
@@ -108,18 +114,16 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public ResponseDto createAccount(Long userId, AccountRequest account) {
+    public ResponseDto createAccount(Long userId, AccountRequest account) { //TODO user_id null
         log.info("Creating account for user: {}", userId);
         try {
-            AccountEntity accountEntity = accountMapper.fromDto(account);
-            var user = userService.getUserByIdForAccount(userId); //cif null qalir
-            user.setCif(GenerateRandom.generateCif());
+            AccountEntity accountEntity = accountMapper.fromRequestDto(account);
             accountEntity.setPin(passwordEncoder.encode(account.getPin()));
             accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
+            userService.createCif(userId);
             accountRepository.save(accountEntity);
             log.info("Account created successfully");
-            return ResponseDto.builder()
-                    .responseMessage("Account created successfully").build();
+            return ResponseDto.builder().responseMessage("Account created successfully").build();
         } catch (NotFoundException ex) {
             throw new NotFoundException("Failed to find user with ID: " + userId);
         } catch (DataAccessException ex) {
@@ -219,6 +223,53 @@ public class AccountServiceImpl implements AccountService {
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to read user by account number", ex);
         }
+    }
+
+    @Override
+    public List<TransactionResponse> getTransactionsFromAccountId(Long accountId) {
+        log.info("Retrieving transactions for account ID {}", accountId);
+
+        var account = accountRepository.findById(accountId)
+                .map(accountMapper::toDto)
+                .orElseThrow(() -> new NotFoundException(WITH_ID_NOT_FOUND + accountId))
+                .getTransactionResponseList();
+        log.info("Successfully retrieved transactions for account ID {}", accountId);
+        return account;
+    }
+
+    @Override
+    @Transactional
+    public ResponseDto transferMoneyToAccount(Long fromAccountId, String toAccountNumber, TransactionAccountRequest transactionAccountRequest) {
+        log.info("Transfer money from account ID {} to account {}, details: {}", fromAccountId, toAccountNumber, transactionAccountRequest);
+
+        var fromAccount = accountRepository.findById(fromAccountId).map(accountMapper::toDto)
+                .orElseThrow(() -> new NotFoundException(WITH_ID_NOT_FOUND + fromAccountId));
+
+        if (fromAccount.getTransactionLimit() == null || fromAccount.getTransactionLimit().compareTo(transactionAccountRequest.getAmount()) >= 0) {
+
+            if (fromAccount.getCurrentBalance().compareTo(transactionAccountRequest.getAmount()) >= 0) {
+
+                fromAccount.setCurrentBalance(fromAccount.getCurrentBalance().subtract(transactionAccountRequest.getAmount()));
+                var fromTransaction = transactionService.createTransactionForTransferring(fromAccountId, transactionAccountRequest);
+
+                var toAccount = getAccountByAccountNumber(toAccountNumber);
+                if (toAccount.getCurrentBalance().add(transactionAccountRequest.getAmount()).compareTo(toAccount.getAvailableBalance()) > 0) {
+
+                    toAccount.setCurrentBalance(toAccount.getCurrentBalance().add(transactionAccountRequest.getAmount()));
+                    var toTransaction = transactionService.createTransactionForTransferring(toAccount.getId(), transactionAccountRequest);
+
+                    accountRepository.save(accountMapper.fromResponseDto(toAccount));
+                    transactionService.updateTransactionStatus(toTransaction.getId(), TransactionStatus.SUCCESSFUL);
+
+                    transactionService.updateTransactionStatus(fromTransaction.getId(), TransactionStatus.SUCCESSFUL);
+                    accountRepository.save(accountMapper.fromResponseDto(fromAccount));
+                }
+
+            }
+        }
+
+
+        return ResponseDto.builder().responseMessage("Successfully transfer money").build();
     }
 
 

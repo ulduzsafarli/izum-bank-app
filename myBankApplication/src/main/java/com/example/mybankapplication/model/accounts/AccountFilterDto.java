@@ -16,7 +16,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountFilterDto {
-//    @Size(max = 3, message = "Branch code must contain 3 digits")
     private String branchCode;
     private LocalDate createdAt;
     private LocalDate accountExpireDate;
@@ -24,4 +23,5 @@ public class AccountFilterDto {
     private AccountType accountType;
     private AccountStatus status;
     private BigDecimal currentBalance;
+    private BigDecimal transactionLimit;
 }

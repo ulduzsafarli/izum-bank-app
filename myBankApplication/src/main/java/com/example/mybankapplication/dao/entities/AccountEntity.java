@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Entity
@@ -49,8 +50,10 @@ public class AccountEntity extends Auditable {
     @Column(length = 4, nullable = false)
     private String pin;
 
-//    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
-//    private List<TransactionEntity> transactions;
+    private BigDecimal transactionLimit;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    private List<TransactionEntity> transactions;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

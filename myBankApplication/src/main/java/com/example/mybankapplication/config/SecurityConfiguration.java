@@ -39,7 +39,9 @@ public class SecurityConfiguration {
             "/api/v1/exchange/exchange-from-AZN", //USER
             "/api/v1/exchange/exchange-to-AZN", //USER
             "/api/v1/exchange/currency-file", //admin
-            "/api/v1/user/{userId}/accounts", //user
+            "/api/v1/user/{userId}/accounts",
+            "/api/v1/accounts/{accountId}/transactions", //user
+            "/api/v1/accounts/{fromAccountId}/transfer", //user
 
     };
     private final JwtAuthenticationFilter jwtAuthFilter;

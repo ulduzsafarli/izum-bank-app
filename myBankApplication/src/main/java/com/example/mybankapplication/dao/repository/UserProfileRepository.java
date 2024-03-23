@@ -12,4 +12,6 @@ public interface UserProfileRepository extends JpaRepository<UserProfileEntity, 
     Page<UserProfileEntity> findAll(Specification<UserProfileEntity> specifications, Pageable pageRequest);
 
     Optional<UserProfileEntity> findByPhoneNumber(String phoneNumber);
+
+    boolean existsByPhoneNumber(String phoneNumber);
 }

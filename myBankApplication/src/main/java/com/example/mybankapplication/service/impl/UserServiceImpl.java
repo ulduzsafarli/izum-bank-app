@@ -11,6 +11,7 @@ import com.example.mybankapplication.model.users.profile.UserProfileDto;
 import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
 import com.example.mybankapplication.service.UserProfileService;
 import com.example.mybankapplication.service.UserService;
+import com.example.mybankapplication.util.GenerateRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -61,8 +62,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserAccountsDto getUserByIdForAccount(Long id) {
         log.info("Retrieving user by ID: {}", id);
-        UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + id));
+        var userEntity = userRepository.findById(id).orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + id));
         UserAccountsDto userResponse = userMapper.toAccountsDto(userEntity);
         log.info("Successfully retrieved User with ID: {}", id);
         return userResponse;
@@ -71,8 +71,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserByEmail(String email) {
         log.info("Retrieving user by email: {}", email);
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User not found with email: " + email));
+        var userEntity = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found with email: " + email));
         UserResponse userResponse = userMapper.toDto(userEntity);
         log.info("Successfully retrieved user with email: {}", email);
         return userResponse;
@@ -92,10 +91,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseDto deleteUserById(Long id) {
         log.info("Deleting user by ID: {}", id);
-        if (!userRepository.existsById(id))
-            throw new NotFoundException(NOT_FOUND_WITH_ID + id);
+        var user = userRepository.findById(id).orElseThrow(()-> new NotFoundException(NOT_FOUND_WITH_ID + id));
         userRepository.deleteById(id);
-        userProfileService.deleteUserProfileById(id);
+        userProfileService.deleteUserProfileById(user.getUserProfile().getUserProfileId());
         log.info("Successfully deleted user with ID: {}", id);
         return ResponseDto.builder().responseMessage("User deleted successfully").build();
     }
@@ -117,14 +115,22 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public void createCif(Long userId) {
+        log.info("Creating cif for user with ID: {}", userId);
+        var user = userRepository.findById(userId).orElseThrow(()-> new NotFoundException(NOT_FOUND_WITH_ID + userId));
+        user.setCif(GenerateRandom.generateCif());
+        userRepository.save(user);
+        log.info("Successfully generate cif for user with ID: {}", user);
+    }
+
     //to-do: Cache system
     private synchronized void validateNewUserData(UserCreateDto userCreateDto) {
         Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(userCreateDto.getEmail());
         if (existingUserByEmail.isPresent())
             throw new DuplicateDataException("User with email " + userCreateDto.getEmail() + " already exists");
 
-        UserProfileDto existingUserByPhoneNumber = userProfileService.getUserProfileByPhoneNumber(userCreateDto.getUserProfile().getPhoneNumber());
-        if (existingUserByPhoneNumber != null)
+        if (userProfileService.existingUserprofileByPhoneNumber(userCreateDto.getUserProfile().getPhoneNumber()))
             throw new DuplicateDataException("User with phone number " + userCreateDto.getUserProfile().getPhoneNumber() + " already exists");
     }
 

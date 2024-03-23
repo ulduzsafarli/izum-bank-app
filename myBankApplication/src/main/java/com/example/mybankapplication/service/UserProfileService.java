@@ -14,5 +14,6 @@ public interface UserProfileService {
     void deleteUserProfileById(Long id);
 
     UserProfileDto getUserProfileByPhoneNumber(String phoneNumber);
+    boolean existingUserprofileByPhoneNumber(String phoneNumber);
 
 }
