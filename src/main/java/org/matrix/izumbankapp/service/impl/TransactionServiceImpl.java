@@ -42,7 +42,7 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionResponse createTransactionForTransferring(Long accountId, TransactionAccountRequest transactionAccountRequest) {
+    public TransactionResponse createTransferTransaction(Long accountId, TransactionAccountRequest transactionAccountRequest) {
         log.info("Creating transaction for account number {} for transferring money, details: {}", accountId, transactionAccountRequest);
         TransactionRequest transactionRequest = TransactionRequest.builder()
                 .amount(transactionAccountRequest.getAmount())

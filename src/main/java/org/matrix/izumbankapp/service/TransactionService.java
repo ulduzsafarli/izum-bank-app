@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public interface TransactionService {
     List<TransactionResponse> getTransactionsFromAccountId(Long accountId);
-    TransactionResponse createTransactionForTransferring(Long accountId, TransactionAccountRequest transactionAccountRequest);
+    TransactionResponse createTransferTransaction(Long accountId, TransactionAccountRequest transactionAccountRequest);
 
     void updateTransactionStatus(Long id, TransactionStatus transactionStatus);
 }

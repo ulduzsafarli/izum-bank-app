@@ -5,6 +5,8 @@ import org.matrix.izumbankapp.enumeration.accounts.*;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.matrix.izumbankapp.exception.transactions.TransactionAmountException;
+import org.matrix.izumbankapp.exception.transactions.TransactionLimitException;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
@@ -58,5 +60,23 @@ public class AccountEntity extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
+
+    public void debitBalance(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount to debit must be greater than zero");
+        }
+        if (getCurrentBalance().compareTo(amount) < 0) {
+            throw new TransactionAmountException("Insufficient funds to debit");
+        }
+        setCurrentBalance(getCurrentBalance().subtract(amount));
+    }
+
+    public void creditBalance(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount to credit must be greater than zero");
+        }
+        setCurrentBalance(getCurrentBalance().add(amount));
+    }
 
 }
