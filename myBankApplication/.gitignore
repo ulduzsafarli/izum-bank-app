@@ -4,6 +4,7 @@
 /myBankApplication/build/classes/java/main/
 /myBankApplication/.idea/
 /myBankApplication/.gitignore/
+/.idea/
 # Default ignored files
 /shelf/
 /workspace.xml
