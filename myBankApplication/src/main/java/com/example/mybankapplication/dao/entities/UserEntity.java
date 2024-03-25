@@ -39,10 +39,12 @@ public class UserEntity extends Auditable implements UserDetails {
     private Role role;
 
     @OneToOne(cascade = CascadeType.ALL, optional = false)
-    @JoinColumn(name = "user_profile_id", referencedColumnName = "userProfileId")
+    @JoinColumn(name = "user_profile_id", referencedColumnName = "user_profile_id")
     private UserProfileEntity userProfile;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
     private List<AccountEntity> accounts;
 
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

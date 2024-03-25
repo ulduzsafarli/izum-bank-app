@@ -1,0 +1,14 @@
+# Project exclude paths
+/myBankApplication/.gradle/
+/myBankApplication/build/
+/myBankApplication/build/classes/java/main/
+/myBankApplication/.idea/
+/myBankApplication/.gitignore/
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml

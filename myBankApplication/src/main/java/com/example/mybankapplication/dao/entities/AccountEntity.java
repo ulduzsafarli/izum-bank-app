@@ -55,7 +55,7 @@ public class AccountEntity extends Auditable {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<TransactionEntity> transactions;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity user;
 

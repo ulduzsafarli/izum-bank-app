@@ -31,5 +31,4 @@ public class UserCreateDto {
 
     private UserProfileDto userProfile;
 
-//    private List<AccountRequest> accounts;
 }

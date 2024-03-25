@@ -26,9 +26,8 @@ public class TransactionEntity extends Auditable {
     private TransactionType type;
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
-    @Column(unique = true)
+    @Column(name = "transaction_uuid",unique = true)
     private String transactionUUID;
-    @Size(max = 1000, message = "The max size of message is 1000")
     private String comments;
 
     @ManyToOne

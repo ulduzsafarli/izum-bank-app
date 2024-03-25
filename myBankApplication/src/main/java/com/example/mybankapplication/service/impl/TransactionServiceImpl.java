@@ -33,8 +33,8 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public TransactionResponse createTransactionForTransferring(Long accountId, TransactionAccountRequest transactionAccountRequest) {
-        log.info("Creating transaction for account ID {} for transferring money, details: {}", accountId, transactionAccountRequest);
+    public TransactionResponse createTransactionForTransferring(String accountNumber, TransactionAccountRequest transactionAccountRequest) {
+        log.info("Creating transaction for account number {} for transferring money, details: {}", accountNumber, transactionAccountRequest);
         TransactionRequest transactionRequest = TransactionRequest.builder()
                 .amount(transactionAccountRequest.getAmount())
                 .comments(transactionAccountRequest.getComments())
@@ -43,18 +43,18 @@ public class TransactionServiceImpl implements TransactionService {
                 .transactionUUID(UUID.randomUUID().toString()).build();
         var transactionEntity = transactionMapper.fromRequestDto(transactionRequest);
         transactionRepository.save(transactionEntity);
-        log.info("Successfully create transaction for account ID {} for transferring money, details: {}", accountId, transactionAccountRequest);
+        log.info("Successfully create transaction for account ID {} for transferring money, details: {}", accountNumber, transactionAccountRequest);
         return transactionMapper.toResponseDTo(transactionEntity);
     }
 
     @Override
-    public ResponseDto updateTransactionStatus(Long id, TransactionStatus transactionStatus) {
+    public void updateTransactionStatus(Long id, TransactionStatus transactionStatus) {
         log.info("Updating status for transaction ID {} to status {}", id, transactionStatus);
         var transaction = getTransactionById(id);
         transaction.setStatus(transactionStatus);
         transactionRepository.save(transactionMapper.fromResponseDto(transaction));
         log.info("Successfully update status for transaction ID {} to status {}", id, transactionStatus);
-        return ResponseDto.builder().responseMessage("Successfully updated status").build();
+//        ResponseDto.builder().responseMessage("Successfully updated status").build();
     }
 
     public TransactionResponse getTransactionById(Long id){

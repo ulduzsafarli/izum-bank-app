@@ -3,18 +3,15 @@ package com.example.mybankapplication.service.impl;
 import com.example.mybankapplication.dao.entities.AccountEntity;
 import com.example.mybankapplication.enumeration.accounts.AccountStatus;
 import com.example.mybankapplication.enumeration.transaction.TransactionStatus;
-import com.example.mybankapplication.enumeration.transaction.TransactionType;
 import com.example.mybankapplication.exception.*;
 import com.example.mybankapplication.mapper.AccountMapper;
-import com.example.mybankapplication.model.accounts.AccountFilterDto;
-import com.example.mybankapplication.model.accounts.AccountRequest;
-import com.example.mybankapplication.model.accounts.AccountResponse;
+import com.example.mybankapplication.model.accounts.*;
 import com.example.mybankapplication.dao.repository.AccountRepository;
 import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.transactions.TransactionAccountRequest;
 import com.example.mybankapplication.model.transactions.TransactionResponse;
-import com.example.mybankapplication.model.users.UserAccountsDto;
+import com.example.mybankapplication.model.users.UserAccountsResponse;
 import com.example.mybankapplication.service.AccountService;
 import com.example.mybankapplication.service.TransactionService;
 import com.example.mybankapplication.service.UserService;
@@ -103,7 +100,7 @@ public class AccountServiceImpl implements AccountService {
     public List<AccountResponse> getAllAccountsByUserId(Long userId) {
         log.info("Retrieving all accounts by user ID: {}", userId);
         try {
-            UserAccountsDto userResponseList = userService.getUserByIdForAccount(userId);
+            UserAccountsResponse userResponseList = userService.getUserByIdForAccount(userId);
             List<AccountResponse> accountResponses = userResponseList.getAccounts();
             log.info("Successfully retrieved all accounts by user ID: {}", userId);
             return accountResponses;
@@ -113,23 +110,23 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
-    public ResponseDto createAccount(Long userId, AccountRequest account) { //TODO user_id null
-        log.info("Creating account for user: {}", userId);
+    public ResponseDto createAccount(AccountCreateDto account) {
+        log.info("Creating account for user: {}", account.getUserId());
         try {
-            AccountEntity accountEntity = accountMapper.fromRequestDto(account);
+            AccountEntity accountEntity = accountMapper.fromRequestDtoForUser(account);
             accountEntity.setPin(passwordEncoder.encode(account.getPin()));
             accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
-            userService.createCif(userId);
+            userService.createCif(account.getUserId());
             accountRepository.save(accountEntity);
             log.info("Account created successfully");
             return ResponseDto.builder().responseMessage("Account created successfully").build();
         } catch (NotFoundException ex) {
-            throw new NotFoundException("Failed to find user with ID: " + userId);
+            throw new NotFoundException("Failed to find user with ID: " + account.getUserId());
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to add new account to the database", ex);
         }
     }
+
 
     @Override
     @Transactional
@@ -210,7 +207,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public UserAccountsDto readUserByAccountId(String accountNumber) {
+    public UserAccountsResponse readUserByAccountId(String accountNumber) {
         log.info("Reading user by account number {}", accountNumber);
 
         try {
@@ -238,38 +235,62 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
-    public ResponseDto transferMoneyToAccount(Long fromAccountId, String toAccountNumber, TransactionAccountRequest transactionAccountRequest) {
-        log.info("Transfer money from account ID {} to account {}, details: {}", fromAccountId, toAccountNumber, transactionAccountRequest);
+    @Transactional(rollbackFor = {TransactionAmountException.class, TransactionLimitException.class})
+    public ResponseDto transferMoneyToAccount(TransferDto transferDto, TransactionAccountRequest transactionAccountRequest) {
+        log.info("Transfer money from account number {} to account {}, details: {}", transferDto.getFromAccountNumber(),
+                transferDto.getToAccountNumber(), transactionAccountRequest);
 
-        var fromAccount = accountRepository.findById(fromAccountId).map(accountMapper::toDto)
-                .orElseThrow(() -> new NotFoundException(WITH_ID_NOT_FOUND + fromAccountId));
+        var fromAccountNumber = transferDto.getFromAccountNumber();
+        var toAccountNumber = transferDto.getToAccountNumber();
 
-        if (fromAccount.getTransactionLimit() == null || fromAccount.getTransactionLimit().compareTo(transactionAccountRequest.getAmount()) >= 0) {
+        // Получение информации о счете, с которого происходит перевод
+        var fromAccount = accountRepository.findByAccountNumber(fromAccountNumber)
+                .map(accountMapper::toDto)
+                .orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + fromAccountNumber));
 
+        // Проверка лимита на транзакцию
+        if (fromAccount.getTransactionLimit() == null ||
+                fromAccount.getTransactionLimit().compareTo(transactionAccountRequest.getAmount()) >= 0) {
+
+            // Проверка достаточного баланса для перевода
             if (fromAccount.getCurrentBalance().compareTo(transactionAccountRequest.getAmount()) >= 0) {
 
+                // Обновление баланса счета отправителя
                 fromAccount.setCurrentBalance(fromAccount.getCurrentBalance().subtract(transactionAccountRequest.getAmount()));
-                var fromTransaction = transactionService.createTransactionForTransferring(fromAccountId, transactionAccountRequest);
 
+                // Создание транзакции для счета отправителя
+                var fromTransaction = transactionService.createTransactionForTransferring(fromAccountNumber, transactionAccountRequest);
+
+                // Получение информации о счете получателе
                 var toAccount = getAccountByAccountNumber(toAccountNumber);
-                if (toAccount.getCurrentBalance().add(transactionAccountRequest.getAmount()).compareTo(toAccount.getAvailableBalance()) > 0) {
 
+                // Проверка на возможность проведения транзакции на счет получателя
+                if (toAccount.getCurrentBalance().add(transactionAccountRequest.getAmount()).compareTo(toAccount.getAvailableBalance()) <= 0) {
+
+                    // Обновление баланса счета получателя
                     toAccount.setCurrentBalance(toAccount.getCurrentBalance().add(transactionAccountRequest.getAmount()));
-                    var toTransaction = transactionService.createTransactionForTransferring(toAccount.getId(), transactionAccountRequest);
 
+                    // Создание транзакции для счета получателя
+                    var toTransaction = transactionService.createTransactionForTransferring(toAccountNumber, transactionAccountRequest);
+
+                    // Сохранение изменений по счету получателя и обновление статуса транзакции
                     accountRepository.save(accountMapper.fromResponseDto(toAccount));
                     transactionService.updateTransactionStatus(toTransaction.getId(), TransactionStatus.SUCCESSFUL);
 
+                    // Обновление статуса транзакции по счету отправителя и сохранение изменений
                     transactionService.updateTransactionStatus(fromTransaction.getId(), TransactionStatus.SUCCESSFUL);
                     accountRepository.save(accountMapper.fromResponseDto(fromAccount));
+
+                    return ResponseDto.builder().responseMessage("Successfully transfer money").build();
+                } else {
+                    throw new TransactionAmountException("Insufficient funds on the recipient's account");
                 }
-
+            } else {
+                throw new TransactionAmountException("Insufficient funds on the sender's account");
             }
+        } else {
+            throw new TransactionLimitException("Transaction limit exceeded");
         }
-
-
-        return ResponseDto.builder().responseMessage("Successfully transfer money").build();
     }
 
 

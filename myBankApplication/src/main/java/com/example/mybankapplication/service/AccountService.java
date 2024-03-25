@@ -2,12 +2,13 @@ package com.example.mybankapplication.service;
 
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
 import com.example.mybankapplication.model.accounts.AccountRequest;
+import com.example.mybankapplication.model.accounts.AccountCreateDto;
 import com.example.mybankapplication.model.accounts.AccountResponse;
 import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.transactions.TransactionAccountRequest;
 import com.example.mybankapplication.model.transactions.TransactionResponse;
-import com.example.mybankapplication.model.users.UserAccountsDto;
+import com.example.mybankapplication.model.users.UserAccountsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -26,7 +27,7 @@ public interface AccountService {
 
     List<AccountResponse> getAllAccountsByUserId(Long userId);
 
-    ResponseDto createAccount(Long userId, AccountRequest account);
+    ResponseDto createAccount(AccountCreateDto account);
 
     ResponseDto updateAccount(Long accountId, AccountRequest account);
 
@@ -40,9 +41,9 @@ public interface AccountService {
 
     String getBalance(String accountNumber);
 
-    UserAccountsDto readUserByAccountId(String accountNumber);
+    UserAccountsResponse readUserByAccountId(String accountNumber);
 
     List<TransactionResponse> getTransactionsFromAccountId(Long accountId);
 
-    ResponseDto transferMoneyToAccount(Long fromAccountId, String toAccountNumber, TransactionAccountRequest transactionAccountRequest);
+    ResponseDto transferMoneyToAccount(String fromAccountNumber, String toAccountNumber, TransactionAccountRequest transactionAccountRequest);
 }

@@ -40,6 +40,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
+            TransactionAmountException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            TransactionLimitException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
             FetchingDataException ex, WebRequest webRequest) {
         log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);

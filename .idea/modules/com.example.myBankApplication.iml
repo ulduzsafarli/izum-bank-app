@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4">
+  <component name="AdditionalModuleElements">
+    <content url="file://$MODULE_DIR$/../../myBankApplication" dumb="true">
+      <excludeFolder url="file://$MODULE_DIR$/../../myBankApplication/.idea/dataSources" />
+    </content>
+  </component>
   <component name="SonarLintModuleSettings">
-    <option name="uniqueId" value="b55d15db-270b-4a39-be38-7345382a935e" />
+    <option name="uniqueId" value="ebc6c5fd-18e0-477e-9b56-90de88cf4741" />
   </component>
 </module>

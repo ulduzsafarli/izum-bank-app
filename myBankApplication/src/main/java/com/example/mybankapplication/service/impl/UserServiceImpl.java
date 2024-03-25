@@ -8,7 +8,6 @@ import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.users.*;
 import com.example.mybankapplication.dao.repository.UserRepository;
 import com.example.mybankapplication.model.users.profile.UserProfileDto;
-import com.example.mybankapplication.model.users.profile.UserProfileFilterDto;
 import com.example.mybankapplication.service.UserProfileService;
 import com.example.mybankapplication.service.UserService;
 import com.example.mybankapplication.util.GenerateRandom;
@@ -60,10 +59,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserAccountsDto getUserByIdForAccount(Long id) {
+    public UserAccountsResponse getUserByIdForAccount(Long id) {
         log.info("Retrieving user by ID: {}", id);
         var userEntity = userRepository.findById(id).orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + id));
-        UserAccountsDto userResponse = userMapper.toAccountsDto(userEntity);
+        UserAccountsResponse userResponse = userMapper.toAccountsDto(userEntity);
         log.info("Successfully retrieved User with ID: {}", id);
         return userResponse;
     }
@@ -91,7 +90,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseDto deleteUserById(Long id) {
         log.info("Deleting user by ID: {}", id);
-        var user = userRepository.findById(id).orElseThrow(()-> new NotFoundException(NOT_FOUND_WITH_ID + id));
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + id));
         userRepository.deleteById(id);
         userProfileService.deleteUserProfileById(user.getUserProfile().getUserProfileId());
         log.info("Successfully deleted user with ID: {}", id);
@@ -118,7 +117,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createCif(Long userId) {
         log.info("Creating cif for user with ID: {}", userId);
-        var user = userRepository.findById(userId).orElseThrow(()-> new NotFoundException(NOT_FOUND_WITH_ID + userId));
+        var user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + userId));
         user.setCif(GenerateRandom.generateCif());
         userRepository.save(user);
         log.info("Successfully generate cif for user with ID: {}", user);

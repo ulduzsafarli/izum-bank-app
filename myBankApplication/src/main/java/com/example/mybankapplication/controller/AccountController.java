@@ -1,13 +1,14 @@
 package com.example.mybankapplication.controller;
 
 import com.example.mybankapplication.model.accounts.AccountRequest;
+import com.example.mybankapplication.model.accounts.AccountCreateDto;
 import com.example.mybankapplication.model.accounts.AccountResponse;
 import com.example.mybankapplication.model.accounts.AccountFilterDto;
 import com.example.mybankapplication.model.auth.AccountStatusUpdate;
 import com.example.mybankapplication.model.auth.ResponseDto;
 import com.example.mybankapplication.model.transactions.TransactionAccountRequest;
 import com.example.mybankapplication.model.transactions.TransactionResponse;
-import com.example.mybankapplication.model.users.UserAccountsDto;
+import com.example.mybankapplication.model.users.UserAccountsResponse;
 import com.example.mybankapplication.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,9 +55,9 @@ public class AccountController {
     }
 
     //TODO user_id
-    @PostMapping("/user/{userId}/accounts")
-    public ResponseEntity<ResponseDto> createAccount(@PathVariable Long userId, @Valid @RequestBody AccountRequest account) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(userId, account));
+    @PostMapping("/user/accounts")
+    public ResponseEntity<ResponseDto> createAccount(@Valid @RequestBody AccountCreateDto account) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(account));
     }
 
     @PutMapping("/accounts")
@@ -85,8 +86,8 @@ public class AccountController {
     }
 
     //UserController
-    @GetMapping("/user/accounts/")
-    public ResponseEntity<UserAccountsDto> readUserByAccountNumber(@RequestParam String accountNumber) {
+    @GetMapping("/user/accounts")
+    public ResponseEntity<UserAccountsResponse> readUserByAccountNumber(@RequestParam String accountNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.readUserByAccountId(accountNumber));
     }
 
@@ -95,13 +96,12 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.getTransactionsFromAccountId(accountId));
     }
 
-    //TODO if the valute is differ then it convert
-    //TODO pin verification
-    @PostMapping("/accounts/{fromAccountId}/transfer")
-    public ResponseEntity<ResponseDto> transferMoneyToAccount(@PathVariable Long fromAccountId,
+    //TODO if the valute is differ then it convert //TODO pin verification
+    @PostMapping("/accounts/{fromAccountNumber}/transfer")
+    public ResponseEntity<ResponseDto> transferMoneyToAccount(@PathVariable String fromAccountNumber,
                                                               @RequestParam String toAccountNumber,
                                                               @RequestBody TransactionAccountRequest transactionAccountRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.transferMoneyToAccount(fromAccountId, toAccountNumber, transactionAccountRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.transferMoneyToAccount(fromAccountNumber, toAccountNumber, transactionAccountRequest));
     }
 
 }
