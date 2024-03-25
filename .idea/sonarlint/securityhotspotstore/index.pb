@@ -28,3 +28,5 @@ Fsrc/main/java/org/matrix/izumbankapp/controller/AccountController.java,d\9\d92
 -.idea/sonarlint/securityhotspotstore/index.pb,8\8\88a9255124c95bdc913197c120a8d560edc59c8e
 S
 #.idea/sonarlint/issuestore/index.pb,9\f\9fe84ebb15faf917b7def6236dba604453cc61e0
+m
+=src/main/java/org/matrix/izumbankapp/IzumBankApplication.java,9\9\99dff8d62de9ab20d79b1b008bbc8ae05c9a85af
