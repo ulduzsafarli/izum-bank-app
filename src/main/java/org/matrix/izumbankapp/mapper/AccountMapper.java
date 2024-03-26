@@ -5,26 +5,27 @@ import org.matrix.izumbankapp.dao.entities.UserEntity;
 import org.matrix.izumbankapp.model.accounts.AccountRequest;
 import org.matrix.izumbankapp.model.accounts.AccountCreateDto;
 import org.matrix.izumbankapp.model.accounts.AccountResponse;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-
-@Mapper(componentModel = "spring", uses = {UserMapper.class},
+@Mapper(componentModel = "spring", uses = {UserMapper.class, TransactionMapper.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface AccountMapper {
     @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "transactions", target = "transactionResponseList")
     AccountResponse toDto(AccountEntity accountEntity);
+
     AccountEntity fromResponseDto(AccountResponse accountResponse);
+
     @Mapping(target = "user", source = "userId", qualifiedByName = "toUserEntity")
     AccountEntity fromRequestDtoForUser(AccountCreateDto accountCreateDto);
 
     @Named("toUserEntity")
     default UserEntity toUserEntity(Long userId) {
-        if (userId == null) {
-            return null;
-        }
-        UserEntity userEntity = new UserEntity();
-        userEntity.setId(userId);
-        return userEntity;
+        return userId != null ? new UserEntity(userId) : null;
     }
 
     AccountEntity updateEntityFromDto(AccountRequest account, @MappingTarget AccountEntity accountEntity);

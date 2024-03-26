@@ -3,8 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/MyBankApi.iml" filepath="$PROJECT_DIR$/.idea/MyBankApi.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.example.myBankApplication.iml" filepath="$PROJECT_DIR$/.idea/modules/com.example.myBankApplication.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/com.example.myBankApplication.main.iml" filepath="$PROJECT_DIR$/.idea/modules/com.example.myBankApplication.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/izum-bank-app.iml" filepath="$PROJECT_DIR$/izum-bank-app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/izum-bank-app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/izum-bank-app.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/myBankApplication.iml" filepath="$PROJECT_DIR$/.idea/modules/myBankApplication.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/myBankApplication.test.iml" filepath="$PROJECT_DIR$/.idea/modules/myBankApplication.test.iml" />
     </modules>

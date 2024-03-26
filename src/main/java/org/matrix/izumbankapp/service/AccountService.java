@@ -20,7 +20,7 @@ public interface AccountService {
 
     AccountResponse getAccountByAccountNumber(String accountNumber);
 
-    List<AccountResponse> getAllAccountsByUserId(Long userId);
+    List<AccountsUserResponse> getAllAccountsByUserId(Long userId);
 
     ResponseDto createAccount(AccountCreateDto account);
 
@@ -34,7 +34,9 @@ public interface AccountService {
 
     String getBalance(String accountNumber);
 
-    UserAccountsResponse readUserByAccountId(String accountNumber);
+    UserAccountsResponse getUserByAccountNumber(String accountNumber);
 
     ResponseDto transferMoneyToAccount(TransferMoneyRequest transferMoneyRequest);
+
+    ResponseDto withdrawal(WithdrawalRequest withdrawalRequest);
 }

@@ -4,9 +4,68 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dc762bd8-f705-4265-ad99-92908a23146d" name="Changes" comment="#19 solve mapping problem. add transfer method and exceptions. Created TransactionEntity">
+    <list default="true" id="dc762bd8-f705-4265-ad99-92908a23146d" name="Changes" comment="#21 change transfer method to solve exchange problem">
+      <change afterPath="$PROJECT_DIR$/.run/IzumBankApplication.run.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/controller/DepositController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/exception/accounts/WithdrawException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/accounts/AccountsUserResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/accounts/DepositRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/accounts/WithdrawalRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/transactions/TransactionAccountResponse.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/transactions/TransactionFilterDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/util/specifications/SpecificationUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/util/specifications/TransactionSpecifications.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/99cbb794-73d0-4c32-9f38-859666738c62.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/99cbb794-73d0-4c32-9f38-859666738c62/storage_v2/_src_/database/dockerbank.XGR5sQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/99cbb794-73d0-4c32-9f38-859666738c62/storage_v2/_src_/database/dockerbank.XGR5sQ/schema/information_schema.FNRwLQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/99cbb794-73d0-4c32-9f38-859666738c62/storage_v2/_src_/database/dockerbank.XGR5sQ/schema/pg_catalog.0S1ZNQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/99cbb794-73d0-4c32-9f38-859666738c62/storage_v2/_src_/database/dockerbank.XGR5sQ/schema/public.abK9xQ.meta" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/4/9/496cd0c0dc68f179fd99d0dfa10cf5d60f274edb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/7/a/7a156f3f432898971fd80eb25d47584f49152f44" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/8/6/865b87775b8dde074bf5873b4c3d09fd5b3cd09e" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/a/b/ab51a4585b8bc3c6550cccd3dc5b7f348904025b" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/b/2/b220152df8476307af38989c6839677297f24ea8" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/c/2/c291dac7c967ea40e630c98bc82c2e1735ed760b" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/d/e/de8c54fa70bc3767043b97481f122f041d066810" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/4/9/496cd0c0dc68f179fd99d0dfa10cf5d60f274edb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/7/a/7a156f3f432898971fd80eb25d47584f49152f44" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/8/6/865b87775b8dde074bf5873b4c3d09fd5b3cd09e" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/a/b/ab51a4585b8bc3c6550cccd3dc5b7f348904025b" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/b/2/b220152df8476307af38989c6839677297f24ea8" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/c/2/c291dac7c967ea40e630c98bc82c2e1735ed760b" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/d/e/de8c54fa70bc3767043b97481f122f041d066810" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/config/SecurityConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/config/SecurityConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/controller/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/controller/AccountController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/controller/DepositScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/scheduler/DepositScheduler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/controller/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/controller/GlobalExceptionHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/controller/TransactionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/controller/TransactionController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/dao/entities/UserEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/dao/entities/UserEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/dao/repository/TransactionRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/dao/repository/TransactionRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/enumeration/accounts/AccountType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/enumeration/accounts/AccountType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/exception/transactions/TransactionValidationException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/exception/transactions/TransactionValidationException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/mapper/AccountMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/mapper/AccountMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/mapper/TransactionMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/mapper/TransactionMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/mapper/UserMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/accounts/AccountResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/accounts/AccountResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/transactions/TransactionResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/transactions/TransactionResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/users/UserAccountsResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/users/UserAccountsResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/model/users/UserFilteringDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/AccountService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/AccountService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/TransactionService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/TransactionService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/impl/AccountServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/impl/AccountServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/impl/CurrencyDataScheduler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/scheduler/CurrencyDataScheduler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/impl/TransactionServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/impl/TransactionServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/service/impl/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/util/specifications/AccountSpecifications.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/util/specifications/AccountSpecifications.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/util/specifications/UserProfileSpecifications.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/matrix/izumbankapp/util/specifications/UserProfileSpecifications.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,6 +73,9 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
     <projectState path="$PROJECT_DIR$/myBankApplication">
       <ProjectState />
     </projectState>
@@ -22,6 +84,9 @@
     <system id="GRADLE">
       <state>
         <task path="$PROJECT_DIR$/myBankApplication">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$">
           <activation />
         </task>
         <projects_view>
@@ -62,7 +127,6 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -84,56 +148,59 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Docker.myBankApplication.postgres: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;Docker.myBankApplication: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Build myBankApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.ExchangeServiceI.getExchangeRates.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.ExchangeServiceITest.getExchangeRates_createsFile.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.myBankApplication [build].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.myBankApplication [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.myBankApplication [dependencies].executor&quot;: &quot;Run&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
-    &quot;Spring Boot.MyBankApplication.executor&quot;: &quot;Run&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/user/Desktop/MyBankApi&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.build&quot;,
-    &quot;spring.configuration.checksum&quot;: &quot;e0809743b8278d8087a16d178667ea27&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Docker.myBankApplication.postgres: Compose Deployment.executor": "Run",
+    "Docker.myBankApplication: Compose Deployment.executor": "Run",
+    "Gradle.Build izum-bank-app.executor": "Run",
+    "Gradle.Build myBankApplication.executor": "Run",
+    "Gradle.ExchangeServiceI.getExchangeRates.executor": "Run",
+    "Gradle.ExchangeServiceITest.getExchangeRates_createsFile.executor": "Run",
+    "Gradle.izum-bank-app [build].executor": "Run",
+    "Gradle.myBankApplication [build].executor": "Run",
+    "Gradle.myBankApplication [clean].executor": "Run",
+    "Gradle.myBankApplication [dependencies].executor": "Run",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
+    "Spring Boot.IzumBankApplication.executor": "Run",
+    "Spring Boot.MyBankApplication.executor": "Run",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/user/Desktop/MyBankApi",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "spring.configuration.checksum": "e0809743b8278d8087a16d178667ea27",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;DatabaseDriversLRU&quot;: [
-      &quot;postgresql&quot;
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "postgresql"
     ]
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
+      <recent name="org.matrix.izumbankapp.util.specifications" />
+      <recent name="org.matrix.izumbankapp.model.transactions" />
+      <recent name="org.matrix.izumbankapp.exception" />
+      <recent name="org.matrix.izumbankapp.exception.accounts" />
       <recent name="com.example.mybankapplication.model.accounts" />
-      <recent name="com.example.mybankapplication.mapper" />
-      <recent name="com.example.mybankapplication.model.transactions" />
-      <recent name="com.example.mybankapplication.dao.repository" />
-      <recent name="com.example.mybankapplication.service.impl" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\user\Desktop\Matrix\MyBankApi\myBankApplication\src\main\java\com\example\mybankapplication\util" />
@@ -143,11 +210,12 @@
       <recent name="C:\Users\user\Desktop\Matrix\MyBankApi\myBankApplication\src\main\resources" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.matrix.izumbankapp.exception.transactions" />
       <recent name="com.example.mybankapplication.exception" />
       <recent name="com.example.mybankapplication.model.users.profile" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.MyBankApplication">
+  <component name="RunManager" selected="Spring Boot.IzumBankApplication">
     <configuration name="ExchangeServiceITest.getExchangeRates_createsFile" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -172,28 +240,26 @@
       <RunAsTest>true</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="ExchangeServiceI.getExchangeRates" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="izum-bank-app [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/myBankApplication" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="" />
+        <option name="scriptParameters" />
         <option name="taskDescriptions">
           <list />
         </option>
         <option name="taskNames">
           <list>
-            <option value=":test" />
-            <option value="--tests" />
-            <option value="&quot;com.example.mybankapplication.ExchangeServiceI.getExchangeRates&quot;" />
+            <option value="build" />
           </list>
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>true</RunAsTest>
+      <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="myBankApplication [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -240,28 +306,6 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="myBankApplication [dependencies]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/myBankApplication" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="dependencies" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
     <configuration name="MyBankApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="com.example.myBankApplication.main" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.mybankapplication.MyBankApplication" />
@@ -275,23 +319,22 @@
       </deployment>
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Gradle.ExchangeServiceITest.getExchangeRates_createsFile" />
+      <item itemvalue="Gradle.izum-bank-app [build]" />
+      <item itemvalue="Gradle.myBankApplication [build]" />
+      <item itemvalue="Gradle.myBankApplication [clean]" />
+      <item itemvalue="Spring Boot.MyBankApplication" />
+      <item itemvalue="Spring Boot.IzumBankApplication" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.izum-bank-app [build]" />
         <item itemvalue="Gradle.myBankApplication [build]" />
         <item itemvalue="Gradle.myBankApplication [clean]" />
         <item itemvalue="Gradle.ExchangeServiceITest.getExchangeRates_createsFile" />
-        <item itemvalue="Gradle.ExchangeServiceI.getExchangeRates" />
-        <item itemvalue="Gradle.myBankApplication [dependencies]" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="jdk-17.0.10-corretto-17.0.10-4caba194b151-5cd809f4" />
-        <option value="jdk-21.0.2-corretto-21.0.2-4caba194b151-51586f01" />
-      </set>
-    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -370,6 +413,12 @@
       <workItem from="1711343446255" duration="1022000" />
       <workItem from="1711344537939" duration="434000" />
       <workItem from="1711344993818" duration="831000" />
+      <workItem from="1711391348528" duration="132000" />
+      <workItem from="1711391502789" duration="5002000" />
+      <workItem from="1711397713041" duration="2647000" />
+      <workItem from="1711400417166" duration="557000" />
+      <workItem from="1711401002269" duration="76000" />
+      <workItem from="1711401103661" duration="15968000" />
     </task>
     <task id="LOCAL-00001" summary=" Add basic Spring Security configuration">
       <option name="closed" value="true" />
@@ -563,11 +612,46 @@
       <option name="project" value="LOCAL" />
       <updated>1711358473452</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="#20 solve transfer problem and add TransactionController">
+      <option name="closed" value="true" />
+      <created>1711387214309</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1711387214309</updated>
+    </task>
+    <task id="LOCAL-00026" summary="#20 solve transfer problem and add TransactionController">
+      <option name="closed" value="true" />
+      <created>1711387548582</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1711387548582</updated>
+    </task>
+    <task id="LOCAL-00027" summary="#21 change transfer method to solve exchange problem">
+      <option name="closed" value="true" />
+      <created>1711391149833</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1711391149833</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
@@ -591,7 +675,9 @@
     <MESSAGE value="#17 split the UserProfileService, remove responseCode, add Auditable.java for UserEntity.java" />
     <MESSAGE value="#18 account and transactions" />
     <MESSAGE value="#19 solve mapping problem. add transfer method and exceptions. Created TransactionEntity" />
-    <option name="LAST_COMMIT_MESSAGE" value="#19 solve mapping problem. add transfer method and exceptions. Created TransactionEntity" />
+    <MESSAGE value="#20 solve transfer problem and add TransactionController" />
+    <MESSAGE value="#21 change transfer method to solve exchange problem" />
+    <option name="LAST_COMMIT_MESSAGE" value="#21 change transfer method to solve exchange problem" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -4,16 +4,21 @@ import org.matrix.izumbankapp.dao.entities.TransactionEntity;
 import org.matrix.izumbankapp.dao.repository.TransactionRepository;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionStatus;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionType;
+import org.matrix.izumbankapp.exception.DatabaseException;
 import org.matrix.izumbankapp.exception.NotFoundException;
 import org.matrix.izumbankapp.mapper.TransactionMapper;
-import org.matrix.izumbankapp.model.accounts.AccountResponse;
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.transactions.TransactionAccountRequest;
+import org.matrix.izumbankapp.model.transactions.TransactionFilterDto;
 import org.matrix.izumbankapp.model.transactions.TransactionRequest;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
 import org.matrix.izumbankapp.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.matrix.izumbankapp.util.specifications.TransactionSpecifications;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,30 +36,32 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<TransactionResponse> getTransactionsFromAccountId(Long accountId) {
-        log.info("Retrieving transactions for account ID {}", accountId);
+        log.info("Receiving transactions for account ID {}", accountId);
 
         var transactionResponses = transactionRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new NotFoundException("Transactions not found for account ID: " + accountId))
-                .stream().map(transactionMapper::toResponseDTo).toList();
+                .stream().map(transactionMapper::toResponseDto).toList();
 
-        log.info("Successfully retrieved transactions for account ID {}", accountId);
+        log.info("Successfully receive transactions for account ID {}", accountId);
         return transactionResponses;
     }
 
     @Override
-    public TransactionResponse createTransferTransaction(Long accountId, TransactionAccountRequest transactionAccountRequest) {
+    public TransactionResponse createTransaction(Long accountId,
+                                                 TransactionAccountRequest transactionAccountRequest,
+                                                 TransactionType transactionType) {
         log.info("Creating transaction for account number {} for transferring money, details: {}", accountId, transactionAccountRequest);
         TransactionRequest transactionRequest = TransactionRequest.builder()
                 .amount(transactionAccountRequest.getAmount())
                 .comments(transactionAccountRequest.getComments())
-                .type(TransactionType.TRANSFER)
+                .type(transactionType)
                 .status(TransactionStatus.PENDING)
                 .transactionUUID(UUID.randomUUID().toString())
                 .accountId(accountId).build();
         var transactionEntity = transactionMapper.fromRequestDto(transactionRequest);
         transactionRepository.save(transactionEntity);
         log.info("Successfully create transaction for account ID {} for transferring money, details: {}", accountId, transactionAccountRequest);
-        return transactionMapper.toResponseDTo(transactionEntity);
+        return transactionMapper.toResponseDto(transactionEntity);
     }
 
     @Override
@@ -66,11 +73,35 @@ public class TransactionServiceImpl implements TransactionService {
         log.info("Successfully update status for transaction ID {} to status {}", id, transactionStatus);
     }
 
+    @Override
+    public List<TransactionResponse> getTransactionsByType(TransactionType type) {
+        log.info("Receiving all {} transactions", type);
+        var responseList = transactionRepository.findByType(type)
+                .orElseThrow(() -> new NotFoundException("Transaction with type " + type + " not found"))
+                .stream().map(transactionMapper::toResponseDto).toList();
+        log.info("Successfully receive all {} transactions", type);
+        return responseList;
+    }
+
+
+    @Override
+    public Page<TransactionResponse> findTransactionByFilter(TransactionFilterDto transactionFilterDto, Pageable pageable) {
+        log.info("Searching transactions by filter: {}", transactionFilterDto);
+        try {
+            Specification<TransactionEntity> accountSpecification = TransactionSpecifications.getAccountSpecification(transactionFilterDto);
+            Page<TransactionEntity> transactionsPage = transactionRepository.findAll(accountSpecification, pageable);
+            log.info("Successfully found accounts");
+            return transactionsPage.map(transactionMapper::toResponseDto);
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Failed to find an account in the database", ex);
+        }
+    }
+
     public TransactionResponse getTransactionById(Long id) {
-        log.info("Retrieving transaction by ID {}", id);
-        var transaction = transactionRepository.findById(id).map(transactionMapper::toResponseDTo)
+        log.info("Receiving transaction by ID {}", id);
+        var transaction = transactionRepository.findById(id).map(transactionMapper::toResponseDto)
                 .orElseThrow(() -> new NotFoundException("Transaction with this ID " + id + " not found"));
-        log.info("Successfully retrieve transaction by ID {}", id);
+        log.info("Successfully receive transaction by ID {}", id);
         return transaction;
     }
 }

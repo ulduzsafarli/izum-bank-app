@@ -17,7 +17,7 @@ public interface TransactionMapper {
     @Mapping(target = "account", source = "accountId", qualifiedByName = "toAccountEntity")
     TransactionEntity fromResponseDto(TransactionResponse transactionResponse);
     @Mapping(source = "account.id", target = "accountId")
-    TransactionResponse toResponseDTo(TransactionEntity transactionEntity);
+    TransactionResponse toResponseDto(TransactionEntity transactionEntity);
 
     @Named("toAccountEntity")
     default AccountEntity toAccountEntity(Long accountId) {
