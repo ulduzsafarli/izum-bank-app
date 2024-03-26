@@ -1,17 +1,14 @@
 package org.matrix.izumbankapp.service.impl;
 
-import org.matrix.izumbankapp.dao.entities.AccountEntity;
 import org.matrix.izumbankapp.dao.entities.UserEntity;
 import org.matrix.izumbankapp.enumeration.auth.Role;
 import org.matrix.izumbankapp.exception.*;
 import org.matrix.izumbankapp.mapper.UserMapper;
-import org.matrix.izumbankapp.model.accounts.AccountResponse;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.users.*;
 import org.matrix.izumbankapp.dao.repository.UserRepository;
 import org.matrix.izumbankapp.model.users.profile.UserProfileDto;
 import org.matrix.izumbankapp.model.users.profile.UserProfileFilterDto;
-import org.matrix.izumbankapp.service.AccountService;
 import org.matrix.izumbankapp.service.UserProfileService;
 import org.matrix.izumbankapp.service.UserService;
 import org.matrix.izumbankapp.util.GenerateRandom;

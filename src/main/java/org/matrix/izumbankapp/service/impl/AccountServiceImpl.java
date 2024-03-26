@@ -1,7 +1,6 @@
 package org.matrix.izumbankapp.service.impl;
 
 import org.matrix.izumbankapp.dao.entities.AccountEntity;
-import org.matrix.izumbankapp.dao.entities.TransactionEntity;
 import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionStatus;
@@ -40,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
