@@ -1,22 +1,29 @@
 package org.matrix.izumbankapp.service.impl;
 
 import org.matrix.izumbankapp.dao.entities.AccountEntity;
+import org.matrix.izumbankapp.dao.entities.TransactionEntity;
 import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
+import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionStatus;
+import org.matrix.izumbankapp.enumeration.transaction.TransactionType;
 import org.matrix.izumbankapp.exception.*;
 import org.matrix.izumbankapp.exception.accounts.AccountClosingException;
 import org.matrix.izumbankapp.exception.accounts.AccountStatusException;
+import org.matrix.izumbankapp.exception.accounts.TransferException;
+import org.matrix.izumbankapp.exception.accounts.WithdrawException;
 import org.matrix.izumbankapp.exception.transactions.TransactionAmountException;
 import org.matrix.izumbankapp.exception.transactions.TransactionLimitException;
+import org.matrix.izumbankapp.exception.transactions.TransactionValidationException;
 import org.matrix.izumbankapp.mapper.AccountMapper;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.dao.repository.AccountRepository;
 import org.matrix.izumbankapp.model.auth.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
-import org.matrix.izumbankapp.model.transactions.TransactionAccountRequest;
+import org.matrix.izumbankapp.model.exchange.ExchangeRequestDto;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
 import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.matrix.izumbankapp.service.AccountService;
+import org.matrix.izumbankapp.service.ExchangeService;
 import org.matrix.izumbankapp.service.TransactionService;
 import org.matrix.izumbankapp.service.UserService;
 import org.matrix.izumbankapp.util.GenerateRandom;
@@ -32,6 +39,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -39,11 +48,8 @@ import java.util.List;
 @Slf4j
 public class AccountServiceImpl implements AccountService {
 
-//    String errorMessageFormat = "Account with number %s not found";
-//new NotFoundException(String.format(errorMessageFormat, toAccountNumber)))
-
     private static final String WITH_ID_NOT_FOUND = "Account with ID not found: ";
-    private static final String WITH_NUMBER_NOT_FOUND = "Account with number not found: ";
+    private static final String WITH_NUMBER_NOT_FOUND = "Account with number %s not found";
 
 
     private final PasswordEncoder passwordEncoder;
@@ -51,7 +57,9 @@ public class AccountServiceImpl implements AccountService {
     public final AccountMapper accountMapper;
     private final UserService userService;
     private final TransactionService transactionService;
+    private final ExchangeService exchangeService;
 
+    @Override
     public Page<AccountResponse> findAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest) {
         log.info("Searching accounts by filter: {}", accountFilterDto);
         try {
@@ -64,17 +72,21 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    public List<AccountResponse> getAllAccounts() {
-        log.info("Retrieving all accounts");
+    @Override
+    public AccountResponse getAccountByAccountNumber(String accountNumber) {
+        log.info("Retrieving account by account number: {}", accountNumber);
         try {
-            var accountDtoList = accountRepository.findAll().stream().map(accountMapper::toDto).toList();
-            log.info("Successfully retrieved all accounts");
-            return accountDtoList;
+            AccountEntity accountEntity = accountRepository.findByAccountNumber(accountNumber)
+                    .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
+            AccountResponse accountResponse = accountMapper.toDto(accountEntity);
+            log.info("Successfully retrieved account");
+            return accountResponse;
         } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to get all accounts from the database", ex);
+            throw new DatabaseException("Failed to get accounts by account number from the database", ex);
         }
     }
 
+    @Override
     public AccountResponse getAccountById(Long accountId) {
         log.info("Retrieving account by ID: {}", accountId);
         try {
@@ -89,26 +101,25 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountResponse getAccountByAccountNumber(String accountNumber) {
-        log.info("Retrieving account by account number: {}", accountNumber);
+    public List<AccountResponse> getAllAccounts() {
+        log.info("Retrieving all accounts");
         try {
-            AccountEntity accountEntity = accountRepository.findByAccountNumber(accountNumber)
-                    .orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + accountNumber));
-            AccountResponse accountResponse = accountMapper.toDto(accountEntity);
-            log.info("Successfully retrieved account");
-            return accountResponse;
+            var accountDtoList = accountRepository.findAll().stream().map(accountMapper::toDto).toList();
+            log.info("Successfully retrieved all accounts");
+            return accountDtoList;
         } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to get accounts by account number from the database", ex);
+            throw new DatabaseException("Failed to get all accounts from the database", ex);
         }
     }
 
+
     //Добавить кеширование
     @Override
-    public List<AccountResponse> getAllAccountsByUserId(Long userId) {
+    public List<AccountsUserResponse> getAllAccountsByUserId(Long userId) {
         log.info("Retrieving all accounts by user ID: {}", userId);
         try {
             UserAccountsResponse userResponseList = userService.getUserByIdForAccount(userId);
-            List<AccountResponse> accountResponses = userResponseList.getAccounts();
+            List<AccountsUserResponse> accountResponses = userResponseList.getAccounts();
             log.info("Successfully retrieved all accounts by user ID: {}", userId);
             return accountResponses;
         } catch (DataAccessException ex) {
@@ -176,16 +187,16 @@ public class AccountServiceImpl implements AccountService {
                     }
                     account.setStatus(AccountStatus.CLOSED);
                     return ResponseDto.builder().responseMessage("Account closed successfully").build();
-                }).orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + accountNumber));
+                }).orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
     }
 
     @Override
     public String getBalance(String accountNumber) {
         log.info("Getting current balance from account {}", accountNumber);
         AccountEntity account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + accountNumber));
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
         log.info("Get current balance from account {} successfully", accountNumber);
-        return account.getAvailableBalance().toString();
+        return account.getCurrentBalance().toString();
     }
 
     @Override
@@ -200,18 +211,17 @@ public class AccountServiceImpl implements AccountService {
                     accountRepository.save(account);
                     return ResponseDto.builder().responseMessage("Account updated successfully").build();
                 }).orElseThrow(() -> new NotFoundException("Account not on the server"));
-
     }
 
     @Override
-    public UserAccountsResponse readUserByAccountId(String accountNumber) {
+    public UserAccountsResponse getUserByAccountNumber(String accountNumber) {
         log.info("Reading user by account number {}", accountNumber);
 
         try {
             var userAccountsDto = accountRepository.findByAccountNumber(accountNumber)
                     .map(AccountEntity::getUser)
                     .map(userEntity -> userService.getUserByIdForAccount(userEntity.getId()))
-                    .orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + accountNumber));
+                    .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
             log.info("Read user by account number {} successfully", accountNumber);
             return userAccountsDto;
         } catch (DataAccessException ex) {
@@ -222,41 +232,82 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional(rollbackFor = {TransactionAmountException.class, TransactionLimitException.class})
     public ResponseDto transferMoneyToAccount(TransferMoneyRequest transferMoneyRequest) {
-        log.info("Transferring money from {} to {}. Details: {}", transferMoneyRequest.getFromAccountNumber(),
-                transferMoneyRequest.getToAccountNumber(), transferMoneyRequest.getTransactionAccountRequest());
 
-        String fromAccountNumber = transferMoneyRequest.getFromAccountNumber();
-        String toAccountNumber = transferMoneyRequest.getToAccountNumber();
-        TransactionAccountRequest transactionAccountRequest = transferMoneyRequest.getTransactionAccountRequest();
+        log.info("Transferring money from {} to {}. Details: {}",
+                transferMoneyRequest.getFromAccountNumber(),
+                transferMoneyRequest.getToAccountNumber(),
+                transferMoneyRequest.getTransactionAccountRequest());
 
-        var fromAccount = accountRepository.findByAccountNumber(fromAccountNumber)
-                .orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + toAccountNumber));
-        var toAccount = accountRepository.findByAccountNumber(toAccountNumber)
-                .orElseThrow(() -> new NotFoundException(WITH_NUMBER_NOT_FOUND + toAccountNumber));
+        var fromAccount = findAccountOrFail(transferMoneyRequest.getFromAccountNumber());
+        var toAccount = findAccountOrFail(transferMoneyRequest.getToAccountNumber());
 
-        if (!verifyPin(fromAccount, transferMoneyRequest.getPin())) {
-            throw new InvalidPinException("Invalid PIN provided");
-        }
+        validatePin(fromAccount, transferMoneyRequest.getPin());
 
-        validateTransaction(fromAccount, transactionAccountRequest);
+        BigDecimal transferAmount = transferMoneyRequest.getTransactionAccountRequest().getAmount();
+        transferAmount = performCurrencyExchangeIfNeeded(fromAccount, transferAmount, toAccount.getCurrencyType());
+        validateTransaction(fromAccount, transferAmount);
 
-        fromAccount.setCurrentBalance(fromAccount.getCurrentBalance().subtract(transactionAccountRequest.getAmount()));
-        var fromTransaction = transactionService.createTransactionForTransferring(fromAccount.getId(), transactionAccountRequest);
-        toAccount.setCurrentBalance(toAccount.getCurrentBalance().add(transactionAccountRequest.getAmount()));
-        var toTransaction = transactionService.createTransactionForTransferring(toAccount.getId(), transactionAccountRequest);
+        fromAccount.debitBalance(transferAmount);
+        transferMoneyRequest.getTransactionAccountRequest().setAmount(transferAmount);
+        var fromTransaction = transactionService.createTransaction(fromAccount.getId(),
+                transferMoneyRequest.getTransactionAccountRequest(), TransactionType.TRANSFER);
 
+        toAccount.creditBalance(transferAmount);
+        var toTransaction = transactionService.createTransaction(toAccount.getId(),
+                transferMoneyRequest.getTransactionAccountRequest(), TransactionType.TRANSFER);
+
+        return executeTransfer(fromAccount, toAccount, fromTransaction, toTransaction);
+    }
+
+    @Override
+    public ResponseDto withdrawal(WithdrawalRequest withdrawalRequest) {
+        log.info("Withdrawals from {}. Details: {}",
+                withdrawalRequest.getFromAccountNumber(),
+                withdrawalRequest.getTransactionAccountRequest());
+
+        var fromAccount = findAccountOrFail(withdrawalRequest.getFromAccountNumber());
+
+        validatePin(fromAccount, withdrawalRequest.getPin());
+
+        BigDecimal withdrawAmount = withdrawalRequest.getTransactionAccountRequest().getAmount();
+        withdrawAmount = performCurrencyExchangeIfNeeded(fromAccount, withdrawAmount, withdrawalRequest.getCurrencyType());
+        validateTransaction(fromAccount, withdrawAmount);
+        fromAccount.debitBalance(withdrawAmount);
+        withdrawalRequest.getTransactionAccountRequest().setAmount(withdrawAmount);
+        var fromTransaction = transactionService.createTransaction(fromAccount.getId(),
+                withdrawalRequest.getTransactionAccountRequest(), TransactionType.WITHDRAWAL);
         try {
             accountRepository.save(fromAccount);
-            accountRepository.save(toAccount);
-            updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.SUCCESSFUL);
-            return ResponseDto.builder().responseMessage("Successfully transferred money").build();
-
+            return ResponseDto.builder().responseMessage("Successfully withdraw money").build();
         } catch (DataAccessException ex) {
-            updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.FAILED);
+            updateTransactionsStatus(List.of(fromTransaction), TransactionStatus.FAILED);
             throw new DatabaseException("Data access error during transfer", ex);
         } catch (Exception ex) {
-            updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.FAILED);
-            throw new RuntimeException("Unexpected error during transfer", ex);
+            updateTransactionsStatus(List.of(fromTransaction), TransactionStatus.FAILED);
+            throw new WithdrawException("Unexpected error during transfer", ex);
+        }
+    }
+
+    private BigDecimal performCurrencyExchangeIfNeeded(AccountEntity fromAccount, BigDecimal amount, CurrencyType toCurrency) {
+        if (fromAccount.getCurrencyType() != toCurrency) {
+            return performCurrencyExchange(fromAccount, amount, toCurrency);
+        } else {
+            return amount;
+        }
+    }
+
+    private AccountEntity findAccountOrFail(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
+    }
+
+    private BigDecimal performCurrencyExchange(AccountEntity fromAccount, BigDecimal amount, CurrencyType toCurrency) {
+        if (fromAccount.getCurrencyType() == CurrencyType.AZN) {
+            return BigDecimal.valueOf(exchangeService.performExchangeFromAZN(
+                    ExchangeRequestDto.builder().amount(amount.doubleValue()).currencyType(toCurrency).build()).getConvertedAmount());
+        } else {
+            return BigDecimal.valueOf(exchangeService.performExchangeToAZN(
+                    ExchangeRequestDto.builder().amount(amount.doubleValue()).currencyType(fromAccount.getCurrencyType()).build()).getConvertedAmount());
         }
     }
 
@@ -264,23 +315,45 @@ public class AccountServiceImpl implements AccountService {
         transactions.forEach(transaction -> transactionService.updateTransactionStatus(transaction.getId(), transactionStatus));
     }
 
-    private void validateTransaction(AccountEntity fromAccount, TransactionAccountRequest transactionAccountRequest) {
-        if (!validateTransactionLimit(fromAccount, transactionAccountRequest.getAmount())) {
-            throw new TransactionLimitException("Transaction limit exceeded");
-        }
-        if (!validateSufficientBalance(fromAccount, transactionAccountRequest.getAmount())) {
-            throw new TransactionAmountException("Insufficient funds on the sender's account");
-        }
-        if (!validateAvailableBalanceAfterTransfer(fromAccount, transactionAccountRequest.getAmount())) {
-            throw new TransactionAmountException("Exceeding the allowable limit of funds on the recipient's account");
+    private ResponseDto executeTransfer(AccountEntity fromAccount, AccountEntity toAccount,
+                                        TransactionResponse fromTransaction, TransactionResponse toTransaction) {
+        try {
+            accountRepository.saveAll(List.of(fromAccount, toAccount));
+            updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.SUCCESSFUL);
+            return ResponseDto.builder().responseMessage("Successfully transferred money").build();
+        } catch (DataAccessException ex) {
+            updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.FAILED);
+            throw new DatabaseException("Data access error during transfer", ex);
+        } catch (Exception ex) {
+            updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.FAILED);
+            throw new TransferException("Unexpected error during transfer", ex);
         }
     }
 
-    private boolean verifyPin(AccountEntity account, String pin) {
-        log.info("Verify PIN for account number: {} ", account.getAccountNumber());
+    private void validateTransaction(AccountEntity fromAccount, BigDecimal amount) {
+        List<String> errors = new ArrayList<>();
+        if (!validateTransactionLimit(fromAccount, amount)) {
+            errors.add("Transaction limit exceeded");
+        }
+        if (!validateSufficientBalance(fromAccount, amount)) {
+            errors.add("Insufficient funds on the sender's account");
+        }
+        if (!validateAvailableBalanceAfterTransfer(fromAccount, amount)) {
+            errors.add("Exceeding the allowable limit of funds on the recipient's account");
+        }
+        if (!errors.isEmpty()) {
+            throw new TransactionValidationException(String.join("; ", errors));
+        }
+    }
+
+
+    private void validatePin(AccountEntity account, String pin) throws InvalidPinException {
+        log.info("Validating PIN for account number: {}", account.getAccountNumber());
         boolean isPinValid = passwordEncoder.matches(pin, account.getPin());
         log.info(isPinValid ? "PIN verification successful." : "PIN verification failed.");
-        return isPinValid;
+        if (!isPinValid) {
+            throw new InvalidPinException("Invalid PIN provided");
+        }
     }
 
     private boolean validateTransactionLimit(AccountEntity account, BigDecimal amount) {
@@ -293,13 +366,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private boolean validateAvailableBalanceAfterTransfer(AccountEntity account, BigDecimal amount) {
-        try {
-            return account.getCurrentBalance().add(amount).compareTo(account.getAvailableBalance()) >= 0;
-        } catch (ArithmeticException e) {
-            log.error("Overflow occurred during balance calculation", e);
-            throw new IllegalStateException("Available balance calculation failed");
-        }
+        return account.getCurrentBalance().add(amount).compareTo(account.getAvailableBalance()) <= 0;
+
     }
+
 
 }
 

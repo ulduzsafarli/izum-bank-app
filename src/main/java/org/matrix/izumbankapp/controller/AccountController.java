@@ -3,7 +3,6 @@ package org.matrix.izumbankapp.controller;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.model.auth.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
-import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.matrix.izumbankapp.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,7 @@ public class AccountController {
     private final AccountService accountService;
 
     @GetMapping("/accounts/search")
-    public Page<AccountResponse> getAccountByFilter(@Valid AccountFilterDto accountFilterDto,
+    public Page<AccountResponse> getAccountByFilter(AccountFilterDto accountFilterDto,
                                                     @PageableDefault(direction = Sort.Direction.ASC) Pageable pageable) {
         return accountService.findAccountsByFilter(accountFilterDto, pageable);
     }
@@ -42,11 +41,6 @@ public class AccountController {
     @GetMapping("/accounts/accountNumber")
     public ResponseEntity<AccountResponse> getAccountByAccountNumber(@RequestParam String accountNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.getAccountByAccountNumber(accountNumber));
-    }
-
-    @GetMapping("/user/{userId}/accounts")
-    public ResponseEntity<List<AccountResponse>> getAllAccountsByUserId(@PathVariable Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.getAllAccountsByUserId(userId));
     }
 
     @PostMapping("/user/accounts")
@@ -79,16 +73,21 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.getBalance(accountNumber));
     }
 
-    //UserController
-    @GetMapping("/user/accounts")
-    public ResponseEntity<UserAccountsResponse> readUserByAccountNumber(@RequestParam String accountNumber) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.readUserByAccountId(accountNumber));
-    }
-
-    //TODO if the valute is differ then it convert
     @PostMapping("/accounts/transfer")
-    public ResponseEntity<ResponseDto> transferMoneyToAccount(@Valid @RequestBody TransferMoneyRequest transferMoneyRequest) {
+    public ResponseEntity<ResponseDto> transferToAccount(@Valid @RequestBody TransferMoneyRequest transferMoneyRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(accountService.transferMoneyToAccount(transferMoneyRequest));
     }
+
+    @PostMapping("/accounts/withdrawal")
+    public ResponseEntity<ResponseDto> withdrawal(@Valid @RequestBody WithdrawalRequest withdrawalRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.withdrawal(withdrawalRequest));
+    }
+
+    @PostMapping("/accounts/deposit")
+    public ResponseEntity<ResponseDto> deposit(@Valid @RequestBody WithdrawalRequest withdrawalRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.withdrawal(withdrawalRequest));
+    }
+
+
 
 }

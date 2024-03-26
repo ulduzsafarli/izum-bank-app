@@ -3,7 +3,7 @@ package org.matrix.izumbankapp.model.accounts;
 import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.enumeration.accounts.AccountType;
 import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
-import org.matrix.izumbankapp.model.transactions.TransactionResponse;
+import org.matrix.izumbankapp.model.transactions.TransactionAccountResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,5 +29,5 @@ public class AccountResponse {
     private BigDecimal currentBalance;
     private Long userId;
     private BigDecimal transactionLimit;
-    private List<TransactionResponse> transactionResponseList;
+    private List<TransactionAccountResponse> transactionResponseList;
 }

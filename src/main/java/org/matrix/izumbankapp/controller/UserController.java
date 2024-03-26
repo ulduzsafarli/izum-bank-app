@@ -1,11 +1,14 @@
 package org.matrix.izumbankapp.controller;
 
+import org.matrix.izumbankapp.model.accounts.AccountsUserResponse;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
+import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.matrix.izumbankapp.model.users.UserCreateDto;
-import org.matrix.izumbankapp.model.users.UserFilteringDto;
 import org.matrix.izumbankapp.model.users.UserUpdateDto;
 import org.matrix.izumbankapp.model.users.UserResponse;
 import org.matrix.izumbankapp.model.users.profile.UserProfileDto;
+import org.matrix.izumbankapp.model.users.profile.UserProfileFilterDto;
+import org.matrix.izumbankapp.service.AccountService;
 import org.matrix.izumbankapp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +25,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final AccountService accountService;
 
     @GetMapping("/search")
-    public Page<UserProfileDto> getUsersByFilter(UserFilteringDto userFilteringDto, Pageable pageable) {
-        return userService.findUsersByFilter(userFilteringDto, pageable);
+    public Page<UserProfileDto> getUsersByFilter(UserProfileFilterDto filter, Pageable pageable) {
+        return userService.findUsersByFilter(filter, pageable);
     }
     /**
      * Retrieves a user by their ID.
@@ -91,6 +95,16 @@ public class UserController {
     @DeleteMapping
     public ResponseEntity<ResponseDto> deleteUserById(@RequestParam Long id) {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(userService.deleteUserById(id));
+    }
+
+    @GetMapping("/accounts/{accountNumber}")
+    public ResponseEntity<UserAccountsResponse> readUserByAccountNumber(@PathVariable String accountNumber) {
+        return ResponseEntity.status(HttpStatus.OK).body(accountService.getUserByAccountNumber(accountNumber));
+    }
+
+    @GetMapping("{userId}/accounts")
+    public ResponseEntity<List<AccountsUserResponse>> getAllAccountsByUserId(@PathVariable Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(accountService.getAllAccountsByUserId(userId));
     }
 
 }

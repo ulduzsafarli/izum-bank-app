@@ -5,43 +5,24 @@ import org.matrix.izumbankapp.model.accounts.AccountFilterDto;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDateTime;
+import static org.matrix.izumbankapp.util.specifications.SpecificationUtil.*;
 
 @UtilityClass
 public class AccountSpecifications {
+    public static Specification<AccountEntity> getAccountSpecification(AccountFilterDto filter) {
 
-
-    private static <T> Specification<T> likeIgnoreCase(String attribute, String value) {
-        return (root, query, criteriaBuilder) ->
-                value == null || value.isBlank() ?
-                        null : criteriaBuilder.like(criteriaBuilder.lower(root.get(attribute)),
-                        "%" + value.toLowerCase() + "%");
-    }
-
-    private static <T> Specification<T> isEqual(String attribute, Object value) {
-        return (root, query, criteriaBuilder) ->
-                value == null ?
-                        null : criteriaBuilder.equal(root.get(attribute), value);
-    }
-
-    public static Specification<AccountEntity> getAccountSpecification(AccountFilterDto accountFilterDto) {
         var spec = Specification.<AccountEntity>where(
-                        likeIgnoreCase("branchCode", accountFilterDto.getBranchCode()))
-                .and(isEqual("accountExpireDate", accountFilterDto.getAccountExpireDate()))
-                .and(isEqual("currency", accountFilterDto.getCurrencyType()))
-                .and(isEqual("accountType", accountFilterDto.getAccountType()))
-                .and(isEqual("status", accountFilterDto.getStatus()))
-                .and(isEqual("currentBalance", accountFilterDto.getCurrentBalance()))
-                .and(isEqual("transactionLimit", accountFilterDto.getTransactionLimit()));
+                        likeIgnoreCase("branchCode", filter.getBranchCode()))
+                .and(isEqual("currencyType", filter.getCurrencyType()))
+                .and(isEqual("accountType", filter.getAccountType()))
+                .and(isEqual("status", filter.getStatus()))
+                .and(isEqual("currentBalance", filter.getCurrentBalance()))
+                .and(isEqual("transactionLimit", filter.getTransactionLimit()));
 
-        if (accountFilterDto.getCreatedAt() != null) { //TODO analyze
-            LocalDateTime startOfDay = accountFilterDto.getCreatedAt().atStartOfDay();
-            LocalDateTime endOfDay = accountFilterDto.getCreatedAt().atTime(23, 59, 59);
-            spec = spec.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.between(root.get("accountOpenDate"), startOfDay, endOfDay));
+        if (filter.getCreatedAt() != null) {
+            spec = spec.and(filterByDates(filter.getCreatedAt(), filter.getAccountExpireDate(), "accountExpireDate"));
         }
 
         return spec;
     }
 }
-

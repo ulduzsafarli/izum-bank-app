@@ -17,6 +17,5 @@ public class TransactionResponse {
     private TransactionStatus status;
     private String transactionUUID;
     private String comments;
-    private BigDecimal transactionLimit;
     private Long accountId;
 }

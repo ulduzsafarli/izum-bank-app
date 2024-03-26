@@ -21,6 +21,7 @@ import java.util.List;
 @Table(name = "users", schema = "public")
 @EntityListeners(AuditingEntityListener.class)
 public class UserEntity extends Auditable implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -46,6 +47,11 @@ public class UserEntity extends Auditable implements UserDetails {
     @EqualsAndHashCode.Exclude
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
     private List<AccountEntity> accounts;
+
+    public UserEntity(Long id) {
+        super();
+        this.id = id;
+    }
 
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 //    private List<NotificationEntity> notifications;

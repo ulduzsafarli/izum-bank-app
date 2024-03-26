@@ -10,11 +10,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matrix.izumbankapp.exception.accounts.AccountClosingException;
 import org.matrix.izumbankapp.exception.accounts.AccountStatusException;
+import org.matrix.izumbankapp.exception.accounts.WithdrawException;
 import org.matrix.izumbankapp.exception.currencies.*;
 import org.matrix.izumbankapp.exception.transactions.TransactionAmountException;
 import org.matrix.izumbankapp.exception.supports.EmailSendingException;
 import org.matrix.izumbankapp.exception.supports.FetchingDataException;
 import org.matrix.izumbankapp.exception.transactions.TransactionLimitException;
+import org.matrix.izumbankapp.exception.transactions.TransactionValidationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -47,6 +49,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
+            InvalidPinException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            IllegalStateException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
             TransactionAmountException ex, WebRequest webRequest) {
         log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
@@ -54,6 +68,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
             TransactionLimitException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+   @ExceptionHandler(TransactionValidationException.class)
+    public ResponseEntity<ErrorDetails> handle(
+            TransactionValidationException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            WithdrawException ex, WebRequest webRequest) {
         log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }

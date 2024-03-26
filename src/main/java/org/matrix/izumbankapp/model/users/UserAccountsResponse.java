@@ -1,16 +1,18 @@
 package org.matrix.izumbankapp.model.users;
 
+import lombok.Builder;
 import org.matrix.izumbankapp.enumeration.auth.Role;
-import org.matrix.izumbankapp.model.accounts.AccountResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.matrix.izumbankapp.model.accounts.AccountsUserResponse;
 
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class UserAccountsResponse {
 
     private Long id;
@@ -21,6 +23,6 @@ public class UserAccountsResponse {
 
     private Role role;
 
-    private List<AccountResponse> accounts;
+    private List<AccountsUserResponse> accounts;
 
 }
