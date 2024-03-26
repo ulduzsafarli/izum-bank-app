@@ -20,4 +20,6 @@ public interface TransactionService {
     void updateTransactionStatus(Long id, TransactionStatus transactionStatus);
     List<TransactionResponse> getTransactionsByType(TransactionType type);
     Page<TransactionResponse> findTransactionByFilter(TransactionFilterDto transactionFilterDto, Pageable pageable);
+
+    TransactionResponse getTransactionByUUID(String transactionUUID);
 }
