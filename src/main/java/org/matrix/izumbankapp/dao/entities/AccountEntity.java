@@ -64,6 +64,11 @@ public class AccountEntity extends Auditable {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
+    public AccountEntity(Long accountId) {
+        super();
+        this.id = accountId;
+    }
+
 
     public void debitBalance(BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {

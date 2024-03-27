@@ -36,8 +36,7 @@ public class DepositServiceImpl implements DepositService {
     @Override
     public void saveDeposit(DepositResponse depositResponse) {
         log.info("Saving deposit");
-        var depositEntity = depositMapper.toEntity(depositResponse);
-        depositRepository.save(depositEntity);
+        depositRepository.save(depositMapper.toEntity(depositResponse));
         log.info("Deposit saved successfully");
     }
 
