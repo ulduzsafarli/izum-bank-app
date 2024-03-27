@@ -31,6 +31,12 @@ public class TransactionController {
     public ResponseEntity<List<TransactionResponse>> getTransactions(@PathVariable TransactionType transactionType) {
         return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionsByType(transactionType));
     }
+
+    @GetMapping("/transactions/{transactionUUID}")
+    public ResponseEntity<TransactionResponse> getTransactions(@PathVariable String transactionUUID) {
+        return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionByUUID(transactionUUID));
+    }
+
     @GetMapping("/transactions/search")
     public Page<TransactionResponse> getTransactionsByFilter(TransactionFilterDto transactionFilterDto,
                                                     @PageableDefault(direction = Sort.Direction.ASC) Pageable pageable) {

@@ -97,6 +97,15 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
+    @Override
+    public TransactionResponse getTransactionByUUID(String transactionUUID) {
+        log.info("Receiving transaction by transactionUUID {}", transactionUUID);
+        var transaction = transactionRepository.findByTransactionUUID(transactionUUID)
+                .orElseThrow(() -> new NotFoundException("Transactions not found for account ID: " + transactionUUID));
+        log.info("Successfully receive transaction by transactionUUID {}", transactionUUID);
+        return transactionMapper.toResponseDto(transaction);
+    }
+
     public TransactionResponse getTransactionById(Long id) {
         log.info("Receiving transaction by ID {}", id);
         var transaction = transactionRepository.findById(id).map(transactionMapper::toResponseDto)

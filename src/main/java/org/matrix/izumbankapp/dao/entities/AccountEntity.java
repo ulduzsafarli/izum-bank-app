@@ -1,12 +1,13 @@
 package org.matrix.izumbankapp.dao.entities;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.matrix.izumbankapp.dao.entities.abstractentity.Auditable;
 import org.matrix.izumbankapp.enumeration.accounts.*;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.matrix.izumbankapp.exception.transactions.TransactionAmountException;
-import org.matrix.izumbankapp.exception.transactions.TransactionLimitException;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
@@ -15,6 +16,8 @@ import java.util.List;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "accounts", schema = "public")
 @EqualsAndHashCode(callSuper = true)
 @EntityListeners(AuditingEntityListener.class)

@@ -14,4 +14,6 @@ public interface TransactionRepository extends JpaRepository<TransactionEntity, 
     Optional<List<TransactionEntity>> findByAccountId(Long accountId);
     Page<TransactionEntity> findAll(Specification<TransactionEntity> spec, Pageable pageRequest);
     Optional<List<TransactionEntity>> findByType(TransactionType type);
+
+    Optional<TransactionEntity> findByTransactionUUID(String transactionUUID);
 }

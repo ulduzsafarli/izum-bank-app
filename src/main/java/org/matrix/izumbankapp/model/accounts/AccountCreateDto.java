@@ -1,5 +1,6 @@
 package org.matrix.izumbankapp.model.accounts;
 
+import lombok.Builder;
 import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.enumeration.accounts.AccountType;
 import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountCreateDto {

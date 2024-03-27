@@ -1,16 +1,13 @@
 package org.matrix.izumbankapp.service.impl;
 
 import org.matrix.izumbankapp.dao.entities.AccountEntity;
-import org.matrix.izumbankapp.dao.entities.TransactionEntity;
 import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
+import org.matrix.izumbankapp.enumeration.accounts.AccountType;
 import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionStatus;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionType;
 import org.matrix.izumbankapp.exception.*;
-import org.matrix.izumbankapp.exception.accounts.AccountClosingException;
-import org.matrix.izumbankapp.exception.accounts.AccountStatusException;
-import org.matrix.izumbankapp.exception.accounts.TransferException;
-import org.matrix.izumbankapp.exception.accounts.WithdrawException;
+import org.matrix.izumbankapp.exception.accounts.*;
 import org.matrix.izumbankapp.exception.transactions.TransactionAmountException;
 import org.matrix.izumbankapp.exception.transactions.TransactionLimitException;
 import org.matrix.izumbankapp.exception.transactions.TransactionValidationException;
@@ -19,13 +16,12 @@ import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.dao.repository.AccountRepository;
 import org.matrix.izumbankapp.model.auth.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
+import org.matrix.izumbankapp.model.deposits.DepositRequest;
+import org.matrix.izumbankapp.model.deposits.DepositResponse;
 import org.matrix.izumbankapp.model.exchange.ExchangeRequestDto;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
 import org.matrix.izumbankapp.model.users.UserAccountsResponse;
-import org.matrix.izumbankapp.service.AccountService;
-import org.matrix.izumbankapp.service.ExchangeService;
-import org.matrix.izumbankapp.service.TransactionService;
-import org.matrix.izumbankapp.service.UserService;
+import org.matrix.izumbankapp.service.*;
 import org.matrix.izumbankapp.util.GenerateRandom;
 import org.matrix.izumbankapp.util.specifications.AccountSpecifications;
 import lombok.RequiredArgsConstructor;
@@ -37,18 +33,27 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.EntityManager;
+
+import java.time.LocalDate;
+import java.util.List;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Period;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AccountServiceImpl implements AccountService {
 
-    private static final String WITH_ID_NOT_FOUND = "Account with ID not found: ";
+    private static final String NOT_FOUND = "Account not found";
+    private static final String WITH_ID_NOT_FOUND = "Account with ID %s not found: ";
     private static final String WITH_NUMBER_NOT_FOUND = "Account with number %s not found";
 
 
@@ -58,6 +63,8 @@ public class AccountServiceImpl implements AccountService {
     private final UserService userService;
     private final TransactionService transactionService;
     private final ExchangeService exchangeService;
+    private final DepositService depositService;
+    private final EntityManager entityManager;
 
     @Override
     public Page<AccountResponse> findAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest) {
@@ -91,7 +98,7 @@ public class AccountServiceImpl implements AccountService {
         log.info("Retrieving account by ID: {}", accountId);
         try {
             AccountEntity accountEntity = accountRepository.findById(accountId)
-                    .orElseThrow(() -> new NotFoundException(WITH_ID_NOT_FOUND + accountId));
+                    .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId)));
             AccountResponse accountResponse = accountMapper.toDto(accountEntity);
             log.info("Successfully retrieved account");
             return accountResponse;
@@ -131,10 +138,10 @@ public class AccountServiceImpl implements AccountService {
     public ResponseDto createAccount(AccountCreateDto account) {
         log.info("Creating account for user: {}", account.getUserId());
         try {
+            userService.createCif(account.getUserId());
             AccountEntity accountEntity = accountMapper.fromRequestDtoForUser(account);
             accountEntity.setPin(passwordEncoder.encode(account.getPin()));
             accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
-            userService.createCif(account.getUserId());
             accountRepository.save(accountEntity);
             log.info("Account created successfully");
             return ResponseDto.builder().responseMessage("Account created successfully").build();
@@ -157,7 +164,7 @@ public class AccountServiceImpl implements AccountService {
                     log.info("Successfully updated account {}", account);
                 },
                 () -> {
-                    throw new NotFoundException(WITH_ID_NOT_FOUND + accountId);
+                    throw new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId));
                 }
         );
         return ResponseDto.builder()
@@ -173,7 +180,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("Account deleted successfully");
             return ResponseDto.builder().responseMessage("Account deleted successfully").build();
         } else {
-            throw new NotFoundException(WITH_ID_NOT_FOUND + accountId);
+            throw new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId));
         }
     }
 
@@ -210,7 +217,7 @@ public class AccountServiceImpl implements AccountService {
                     account.setStatus(accountUpdate.getAccountStatus());
                     accountRepository.save(account);
                     return ResponseDto.builder().responseMessage("Account updated successfully").build();
-                }).orElseThrow(() -> new NotFoundException("Account not on the server"));
+                }).orElseThrow(() -> new NotFoundException(NOT_FOUND));
     }
 
     @Override
@@ -231,7 +238,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(rollbackFor = {TransactionAmountException.class, TransactionLimitException.class})
-    public ResponseDto transferMoneyToAccount(TransferMoneyRequest transferMoneyRequest) {
+    public ResponseDto transferToAccount(TransferMoneyRequest transferMoneyRequest) {
 
         log.info("Transferring money from {} to {}. Details: {}",
                 transferMoneyRequest.getFromAccountNumber(),
@@ -258,6 +265,84 @@ public class AccountServiceImpl implements AccountService {
 
         return executeTransfer(fromAccount, toAccount, fromTransaction, toTransaction);
     }
+
+    @Override
+    @Transactional
+    public ResponseDto createDepositAccount(DepositRequest depositRequest) {
+        log.info("Creating deposit account for user: {}", depositRequest.getUserId());
+
+        AccountCreateDto accountCreateDto = AccountCreateDto.builder()
+                .accountType(AccountType.DEPOSIT)
+                .accountExpireDate(depositRequest.getDepositExpireDate())
+                .availableBalance(calculateInterest(depositRequest.getAmount(), depositRequest.getInterest(),
+                        depositRequest.getDepositExpireDate()))
+                .branchCode("333") //TODO yml
+                .currencyType(depositRequest.getCurrencyType())
+                .currentBalance(BigDecimal.ZERO)
+                .pin(passwordEncoder.encode(depositRequest.getPin()))
+                .status(AccountStatus.ACTIVE)
+                .userId(depositRequest.getUserId())
+                .build();
+
+        userService.createCif(depositRequest.getUserId());
+        AccountEntity accountEntity = accountMapper.fromRequestDtoForUser(accountCreateDto);
+        accountEntity.setPin(passwordEncoder.encode(depositRequest.getPin()));
+        accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
+        accountRepository.save(accountEntity);
+
+        DepositResponse depositResponse = DepositResponse.builder()
+                .account(accountMapper.toDto(accountEntity))
+                .amount(depositRequest.getAmount())
+                .interestRate(depositRequest.getInterest())
+                .yearlyInterest(depositRequest.isYearlyInterest()).build();
+
+        depositService.saveDeposit(depositResponse);
+
+        log.info("Deposit account created successfully");
+        return ResponseDto.builder().responseMessage("Successfully created a deposit account").build();
+    }
+
+    @Override
+    public void saveAccount(AccountResponse account) {
+        log.info("Saving account {}", account);
+        accountRepository.save(accountMapper.fromResponseDto(account));
+        log.info("Successfully save account {}", account);
+    }
+
+    @Override
+    @Transactional
+    public List<AccountResponse> getDepositsCreatedOnDate(int dayOfMonth) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<AccountEntity> criteriaQuery = criteriaBuilder.createQuery(AccountEntity.class);
+        Root<AccountEntity> root = criteriaQuery.from(AccountEntity.class);
+
+        criteriaQuery.select(root)
+                .where(
+                        criteriaBuilder.and(
+                                criteriaBuilder.equal(root.get("accountType"), AccountType.DEPOSIT),
+                                criteriaBuilder.equal(root.get("status"), AccountStatus.ACTIVE),
+                                criteriaBuilder.greaterThan(root.get("accountExpireDate"), LocalDate.now()),
+                                criteriaBuilder.equal(criteriaBuilder.function("day", Integer.class, root.get("createdDate")), dayOfMonth)
+                        )
+                );
+
+        List<AccountEntity> accounts = entityManager.createQuery(criteriaQuery).getResultList();
+
+        return accounts.stream().map(accountMapper::toDto).toList();
+    }
+
+    private BigDecimal calculateInterest(BigDecimal amount, BigDecimal interest, LocalDate depositExpireDate) {
+        LocalDate currentDate = LocalDate.now();
+        Period period = Period.between(currentDate, depositExpireDate);
+        int months = period.getMonths();
+
+        // Рассчитываем проценты
+        BigDecimal interestRate = BigDecimal.ONE.add(interest.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
+        BigDecimal calculatedInterest = amount.multiply(interestRate.pow(months));
+
+        return calculatedInterest.subtract(amount);
+    }
+
 
     @Override
     public ResponseDto withdrawal(WithdrawalRequest withdrawalRequest) {

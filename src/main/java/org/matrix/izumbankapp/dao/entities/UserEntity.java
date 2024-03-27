@@ -43,8 +43,6 @@ public class UserEntity extends Auditable implements UserDetails {
     @JoinColumn(name = "user_profile_id", referencedColumnName = "user_profile_id")
     private UserProfileEntity userProfile;
 
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
     private List<AccountEntity> accounts;
 
