@@ -28,5 +28,7 @@ public interface AccountMapper {
         return userId != null ? new UserEntity(userId) : null;
     }
 
-    AccountEntity updateEntityFromDto(AccountRequest account, @MappingTarget AccountEntity accountEntity);
+    void updateEntityFromDto(AccountRequest account, @MappingTarget AccountEntity accountEntity);
+
+    AccountEntity toEntity(AccountCreateDto accountCreateDto);
 }

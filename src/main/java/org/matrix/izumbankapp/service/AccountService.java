@@ -3,6 +3,7 @@ package org.matrix.izumbankapp.service;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.model.auth.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
+import org.matrix.izumbankapp.model.deposits.DepositRequest;
 import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +37,13 @@ public interface AccountService {
 
     UserAccountsResponse getUserByAccountNumber(String accountNumber);
 
-    ResponseDto transferMoneyToAccount(TransferMoneyRequest transferMoneyRequest);
+    ResponseDto transferToAccount(TransferMoneyRequest transferMoneyRequest);
 
     ResponseDto withdrawal(WithdrawalRequest withdrawalRequest);
+
+    ResponseDto createDepositAccount(DepositRequest depositRequest);
+
+    void saveAccount(AccountResponse account);
+
+    List<AccountResponse> getDepositsCreatedOnDate(int dayOfMonth);
 }

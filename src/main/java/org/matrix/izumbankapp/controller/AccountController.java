@@ -3,6 +3,8 @@ package org.matrix.izumbankapp.controller;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.model.auth.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
+import org.matrix.izumbankapp.model.deposits.DepositRequest;
+import org.matrix.izumbankapp.scheduler.DepositScheduler;
 import org.matrix.izumbankapp.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.List;
 @RequestMapping("/api/v1/user/account")
 public class AccountController {
     private final AccountService accountService;
+    private final DepositScheduler depositScheduler;
 
     @GetMapping("/search")
     public Page<AccountResponse> getAccountByFilter(AccountFilterDto accountFilterDto,
@@ -75,12 +78,21 @@ public class AccountController {
 
     @PostMapping("/transfer")
     public ResponseEntity<ResponseDto> transferToAccount(@Valid @RequestBody TransferMoneyRequest transferMoneyRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.transferMoneyToAccount(transferMoneyRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.transferToAccount(transferMoneyRequest));
     }
 
     @PostMapping("/withdrawal")
     public ResponseEntity<ResponseDto> withdrawal(@Valid @RequestBody WithdrawalRequest withdrawalRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(accountService.withdrawal(withdrawalRequest));
+    }
+
+    @PostMapping("/deposit")
+    public ResponseEntity<ResponseDto> deposit(@Valid @RequestBody DepositRequest depositRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createDepositAccount(depositRequest));
+    }
+    @PostMapping("/testing")
+    public ResponseEntity<ResponseDto> deposit() {
+        return ResponseEntity.status(HttpStatus.CREATED).body(depositScheduler.calculateDepositInterest());
     }
 
 }

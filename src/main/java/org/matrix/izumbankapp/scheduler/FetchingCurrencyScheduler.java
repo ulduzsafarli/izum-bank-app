@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CurrencyDataScheduler {
+public class FetchingCurrencyScheduler {
     private final ExchangeServiceImpl exchangeService;
 
     @Scheduled(cron = "0 0 9 * * *")

@@ -24,7 +24,7 @@ public interface TransactionMapper {
         if (accountId == null) {
             return null;
         }
-        AccountEntity accountEntity = new AccountEntity();
+        AccountEntity accountEntity = new AccountEntity(accountId);
         accountEntity.setId(accountId);
         return accountEntity;
     }
