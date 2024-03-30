@@ -3,23 +3,13 @@ package org.matrix.izumbankapp.service.impl;
 import org.matrix.izumbankapp.dao.entities.AccountEntity;
 import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.enumeration.accounts.AccountType;
-import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
-import org.matrix.izumbankapp.enumeration.transaction.TransactionStatus;
-import org.matrix.izumbankapp.enumeration.transaction.TransactionType;
 import org.matrix.izumbankapp.exception.*;
 import org.matrix.izumbankapp.exception.accounts.*;
-import org.matrix.izumbankapp.exception.transactions.TransactionAmountException;
-import org.matrix.izumbankapp.exception.transactions.TransactionLimitException;
-import org.matrix.izumbankapp.exception.transactions.TransactionValidationException;
 import org.matrix.izumbankapp.mapper.AccountMapper;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.dao.repository.AccountRepository;
 import org.matrix.izumbankapp.model.auth.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
-import org.matrix.izumbankapp.model.deposits.DepositRequest;
-import org.matrix.izumbankapp.model.deposits.DepositResponse;
-import org.matrix.izumbankapp.model.exchange.ExchangeRequestDto;
-import org.matrix.izumbankapp.model.transactions.TransactionResponse;
 import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.matrix.izumbankapp.service.*;
 import org.matrix.izumbankapp.util.GenerateRandom;
@@ -33,18 +23,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.EntityManager;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Period;
-import java.util.ArrayList;
 
 
 @Service
@@ -61,10 +44,7 @@ public class AccountServiceImpl implements AccountService {
     public final AccountRepository accountRepository;
     public final AccountMapper accountMapper;
     private final UserService userService;
-    private final TransactionService transactionService;
-    private final ExchangeService exchangeService;
-    private final DepositService depositService;
-    private final EntityManager entityManager;
+
 
     @Override
     public Page<AccountResponse> findAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest) {
@@ -237,72 +217,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional(rollbackFor = {TransactionAmountException.class, TransactionLimitException.class})
-    public ResponseDto transferToAccount(TransferMoneyRequest transferMoneyRequest) {
-
-        log.info("Transferring money from {} to {}. Details: {}",
-                transferMoneyRequest.getFromAccountNumber(),
-                transferMoneyRequest.getToAccountNumber(),
-                transferMoneyRequest.getTransactionAccountRequest());
-
-        var fromAccount = findAccountOrFail(transferMoneyRequest.getFromAccountNumber());
-        var toAccount = findAccountOrFail(transferMoneyRequest.getToAccountNumber());
-
-        validatePin(fromAccount, transferMoneyRequest.getPin());
-
-        BigDecimal transferAmount = transferMoneyRequest.getTransactionAccountRequest().getAmount();
-        transferAmount = performCurrencyExchangeIfNeeded(fromAccount, transferAmount, toAccount.getCurrencyType());
-        validateTransaction(fromAccount, transferAmount);
-
-        fromAccount.debitBalance(transferAmount);
-        transferMoneyRequest.getTransactionAccountRequest().setAmount(transferAmount);
-        var fromTransaction = transactionService.createTransaction(fromAccount.getId(),
-                transferMoneyRequest.getTransactionAccountRequest(), TransactionType.TRANSFER);
-
-        toAccount.creditBalance(transferAmount);
-        var toTransaction = transactionService.createTransaction(toAccount.getId(),
-                transferMoneyRequest.getTransactionAccountRequest(), TransactionType.TRANSFER);
-
-        return executeTransfer(fromAccount, toAccount, fromTransaction, toTransaction);
-    }
-
-    @Override
-    @Transactional
-    public ResponseDto createDepositAccount(DepositRequest depositRequest) {
-        log.info("Creating deposit account for user: {}", depositRequest.getUserId());
-
-        AccountCreateDto accountCreateDto = AccountCreateDto.builder()
-                .accountType(AccountType.DEPOSIT)
-                .accountExpireDate(depositRequest.getDepositExpireDate())
-                .availableBalance(calculateInterest(depositRequest.getAmount(), depositRequest.getInterest(),
-                        depositRequest.getDepositExpireDate()))
-                .branchCode("333") //TODO yml
-                .currencyType(depositRequest.getCurrencyType())
-                .currentBalance(BigDecimal.ZERO)
-                .pin(passwordEncoder.encode(depositRequest.getPin()))
-                .status(AccountStatus.ACTIVE)
-                .userId(depositRequest.getUserId())
-                .build();
-
-        userService.createCif(depositRequest.getUserId());
-        AccountEntity accountEntity = accountMapper.fromRequestDtoForUser(accountCreateDto);
-        accountEntity.setPin(passwordEncoder.encode(depositRequest.getPin()));
-        accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
-        accountRepository.save(accountEntity);
-
-        DepositResponse depositResponse = DepositResponse.builder()
-                .account(accountMapper.toDto(accountEntity))
-                .amount(depositRequest.getAmount())
-                .interestRate(depositRequest.getInterest())
-                .yearlyInterest(depositRequest.isYearlyInterest()).build();
-
-        depositService.saveDeposit(depositResponse);
-
-        log.info("Deposit account created successfully");
-        return ResponseDto.builder().responseMessage("Successfully created a deposit account").build();
-    }
-
-    @Override
     public void saveAccount(AccountResponse account) {
         log.info("Saving account {}", account);
         accountRepository.save(accountMapper.fromResponseDto(account));
@@ -312,147 +226,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public List<AccountResponse> getDepositsCreatedOnDate(int dayOfMonth) {
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<AccountEntity> criteriaQuery = criteriaBuilder.createQuery(AccountEntity.class);
-        Root<AccountEntity> root = criteriaQuery.from(AccountEntity.class);
+        List<AccountEntity> accountEntities = accountRepository.findAccountsByDateAndTypeAndStatus(
+                AccountType.DEPOSIT, AccountStatus.ACTIVE, LocalDate.now(), dayOfMonth);
 
-        criteriaQuery.select(root)
-                .where(
-                        criteriaBuilder.and(
-                                criteriaBuilder.equal(root.get("accountType"), AccountType.DEPOSIT),
-                                criteriaBuilder.equal(root.get("status"), AccountStatus.ACTIVE),
-                                criteriaBuilder.greaterThan(root.get("accountExpireDate"), LocalDate.now()),
-                                criteriaBuilder.equal(criteriaBuilder.function("day", Integer.class, root.get("createdDate")), dayOfMonth)
-                        )
-                );
-
-        List<AccountEntity> accounts = entityManager.createQuery(criteriaQuery).getResultList();
-
-        return accounts.stream().map(accountMapper::toDto).toList();
-    }
-
-    private BigDecimal calculateInterest(BigDecimal amount, BigDecimal interest, LocalDate depositExpireDate) {
-        LocalDate currentDate = LocalDate.now();
-        Period period = Period.between(currentDate, depositExpireDate);
-        int months = period.getMonths();
-
-        // Рассчитываем проценты
-        BigDecimal interestRate = BigDecimal.ONE.add(interest.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
-        BigDecimal calculatedInterest = amount.multiply(interestRate.pow(months));
-
-        return calculatedInterest.subtract(amount);
-    }
-
-
-    @Override
-    public ResponseDto withdrawal(WithdrawalRequest withdrawalRequest) {
-        log.info("Withdrawals from {}. Details: {}",
-                withdrawalRequest.getFromAccountNumber(),
-                withdrawalRequest.getTransactionAccountRequest());
-
-        var fromAccount = findAccountOrFail(withdrawalRequest.getFromAccountNumber());
-
-        validatePin(fromAccount, withdrawalRequest.getPin());
-
-        BigDecimal withdrawAmount = withdrawalRequest.getTransactionAccountRequest().getAmount();
-        withdrawAmount = performCurrencyExchangeIfNeeded(fromAccount, withdrawAmount, withdrawalRequest.getCurrencyType());
-        validateTransaction(fromAccount, withdrawAmount);
-        fromAccount.debitBalance(withdrawAmount);
-        withdrawalRequest.getTransactionAccountRequest().setAmount(withdrawAmount);
-        var fromTransaction = transactionService.createTransaction(fromAccount.getId(),
-                withdrawalRequest.getTransactionAccountRequest(), TransactionType.WITHDRAWAL);
-        try {
-            accountRepository.save(fromAccount);
-            return ResponseDto.builder().responseMessage("Successfully withdraw money").build();
-        } catch (DataAccessException ex) {
-            updateTransactionsStatus(List.of(fromTransaction), TransactionStatus.FAILED);
-            throw new DatabaseException("Data access error during transfer", ex);
-        } catch (Exception ex) {
-            updateTransactionsStatus(List.of(fromTransaction), TransactionStatus.FAILED);
-            throw new WithdrawException("Unexpected error during transfer", ex);
-        }
-    }
-
-    private BigDecimal performCurrencyExchangeIfNeeded(AccountEntity fromAccount, BigDecimal amount, CurrencyType toCurrency) {
-        if (fromAccount.getCurrencyType() != toCurrency) {
-            return performCurrencyExchange(fromAccount, amount, toCurrency);
-        } else {
-            return amount;
-        }
-    }
-
-    private AccountEntity findAccountOrFail(String accountNumber) {
-        return accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
-    }
-
-    private BigDecimal performCurrencyExchange(AccountEntity fromAccount, BigDecimal amount, CurrencyType toCurrency) {
-        if (fromAccount.getCurrencyType() == CurrencyType.AZN) {
-            return BigDecimal.valueOf(exchangeService.performExchangeFromAZN(
-                    ExchangeRequestDto.builder().amount(amount.doubleValue()).currencyType(toCurrency).build()).getConvertedAmount());
-        } else {
-            return BigDecimal.valueOf(exchangeService.performExchangeToAZN(
-                    ExchangeRequestDto.builder().amount(amount.doubleValue()).currencyType(fromAccount.getCurrencyType()).build()).getConvertedAmount());
-        }
-    }
-
-    private void updateTransactionsStatus(List<TransactionResponse> transactions, TransactionStatus transactionStatus) {
-        transactions.forEach(transaction -> transactionService.updateTransactionStatus(transaction.getId(), transactionStatus));
-    }
-
-    private ResponseDto executeTransfer(AccountEntity fromAccount, AccountEntity toAccount,
-                                        TransactionResponse fromTransaction, TransactionResponse toTransaction) {
-        try {
-            accountRepository.saveAll(List.of(fromAccount, toAccount));
-            updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.SUCCESSFUL);
-            return ResponseDto.builder().responseMessage("Successfully transferred money").build();
-        } catch (DataAccessException ex) {
-            updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.FAILED);
-            throw new DatabaseException("Data access error during transfer", ex);
-        } catch (Exception ex) {
-            updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.FAILED);
-            throw new TransferException("Unexpected error during transfer", ex);
-        }
-    }
-
-    private void validateTransaction(AccountEntity fromAccount, BigDecimal amount) {
-        List<String> errors = new ArrayList<>();
-        if (!validateTransactionLimit(fromAccount, amount)) {
-            errors.add("Transaction limit exceeded");
-        }
-        if (!validateSufficientBalance(fromAccount, amount)) {
-            errors.add("Insufficient funds on the sender's account");
-        }
-        if (!validateAvailableBalanceAfterTransfer(fromAccount, amount)) {
-            errors.add("Exceeding the allowable limit of funds on the recipient's account");
-        }
-        if (!errors.isEmpty()) {
-            throw new TransactionValidationException(String.join("; ", errors));
-        }
-    }
-
-
-    private void validatePin(AccountEntity account, String pin) throws InvalidPinException {
-        log.info("Validating PIN for account number: {}", account.getAccountNumber());
-        boolean isPinValid = passwordEncoder.matches(pin, account.getPin());
-        log.info(isPinValid ? "PIN verification successful." : "PIN verification failed.");
-        if (!isPinValid) {
-            throw new InvalidPinException("Invalid PIN provided");
-        }
-    }
-
-    private boolean validateTransactionLimit(AccountEntity account, BigDecimal amount) {
-        return account.getTransactionLimit() == null ||
-                account.getTransactionLimit().compareTo(amount) >= 0;
-    }
-
-    private boolean validateSufficientBalance(AccountEntity account, BigDecimal amount) {
-        return account.getCurrentBalance().compareTo(amount) >= 0;
-    }
-
-    private boolean validateAvailableBalanceAfterTransfer(AccountEntity account, BigDecimal amount) {
-        return account.getCurrentBalance().add(amount).compareTo(account.getAvailableBalance()) <= 0;
-
+        return accountEntities.stream().map(accountMapper::toDto).toList();
     }
 
 

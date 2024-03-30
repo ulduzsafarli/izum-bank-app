@@ -40,15 +40,6 @@ public class DepositServiceImpl implements DepositService {
         log.info("Deposit saved successfully");
     }
 
-//    public List<DepositResponse> getDepositsCreatedOnDate(int dayOfMonth) {
-//        LocalDate currentDate = LocalDate.now();
-//        LocalDate startDate = LocalDate.of(currentDate.getYear(), currentDate.getMonth(), dayOfMonth);
-//        LocalDate endDate = startDate.plusDays(1);
-//
-//        List<DepositEntity> deposits = depositRepository.findByCreatedDateBetween(startDate, endDate);
-//        return deposits.stream().map(depositMapper::toResponseDto).toList();
-//    }
-
     @Override
     public DepositResponse getDepositByAccountId(Long id) {
         log.info("Receiving deposit by account ID {}", id);

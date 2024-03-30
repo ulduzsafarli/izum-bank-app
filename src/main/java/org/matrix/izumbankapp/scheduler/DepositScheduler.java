@@ -2,6 +2,8 @@ package org.matrix.izumbankapp.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
+import org.matrix.izumbankapp.enumeration.accounts.AccountType;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionStatus;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionType;
 import org.matrix.izumbankapp.model.accounts.AccountResponse;
@@ -69,21 +71,17 @@ public class DepositScheduler {
     public ResponseDto calculateDepositInterest() {
         LocalDate currentDate = LocalDate.now();
 
-        // Получаем депозитные счета, созданные в текущем месяце
-        List<AccountResponse> accountResponses = accountService.getDepositsCreatedOnDate(currentDate.getDayOfMonth());
+//        List<AccountResponse> accountResponses = accountService.getDepositsCreatedOnDate(currentDate.getDayOfMonth());
+//        List<AccountResponse> accountResponses = accountService.getDepositsCreatedOnDate();
 //        List<DepositResponse> deposits = depositService.getDepositsCreatedOnDate(currentDate.getDayOfMonth());
 
         log.info("deposits {}", accountResponses);
-        // Для каждого депозита начисляем проценты
         for (AccountResponse account : accountResponses) {
             var deposit = depositService.getDepositByAccountId(account.getId());
-            // Вычисляем начисление процентов
             BigDecimal depositInterest = calculateInterest(deposit);
-            // Обновляем баланс депозитного счета
             BigDecimal newBalance = account.getCurrentBalance().add(depositInterest);
             account.setCurrentBalance(newBalance);
 
-            // Создаем транзакцию для начисления процентов
             createTransactionForDeposit(deposit);
 
             accountService.saveAccount(account);
@@ -100,10 +98,8 @@ public class DepositScheduler {
 
         BigDecimal depositInterest;
         if (yearlyInterest) {
-            // Если процент начисляется ежегодно, то просто умножаем сумму на процент
             depositInterest = amount.multiply(interestRate);
         } else {
-            // Если процент начисляется не ежегодно, например, каждый месяц, то вычисляем его долю за один месяц
             depositInterest = amount.multiply(interestRate.divide(BigDecimal.valueOf(12), 2, BigDecimal.ROUND_HALF_UP));
         }
         return depositInterest;
@@ -112,15 +108,12 @@ public class DepositScheduler {
     void createTransactionForDeposit(DepositResponse deposit) {
         AccountResponse account = deposit.getAccount();
 
-        // Создаем объект запроса для транзакции
         TransactionAccountRequest transactionRequest = new TransactionAccountRequest();
         transactionRequest.setAmount(calculateInterest(deposit));
         transactionRequest.setComments("Deposit interest");
 
-        // Создаем транзакцию
         TransactionResponse transactionResponse = transactionService.createTransaction(account.getId(), transactionRequest, TransactionType.DEPOSIT);
 
-        // Проверяем успешность создания транзакции и обновляем ее статус
         if (transactionResponse != null) {
             transactionService.updateTransactionStatus(transactionResponse.getId(), TransactionStatus.SUCCESSFUL);
         } else {
