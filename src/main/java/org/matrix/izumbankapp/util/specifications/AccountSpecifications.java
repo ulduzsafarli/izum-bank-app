@@ -14,6 +14,7 @@ public class AccountSpecifications {
         var spec = Specification.<AccountEntity>where(
                         likeIgnoreCase("branchCode", filter.getBranchCode()))
                 .and(isEqual("currencyType", filter.getCurrencyType()))
+                .and(isEqual("currencyType", filter.getAccountNumber()))
                 .and(isEqual("accountType", filter.getAccountType()))
                 .and(isEqual("status", filter.getStatus()))
                 .and(isEqual("currentBalance", filter.getCurrentBalance()))

@@ -72,7 +72,7 @@ public class DepositScheduler {
         LocalDate currentDate = LocalDate.now();
 
 //        List<AccountResponse> accountResponses = accountService.getDepositsCreatedOnDate(currentDate.getDayOfMonth());
-//        List<AccountResponse> accountResponses = accountService.getDepositsCreatedOnDate();
+        List<AccountResponse> accountResponses = accountService.getDepositAccountsCreatedOnDate(15);
 //        List<DepositResponse> deposits = depositService.getDepositsCreatedOnDate(currentDate.getDayOfMonth());
 
         log.info("deposits {}", accountResponses);

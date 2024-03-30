@@ -22,10 +22,6 @@ public interface AccountService {
 
     AccountResponse getAccountById(Long accountId);
 
-    AccountResponse getAccountByAccountNumber(String accountNumber);
-
-    List<AccountsUserResponse> getAllAccountsByUserId(Long userId);
-
     ResponseDto createAccount(AccountCreateDto account);
 
     ResponseDto updateAccount(Long accountId, AccountRequest account);
@@ -36,12 +32,11 @@ public interface AccountService {
 
     ResponseDto updateStatus(String accountNumber, AccountStatusUpdate accountStatusUpdate);
 
-    String getBalance(String accountNumber);
-
     UserAccountsResponse getUserByAccountNumber(String accountNumber);
 
+    String getBalance(String accountNumber);
 
     void saveAccount(AccountResponse account);
 
-    List<AccountResponse> getDepositsCreatedOnDate(int dayOfMonth);
+    List<AccountResponse> getDepositAccountsCreatedOnDate(int dayOfMonth);
 }

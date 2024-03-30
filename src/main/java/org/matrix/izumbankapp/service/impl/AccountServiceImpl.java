@@ -60,20 +60,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountResponse getAccountByAccountNumber(String accountNumber) {
-        log.info("Retrieving account by account number: {}", accountNumber);
-        try {
-            AccountEntity accountEntity = accountRepository.findByAccountNumber(accountNumber)
-                    .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
-            AccountResponse accountResponse = accountMapper.toDto(accountEntity);
-            log.info("Successfully retrieved account");
-            return accountResponse;
-        } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to get accounts by account number from the database", ex);
-        }
-    }
-
-    @Override
     public AccountResponse getAccountById(Long accountId) {
         log.info("Retrieving account by ID: {}", accountId);
         try {
@@ -96,21 +82,6 @@ public class AccountServiceImpl implements AccountService {
             return accountDtoList;
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to get all accounts from the database", ex);
-        }
-    }
-
-
-    //Добавить кеширование
-    @Override
-    public List<AccountsUserResponse> getAllAccountsByUserId(Long userId) {
-        log.info("Retrieving all accounts by user ID: {}", userId);
-        try {
-            UserAccountsResponse userResponseList = userService.getUserByIdForAccount(userId);
-            List<AccountsUserResponse> accountResponses = userResponseList.getAccounts();
-            log.info("Successfully retrieved all accounts by user ID: {}", userId);
-            return accountResponses;
-        } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to get accounts by user ID from the database", ex);
         }
     }
 
@@ -142,8 +113,7 @@ public class AccountServiceImpl implements AccountService {
                     accountMapper.updateEntityFromDto(account, accountEntity);
                     accountRepository.save(accountEntity);
                     log.info("Successfully updated account {}", account);
-                },
-                () -> {
+                }, () -> {
                     throw new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId));
                 }
         );
@@ -186,6 +156,7 @@ public class AccountServiceImpl implements AccountService {
         return account.getCurrentBalance().toString();
     }
 
+
     @Override
     public ResponseDto updateStatus(String accountNumber, AccountStatusUpdate accountUpdate) {
         log.info("Updating status for account {}", accountNumber);
@@ -216,6 +187,7 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    //TODO silmek olar
     @Override
     public void saveAccount(AccountResponse account) {
         log.info("Saving account {}", account);
@@ -223,9 +195,10 @@ public class AccountServiceImpl implements AccountService {
         log.info("Successfully save account {}", account);
     }
 
+    //TODO duzelis
     @Override
     @Transactional
-    public List<AccountResponse> getDepositsCreatedOnDate(int dayOfMonth) {
+    public List<AccountResponse> getDepositAccountsCreatedOnDate(int dayOfMonth) {
         List<AccountEntity> accountEntities = accountRepository.findAccountsByDateAndTypeAndStatus(
                 AccountType.DEPOSIT, AccountStatus.ACTIVE, LocalDate.now(), dayOfMonth);
 
@@ -234,4 +207,3 @@ public class AccountServiceImpl implements AccountService {
 
 
 }
-

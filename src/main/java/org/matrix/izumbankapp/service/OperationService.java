@@ -12,5 +12,4 @@ public interface OperationService {
 
     ResponseDto withdrawal(WithdrawalRequest withdrawalRequest);
     ResponseDto createDepositAccount(DepositRequest depositRequest);
-
 }

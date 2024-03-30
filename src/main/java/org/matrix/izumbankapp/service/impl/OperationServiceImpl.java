@@ -1,9 +1,9 @@
 package org.matrix.izumbankapp.service.impl;
 
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matrix.izumbankapp.dao.entities.AccountEntity;
+import org.matrix.izumbankapp.dao.repository.AccountRepository;
 import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.enumeration.accounts.AccountType;
 import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
@@ -17,6 +17,7 @@ import org.matrix.izumbankapp.exception.accounts.WithdrawException;
 import org.matrix.izumbankapp.exception.transactions.TransactionAmountException;
 import org.matrix.izumbankapp.exception.transactions.TransactionLimitException;
 import org.matrix.izumbankapp.exception.transactions.TransactionValidationException;
+import org.matrix.izumbankapp.mapper.AccountMapper;
 import org.matrix.izumbankapp.model.accounts.AccountCreateDto;
 import org.matrix.izumbankapp.model.accounts.TransferMoneyRequest;
 import org.matrix.izumbankapp.model.accounts.WithdrawalRequest;
@@ -25,12 +26,10 @@ import org.matrix.izumbankapp.model.deposits.DepositRequest;
 import org.matrix.izumbankapp.model.deposits.DepositResponse;
 import org.matrix.izumbankapp.model.exchange.ExchangeRequestDto;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
-import org.matrix.izumbankapp.service.DepositService;
-import org.matrix.izumbankapp.service.ExchangeService;
-import org.matrix.izumbankapp.service.OperationService;
-import org.matrix.izumbankapp.service.TransactionService;
+import org.matrix.izumbankapp.service.*;
 import org.matrix.izumbankapp.util.GenerateRandom;
 import org.springframework.dao.DataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,11 +44,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OperationServiceImpl implements OperationService {
 
-
+    private final PasswordEncoder passwordEncoder;
     private final TransactionService transactionService;
     private final ExchangeService exchangeService;
     private final DepositService depositService;
-
+    private final AccountMapper accountMapper;
+    private final AccountRepository accountRepository;
 
     @Override
     @Transactional
