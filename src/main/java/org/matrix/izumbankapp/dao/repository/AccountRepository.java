@@ -17,18 +17,17 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
     Page<AccountEntity> findAll(Specification<AccountEntity> spec, Pageable pageRequest);
 
-    boolean existsByAccountNumber(String accountNumber);
-
     @Query("SELECT ae FROM AccountEntity ae " +
             "WHERE ae.accountType = :accountType " +
             "AND ae.status = :status " +
             "AND ae.accountExpireDate > :expireDate " +
-            "AND FUNCTION('DAY', ae.createdAt) = :dayOfMonth")
-    List<AccountEntity> findAccountsByDateAndTypeAndStatus(
+            "AND DAY(ae.createdAt) = :dayOfMonth")
+    Optional<List<AccountEntity>> findAccountsByDateAndTypeAndStatus(
             @Param("accountType") AccountType accountType,
             @Param("status") AccountStatus status,
             @Param("expireDate") LocalDate expireDate,
             @Param("dayOfMonth") int dayOfMonth);
+
 
     Optional<AccountEntity> findByAccountNumber(String accountNumber);
     @Query(value = "SELECT a FROM AccountEntity a WHERE a.accountType = 'DEPOSIT'")

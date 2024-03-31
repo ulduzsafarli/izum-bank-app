@@ -9,8 +9,6 @@ import org.matrix.izumbankapp.model.deposits.DepositResponse;
 import org.matrix.izumbankapp.service.DepositService;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -47,26 +45,4 @@ public class DepositServiceImpl implements DepositService {
         return depositMapper.toResponseDto(depositEntity);
     }
 
-
-    public void calculateInterestForAllDeposits() {
-        // Получить все депозиты из репозитория
-//        var depositAccounts = accountRepository.findAllDeposits().orElseThrow(() -> new NotFoundException(NOT_FOUND));
-
-        var depositResponses = getAllDeposits();
-
-        for (DepositResponse deposit : depositResponses) {
-            BigDecimal interestRate = deposit.getInterestRate();
-
-            if (deposit.isYearlyInterest()) {
-
-            } else {
-                BigDecimal depositAmount = deposit.getAmount();
-                BigDecimal monthlyInterest = depositAmount.multiply(interestRate.divide(BigDecimal.valueOf(100)));
-
-                deposit.setAmount(depositAmount.add(monthlyInterest));
-            }
-        }
-        saveDeposits(depositResponses);
-
-    }
 }

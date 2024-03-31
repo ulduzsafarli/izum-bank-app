@@ -15,6 +15,7 @@ import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.deposits.*;
 import org.matrix.izumbankapp.model.exchange.ExchangeRequestDto;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
+import org.matrix.izumbankapp.scheduler.DepositScheduler;
 import org.matrix.izumbankapp.service.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,14 @@ public class OperationServiceImpl implements OperationService {
     private final DepositService depositService;
     private final AccountService accountService;
     private final UserService userService;
+    private final DepositScheduler depositScheduler;
+
+    @Override
+    public ResponseDto activateDepositScheduler(){
+        log.info("Starting deposit scheduler today: {}", LocalDate.now());
+        depositScheduler.calculateDepositInterest();
+        return ResponseDto.builder().responseMessage("Successfully activate deposit scheduler").build();
+    }
 
 
     @Override
@@ -98,7 +107,8 @@ public class OperationServiceImpl implements OperationService {
         var fromTransaction = transactionService.createTransaction(fromAccount.getId(),
                 transferMoneyRequest.getTransactionAccountRequest(), TransactionType.TRANSFER);
 
-        accountService.creditBalance(toAccount.getAccountNumber(), transferAmount);
+        BigDecimal updateAmount = toAccount.getCurrentBalance().add(transferAmount);
+        accountService.updateBalance(toAccount.getAccountNumber(), updateAmount);
         var toTransaction = transactionService.createTransaction(toAccount.getId(),
                 transferMoneyRequest.getTransactionAccountRequest(), TransactionType.TRANSFER);
 
@@ -129,7 +139,8 @@ public class OperationServiceImpl implements OperationService {
         accountService.validatePin(fromAccount, pin);
         BigDecimal transferAmount = performCurrencyExchangeIfNeeded(fromAccount, amount, currencyType);
         validateTransaction(fromAccount, transferAmount);
-        accountService.debitBalance(fromAccount.getAccountNumber(), transferAmount);
+        BigDecimal updateAmount = fromAccount.getCurrentBalance().subtract(transferAmount);
+        accountService.updateBalance(fromAccount.getAccountNumber(), updateAmount);
     }
 
     private BigDecimal performCurrencyExchangeIfNeeded(AccountResponse fromAccount, BigDecimal amount, CurrencyType toCurrency) {

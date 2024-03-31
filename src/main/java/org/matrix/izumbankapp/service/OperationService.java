@@ -11,5 +11,9 @@ public interface OperationService {
     ResponseDto transferToAccount(TransferMoneyRequest transferMoneyRequest);
 
     ResponseDto withdrawal(WithdrawalRequest withdrawalRequest);
+
     ResponseDto createDepositAccount(DepositRequest depositRequest);
+
+    ResponseDto activateDepositScheduler();
+
 }

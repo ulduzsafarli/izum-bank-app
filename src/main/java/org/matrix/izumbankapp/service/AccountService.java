@@ -42,9 +42,5 @@ public interface AccountService {
 
     List<AccountResponse> getDepositAccountsCreatedOnDate(int dayOfMonth);
 
-    void debitBalance(String accountNumber, BigDecimal transferAmount);
-
-    void creditBalance(String accountNumber, BigDecimal transferAmount);
-
     void updateBalance(String accountNumber, BigDecimal subtract) throws InsufficientFundsException;
 }

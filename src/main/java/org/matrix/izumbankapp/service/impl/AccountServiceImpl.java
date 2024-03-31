@@ -88,25 +88,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void debitBalance(String accountNumber, BigDecimal transferAmount) {
-        log.info("Debit balance to {}", accountNumber);
-        var account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
-        account.debitBalance(transferAmount);
-        log.info("Successfully debit balance from {}", accountNumber);
-    }
-
-    @Override
-    public void creditBalance(String accountNumber, BigDecimal transferAmount) {
-        log.info("Credit balance from {}", accountNumber);
-        var account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
-        account.creditBalance(transferAmount);
-        log.info("Successfully credit balance from {}", accountNumber);
-    }
-
-
-    @Override
     public void updateBalance(String accountNumber, BigDecimal newBalance)
             throws NotFoundException, DatabaseException, InsufficientFundsException {
 
@@ -151,6 +132,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public AccountResponse createAccount(AccountCreateDto account) {
         log.info("Creating account for user: {}", account.getUserId());
         try {
@@ -256,20 +238,21 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-    //TODO silmek olar
     @Override
     public void saveAccount(AccountResponse account) {
         log.info("Saving account {}", account);
-        accountRepository.save(accountMapper.fromResponseDto(account));
+        var accountEntity = accountRepository.findById(account.getId())
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, account.getId())));
+        accountRepository.save(accountEntity);
         log.info("Successfully save account {}", account);
     }
 
-    //TODO duzelis
     @Override
-    @Transactional
     public List<AccountResponse> getDepositAccountsCreatedOnDate(int dayOfMonth) {
-        List<AccountEntity> accountEntities = accountRepository.findAccountsByDateAndTypeAndStatus(
-                AccountType.DEPOSIT, AccountStatus.ACTIVE, LocalDate.now(), dayOfMonth);
+        log.info("Receiving deposit accounts created on the {} day", dayOfMonth);
+        var accountEntities = accountRepository.findAccountsByDateAndTypeAndStatus(
+                        AccountType.DEPOSIT, AccountStatus.ACTIVE, LocalDate.now(), dayOfMonth)
+                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND)));
 
         return accountEntities.stream().map(accountMapper::toDto).toList();
     }
