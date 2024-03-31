@@ -1,16 +1,14 @@
 package org.matrix.izumbankapp.service;
 
-import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
-import org.matrix.izumbankapp.enumeration.accounts.AccountType;
+import org.matrix.izumbankapp.exception.accounts.InsufficientFundsException;
 import org.matrix.izumbankapp.model.accounts.*;
-import org.matrix.izumbankapp.model.auth.AccountStatusUpdate;
+import org.matrix.izumbankapp.model.accounts.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
-import org.matrix.izumbankapp.model.deposits.DepositRequest;
 import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -22,7 +20,9 @@ public interface AccountService {
 
     AccountResponse getAccountById(Long accountId);
 
-    ResponseDto createAccount(AccountCreateDto account);
+    AccountResponse getAccountByAccountNumber(String accountNumber);
+
+    AccountResponse createAccount(AccountCreateDto account);
 
     ResponseDto updateAccount(Long accountId, AccountRequest account);
 
@@ -38,5 +38,13 @@ public interface AccountService {
 
     void saveAccount(AccountResponse account);
 
+    void validatePin(AccountResponse account, String pin);
+
     List<AccountResponse> getDepositAccountsCreatedOnDate(int dayOfMonth);
+
+    void debitBalance(String accountNumber, BigDecimal transferAmount);
+
+    void creditBalance(String accountNumber, BigDecimal transferAmount);
+
+    void updateBalance(String accountNumber, BigDecimal subtract) throws InsufficientFundsException;
 }

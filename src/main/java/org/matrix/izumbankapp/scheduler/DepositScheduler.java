@@ -27,45 +27,6 @@ public class DepositScheduler {
     private final DepositService depositService;
     private final AccountService accountService;
     private final TransactionService transactionService;
-//    @Scheduled(cron = "0 0 0 1 * *") // Запускать каждый месяц в полночь первого числа
-//    @Transactional
-//    public void calculateMonthlyInterest() {
-//        List<DepositResponse> deposits = depositService.getAllDeposits();
-//        for (DepositResponse deposit : deposits) {
-//            if (deposit.isYearlyInterest()) {
-//                continue; // Пропустить депозиты с ежегодным начислением процентов
-//            }
-//            BigDecimal interestRate = deposit.getInterestRate();
-//            BigDecimal depositAmount = deposit.getAmount();
-//            BigDecimal monthlyInterest = depositAmount.multiply(interestRate);
-//            depositService.creditInterest(deposit.getId(), monthlyInterest);
-//        }
-//    }
-
-//    @Scheduled(cron = "0 0 0 * * *") // Запускать каждый день в полночь
-//    @Transactional
-//    public void calculateInterestAndUpdateBalance() {
-//        LocalDate today = LocalDate.now();
-//        List<DepositResponse> deposits = depositService.getDepositsCreatedOnDate(today.getDayOfMonth());
-//        for (DepositResponse deposit : deposits) {
-//            BigDecimal interest = calculateInterestForDeposit(deposit);
-//            updateAccountBalance(deposit, interest);
-//        }
-//    }
-//
-//    private BigDecimal calculateInterestForDeposit(DepositResponse deposit) {
-//        BigDecimal interestRate = deposit.getInterestRate();
-//        BigDecimal depositAmount = deposit.getAmount();
-//        return depositAmount.multiply(interestRate);
-//    }
-//
-//    private void updateAccountBalance(DepositResponse deposit, BigDecimal interest) {
-//        AccountResponse account = deposit.getAccount();
-//        BigDecimal currentBalance = account.getCurrentBalance();
-//        BigDecimal updatedBalance = currentBalance.add(interest);
-//        account.setCurrentBalance(updatedBalance);
-//        accountService.updateAccount(account.getId(), account);
-//    }
 
     //    @Scheduled(cron = "0 0 0 * * *") // Каждый день в полночь
     public ResponseDto calculateDepositInterest() {

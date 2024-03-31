@@ -1,7 +1,6 @@
 package org.matrix.izumbankapp.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.matrix.izumbankapp.enumeration.transaction.TransactionType;
 import org.matrix.izumbankapp.model.transactions.TransactionFilterDto;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
 import org.matrix.izumbankapp.service.TransactionService;
@@ -20,19 +19,19 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1//accounts")
+@RequestMapping("/api/v1/accounts")
 public class TransactionController {
-    TransactionService transactionService;
-    @GetMapping("{accountId}/transactions")
+    private final TransactionService transactionService;
+    @GetMapping("/{accountId}/transactions")
     public ResponseEntity<List<TransactionResponse>> getTransactionsFromAccountId(@PathVariable Long accountId) {
         return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionsFromAccountId(accountId));
     }
-    @GetMapping("/transactions/{transactionType}")
-    public ResponseEntity<List<TransactionResponse>> getTransactions(@PathVariable TransactionType transactionType) {
-        return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionsByType(transactionType));
+    @GetMapping("/transactions/ID/{transactionId}")
+    public ResponseEntity<TransactionResponse> getTransactions(@PathVariable Long transactionId) {
+        return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionsByID(transactionId));
     }
 
-    @GetMapping("/transactions/{transactionUUID}")
+    @GetMapping("/transactions/transactionUUID/{transactionUUID}")
     public ResponseEntity<TransactionResponse> getTransactions(@PathVariable String transactionUUID) {
         return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionByUUID(transactionUUID));
     }

@@ -32,15 +32,20 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
 
-    private static final String WITH_ID_NOT_FOUND = "Account with ID not found: "; //change
+    private static final String WITH_ID_NOT_FOUND = "Account with ID %d not found."; //change
+    private static final String WITH_ACCOUNT_ID_NOT_FOUND = "Transactions for account ID %s not found.";
 
     @Override
     public List<TransactionResponse> getTransactionsFromAccountId(Long accountId) {
         log.info("Receiving transactions for account ID {}", accountId);
 
         var transactionResponses = transactionRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new NotFoundException("Transactions not found for account ID: " + accountId))
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_ACCOUNT_ID_NOT_FOUND, accountId)))
                 .stream().map(transactionMapper::toResponseDto).toList();
+
+        if (transactionResponses.isEmpty()) {
+            throw new NotFoundException("Transactions not found for account ID: " + accountId);
+        }
 
         log.info("Successfully receive transactions for account ID {}", accountId);
         return transactionResponses;
@@ -74,13 +79,12 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public List<TransactionResponse> getTransactionsByType(TransactionType type) {
-        log.info("Receiving all {} transactions", type);
-        var responseList = transactionRepository.findByType(type)
-                .orElseThrow(() -> new NotFoundException("Transaction with type " + type + " not found"))
-                .stream().map(transactionMapper::toResponseDto).toList();
-        log.info("Successfully receive all {} transactions", type);
-        return responseList;
+    public TransactionResponse getTransactionsByID(Long transactionID) {
+        log.info("Receiving all {} transactions", transactionID);
+        var transaction = transactionRepository.findById(transactionID)
+                .orElseThrow(() -> new NotFoundException("Transaction with type " + transactionID + " not found"));
+        log.info("Successfully receive all {} transactions", transactionID);
+        return transactionMapper.toResponseDto(transaction);
     }
 
 

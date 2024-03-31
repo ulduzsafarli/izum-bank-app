@@ -8,7 +8,7 @@ import org.matrix.izumbankapp.exception.accounts.*;
 import org.matrix.izumbankapp.mapper.AccountMapper;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.dao.repository.AccountRepository;
-import org.matrix.izumbankapp.model.auth.AccountStatusUpdate;
+import org.matrix.izumbankapp.model.accounts.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.matrix.izumbankapp.service.*;
@@ -35,9 +35,9 @@ import java.math.BigDecimal;
 @Slf4j
 public class AccountServiceImpl implements AccountService {
 
-    private static final String NOT_FOUND = "Account not found";
-    private static final String WITH_ID_NOT_FOUND = "Account with ID %s not found: ";
-    private static final String WITH_NUMBER_NOT_FOUND = "Account with number %s not found";
+    private static final String NOT_FOUND = "Account not found.";
+    private static final String WITH_ID_NOT_FOUND = "Account with ID %s not found.";
+    private static final String WITH_NUMBER_NOT_FOUND = "Account with number %s not found.";
 
 
     private final PasswordEncoder passwordEncoder;
@@ -74,6 +74,71 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public AccountResponse getAccountByAccountNumber(String accountNumber) {
+        log.info("Retrieving account by account number: {}", accountNumber);
+        try {
+            AccountEntity accountEntity = accountRepository.findByAccountNumber(accountNumber)
+                    .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
+            AccountResponse accountResponse = accountMapper.toDto(accountEntity);
+            log.info("Successfully retrieved account");
+            return accountResponse;
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Failed to get accounts by account number from the database", ex);
+        }
+    }
+
+    @Override
+    public void debitBalance(String accountNumber, BigDecimal transferAmount) {
+        log.info("Debit balance to {}", accountNumber);
+        var account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
+        account.debitBalance(transferAmount);
+        log.info("Successfully debit balance from {}", accountNumber);
+    }
+
+    @Override
+    public void creditBalance(String accountNumber, BigDecimal transferAmount) {
+        log.info("Credit balance from {}", accountNumber);
+        var account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
+        account.creditBalance(transferAmount);
+        log.info("Successfully credit balance from {}", accountNumber);
+    }
+
+
+    @Override
+    public void updateBalance(String accountNumber, BigDecimal newBalance)
+            throws NotFoundException, DatabaseException, InsufficientFundsException {
+
+        AccountEntity account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
+
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InsufficientFundsException("Insufficient funds in the account");
+        }
+
+        account.setCurrentBalance(newBalance);
+        try {
+            accountRepository.save(account);
+        } catch (DataAccessException ex) {
+            throw new DatabaseException("Error saving account update", ex);
+        }
+    }
+
+
+    @Override
+    public void validatePin(AccountResponse account, String pin) throws InvalidPinException {
+        log.info("Validating PIN for account number: {}", account.getAccountNumber());
+        var accountEntity = accountRepository.findById(account.getId())
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, account.getId())));
+        boolean isPinValid = passwordEncoder.matches(pin, accountEntity.getPin());
+        log.info(isPinValid ? "PIN verification successful." : "PIN verification failed.");
+        if (!isPinValid) {
+            throw new InvalidPinException("Invalid PIN provided");
+        }
+    }
+
+    @Override
     public List<AccountResponse> getAllAccounts() {
         log.info("Retrieving all accounts");
         try {
@@ -86,16 +151,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResponseDto createAccount(AccountCreateDto account) {
+    public AccountResponse createAccount(AccountCreateDto account) {
         log.info("Creating account for user: {}", account.getUserId());
         try {
             userService.createCif(account.getUserId());
             AccountEntity accountEntity = accountMapper.fromRequestDtoForUser(account);
+            accountEntity.setStatus(AccountStatus.ACTIVE);
             accountEntity.setPin(passwordEncoder.encode(account.getPin()));
             accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
             accountRepository.save(accountEntity);
             log.info("Account created successfully");
-            return ResponseDto.builder().responseMessage("Account created successfully").build();
+            return accountMapper.toDto(accountEntity);
         } catch (NotFoundException ex) {
             throw new NotFoundException("Failed to find user with ID: " + account.getUserId());
         } catch (DataAccessException ex) {
@@ -137,15 +203,18 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public ResponseDto closeAccount(String accountNumber) {
         log.info("Closing account: {}", accountNumber);
-        return accountRepository.findByAccountNumber(accountNumber)
-                .map(account -> {
-                    if (BigDecimal.valueOf(Double.parseDouble(getBalance(accountNumber))).compareTo(BigDecimal.ZERO) != 0) {
-                        throw new AccountClosingException("Balance should be zero");
-                    }
-                    account.setStatus(AccountStatus.CLOSED);
-                    return ResponseDto.builder().responseMessage("Account closed successfully").build();
-                }).orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
+
+        var account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
+
+        if (BigDecimal.valueOf(Double.parseDouble(getBalance(accountNumber))).compareTo(BigDecimal.ZERO) != 0) {
+            throw new AccountClosingException("The balance must be zero to close the account");
+        }
+        account.setStatus(AccountStatus.CLOSED);
+        accountRepository.save(account);
+        return ResponseDto.builder().responseMessage("Account closed successfully").build();
     }
+
 
     @Override
     public String getBalance(String accountNumber) {
@@ -204,6 +273,5 @@ public class AccountServiceImpl implements AccountService {
 
         return accountEntities.stream().map(accountMapper::toDto).toList();
     }
-
 
 }

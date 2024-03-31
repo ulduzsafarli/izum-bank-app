@@ -13,7 +13,7 @@ public class TransactionSpecifications {
 
     public static Specification<TransactionEntity> getAccountSpecification(TransactionFilterDto transactionFilterDto) {
         var spec = Specification.<TransactionEntity>where(
-                        likeIgnoreCase("status", String.valueOf(transactionFilterDto.getStatus())))
+                        isEqual("status", transactionFilterDto.getStatus()))
                 .and(isEqual("type", transactionFilterDto.getType()));
 
         if (transactionFilterDto.getFromAmount() != null) {

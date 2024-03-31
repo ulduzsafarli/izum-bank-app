@@ -119,9 +119,12 @@ public class UserServiceImpl implements UserService {
     public void createCif(Long userId) {
         log.info("Creating cif for user with ID: {}", userId);
         var user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + userId));
-        user.setCif(GenerateRandom.generateCif());
-        userRepository.save(user);
-        log.info("Successfully generate cif for user with ID: {}", user);
+        if (user.getCif() == null) {
+            user.setCif(GenerateRandom.generateCif());
+            userRepository.save(user);
+            log.info("Successfully generate cif for user with ID: {}", user);
+        } else log.info("The user has CIF");
+
     }
 
     //to-do: Cache system

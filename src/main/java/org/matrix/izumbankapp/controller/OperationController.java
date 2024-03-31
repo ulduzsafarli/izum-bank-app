@@ -6,6 +6,7 @@ import org.matrix.izumbankapp.model.accounts.TransferMoneyRequest;
 import org.matrix.izumbankapp.model.accounts.WithdrawalRequest;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.deposits.DepositRequest;
+import org.matrix.izumbankapp.scheduler.DepositScheduler;
 import org.matrix.izumbankapp.service.OperationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OperationController {
 
     private final OperationService operationService;
+    private final DepositScheduler depositScheduler; //TODO just testing
 
     @PostMapping("/transfer")
     public ResponseEntity<ResponseDto> transferToAccount(@Valid @RequestBody TransferMoneyRequest transferMoneyRequest) {
@@ -34,5 +36,10 @@ public class OperationController {
     @PostMapping("/deposit")
     public ResponseEntity<ResponseDto> deposit(@Valid @RequestBody DepositRequest depositRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(operationService.createDepositAccount(depositRequest));
+    }
+
+    @PostMapping("/testing")
+    public ResponseEntity<ResponseDto> depositScheduler() {
+        return ResponseEntity.status(HttpStatus.CREATED).body(depositScheduler.calculateDepositInterest());
     }
 }
