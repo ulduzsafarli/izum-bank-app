@@ -4,19 +4,17 @@ import org.matrix.izumbankapp.enumeration.NotificationType;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDate;
 
+@Data
 @Entity
 @Table(name = "notifications", schema = "public")
-@Data
 public class NotificationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String message;
-    private boolean read;
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date sentDate;
+    private LocalDate sentDate;
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 

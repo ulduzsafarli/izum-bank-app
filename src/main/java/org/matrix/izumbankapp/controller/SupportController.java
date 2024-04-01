@@ -1,7 +1,7 @@
 package org.matrix.izumbankapp.controller;
 
 import org.matrix.izumbankapp.model.support.SupportDto;
-import org.matrix.izumbankapp.model.support.SupportAnswerDto;
+import org.matrix.izumbankapp.model.support.EmailAnswerDto;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.support.SupportResponseDto;
 import org.matrix.izumbankapp.service.SupportService;
@@ -27,8 +27,8 @@ public class SupportController {
 
     @PostMapping("/respond")
     public ResponseEntity<ResponseDto> respondToSupportRequest(@RequestParam Long supportId,
-                                                               SupportAnswerDto supportAnswerDto) {
-        return ResponseEntity.status(HttpStatus.OK).body(supportService.sendResponse(supportId, supportAnswerDto));
+                                                               EmailAnswerDto emailAnswerDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(supportService.sendResponse(supportId, emailAnswerDto));
     }
 
     @GetMapping("/all-requests")

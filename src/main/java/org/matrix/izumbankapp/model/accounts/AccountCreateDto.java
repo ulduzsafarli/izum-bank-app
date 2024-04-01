@@ -1,7 +1,6 @@
 package org.matrix.izumbankapp.model.accounts;
 
 import lombok.Builder;
-import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.enumeration.accounts.AccountType;
 import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
 import jakarta.validation.constraints.*;
@@ -27,8 +26,6 @@ public class AccountCreateDto {
     private CurrencyType currencyType;
     @NotNull(message = "Account type must not be null")
     private AccountType accountType;
-    @NotNull(message = "Account status must not be null")
-    private AccountStatus status;
     @NotNull(message = "Available balance must not be null")
     private BigDecimal availableBalance;
     @NotNull(message = "Current balance must not be null")

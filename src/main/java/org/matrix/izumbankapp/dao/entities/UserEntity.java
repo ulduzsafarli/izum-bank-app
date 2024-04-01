@@ -51,8 +51,8 @@ public class UserEntity extends Auditable implements UserDetails {
         this.id = id;
     }
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<NotificationEntity> notifications;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<NotificationEntity> notifications;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -13,6 +13,7 @@ public class AccountSpecifications {
 
         var spec = Specification.<AccountEntity>where(
                         likeIgnoreCase("branchCode", filter.getBranchCode()))
+                .and(isEqual("accountNumber", filter.getAccountNumber()))
                 .and(isEqual("currencyType", filter.getCurrencyType()))
                 .and(isEqual("accountType", filter.getAccountType()))
                 .and(isEqual("status", filter.getStatus()))
@@ -20,6 +21,9 @@ public class AccountSpecifications {
                 .and(isEqual("transactionLimit", filter.getTransactionLimit()));
 
         if (filter.getCreatedAt() != null) {
+            spec = spec.and(filterByDates(filter.getCreatedAt(), filter.getAccountExpireDate(), "createdAt"));
+        }
+        if (filter.getAccountExpireDate() != null) {
             spec = spec.and(filterByDates(filter.getCreatedAt(), filter.getAccountExpireDate(), "accountExpireDate"));
         }
 

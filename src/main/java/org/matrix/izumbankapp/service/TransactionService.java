@@ -18,7 +18,7 @@ public interface TransactionService {
                                           TransactionType transactionType);
 
     void updateTransactionStatus(Long id, TransactionStatus transactionStatus);
-    List<TransactionResponse> getTransactionsByType(TransactionType type);
+    TransactionResponse getTransactionsByID(Long transactionId);
     Page<TransactionResponse> findTransactionByFilter(TransactionFilterDto transactionFilterDto, Pageable pageable);
 
     TransactionResponse getTransactionByUUID(String transactionUUID);

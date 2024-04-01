@@ -9,16 +9,16 @@ import org.matrix.izumbankapp.model.deposits.DepositResponse;
 import org.matrix.izumbankapp.service.DepositService;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DepositServiceImpl implements DepositService {
+
     private final DepositRepository depositRepository;
     private final DepositMapper depositMapper;
+
     public List<DepositResponse> getAllDeposits(){
         log.info("Receiving all deposits");
         return depositRepository.findAll().stream().map(depositMapper::toResponseDto).toList();
@@ -36,19 +36,9 @@ public class DepositServiceImpl implements DepositService {
     @Override
     public void saveDeposit(DepositResponse depositResponse) {
         log.info("Saving deposit");
-        var depositEntity = depositMapper.toEntity(depositResponse);
-        depositRepository.save(depositEntity);
+        depositRepository.save(depositMapper.toEntity(depositResponse));
         log.info("Deposit saved successfully");
     }
-
-//    public List<DepositResponse> getDepositsCreatedOnDate(int dayOfMonth) {
-//        LocalDate currentDate = LocalDate.now();
-//        LocalDate startDate = LocalDate.of(currentDate.getYear(), currentDate.getMonth(), dayOfMonth);
-//        LocalDate endDate = startDate.plusDays(1);
-//
-//        List<DepositEntity> deposits = depositRepository.findByCreatedDateBetween(startDate, endDate);
-//        return deposits.stream().map(depositMapper::toResponseDto).toList();
-//    }
 
     @Override
     public DepositResponse getDepositByAccountId(Long id) {
@@ -57,26 +47,4 @@ public class DepositServiceImpl implements DepositService {
         return depositMapper.toResponseDto(depositEntity);
     }
 
-
-    public void calculateInterestForAllDeposits() {
-        // Получить все депозиты из репозитория
-//        var depositAccounts = accountRepository.findAllDeposits().orElseThrow(() -> new NotFoundException(NOT_FOUND));
-
-        var depositResponses = getAllDeposits();
-
-        for (DepositResponse deposit : depositResponses) {
-            BigDecimal interestRate = deposit.getInterestRate();
-
-            if (deposit.isYearlyInterest()) {
-
-            } else {
-                BigDecimal depositAmount = deposit.getAmount();
-                BigDecimal monthlyInterest = depositAmount.multiply(interestRate.divide(BigDecimal.valueOf(100)));
-
-                deposit.setAmount(depositAmount.add(monthlyInterest));
-            }
-        }
-        saveDeposits(depositResponses);
-
-    }
 }

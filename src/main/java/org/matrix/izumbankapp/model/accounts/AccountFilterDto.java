@@ -19,6 +19,7 @@ public class AccountFilterDto {
     private String branchCode;
     private LocalDate createdAt;
     private LocalDate accountExpireDate;
+    private String accountNumber;
     private CurrencyType currencyType;
     private AccountType accountType;
     private AccountStatus status;

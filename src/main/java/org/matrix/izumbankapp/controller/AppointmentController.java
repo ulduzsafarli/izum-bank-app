@@ -1,4 +1,4 @@
 package org.matrix.izumbankapp.controller;
 
-public class RandevuController {
+public class AppointmentController {
 }

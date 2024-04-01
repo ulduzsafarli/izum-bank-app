@@ -6,11 +6,11 @@ import org.matrix.izumbankapp.exception.supports.EmailSendingException;
 import org.matrix.izumbankapp.exception.NotFoundException;
 import org.matrix.izumbankapp.mapper.SupportMapper;
 import org.matrix.izumbankapp.model.support.SupportDto;
-import org.matrix.izumbankapp.model.support.SupportAnswerDto;
+import org.matrix.izumbankapp.model.support.EmailAnswerDto;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.support.SupportResponseDto;
 import org.matrix.izumbankapp.service.SupportService;
-import org.matrix.izumbankapp.util.EmailSending;
+import org.matrix.izumbankapp.service.EmailSendingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class SupportServiceImpl implements SupportService {
 
     private final SupportRepository supportRepository;
     private final SupportMapper supportMapper;
-    private final EmailSending emailSending;
+    private final EmailSendingService emailSendingService;
 
     @Override
     public ResponseDto sendSupport(SupportDto supportDto) {
@@ -32,7 +32,7 @@ public class SupportServiceImpl implements SupportService {
 
         try {
             supportRepository.save(supportMapper.toEntity(supportDto));
-            emailSending.sendSupportEmail(supportDto);
+            emailSendingService.sendSupportEmail(supportDto);
             log.info("Contact form sent successfully: {}", supportDto);
             return ResponseDto.builder().responseMessage("Form submitted successfully").build();
         } catch (RuntimeException e) {
@@ -41,13 +41,13 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
-    public ResponseDto sendResponse(Long supportID, SupportAnswerDto supportAnswerDto) {
-        log.info("Sending answer for support request: {}", supportAnswerDto);
+    public ResponseDto sendResponse(Long supportID, EmailAnswerDto emailAnswerDto) {
+        log.info("Sending answer for support request: {}", emailAnswerDto);
         SupportEntity supportEntity = supportRepository.findById(supportID)
                 .orElseThrow(() -> new NotFoundException("Support message not found with ID " + supportID));
 
         try {
-            emailSending.sendResponseEmail(supportEntity.getEmail(), supportAnswerDto);
+            emailSendingService.sendResponseEmail(supportEntity.getEmail(), emailAnswerDto);
             supportEntity.setAnswered(true);
             supportRepository.save(supportEntity);
             log.info("Response email sent successfully to {}", supportEntity.getEmail());
