@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/account/operation")
+@RequestMapping("/api/v1/user/account/operation")
 public class OperationController {
 
     private final OperationService operationService;

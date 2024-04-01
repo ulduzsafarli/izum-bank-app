@@ -1,8 +1,8 @@
-package org.matrix.izumbankapp.util;
+package org.matrix.izumbankapp.service;
 
 import org.matrix.izumbankapp.exception.supports.EmailSendingException;
 import org.matrix.izumbankapp.model.support.SupportDto;
-import org.matrix.izumbankapp.model.support.SupportAnswerDto;
+import org.matrix.izumbankapp.model.support.EmailAnswerDto;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -19,20 +19,30 @@ import java.util.Objects;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class EmailSending {
+public class EmailSendingService {
 
     private final JavaMailSender javaMailSender;
     private final TemplateEngine templateEngine;
     private final Environment environment;
-    private static final String EMAIL_SUBJECT = "Izum Bank - Support Form";
-
-    public void sendResponseEmail(String to, SupportAnswerDto supportAnswerDto) {
+    private static final String IZUM_BANK_SUPPORT_FORM = "Izum Bank - Support Form";
+    private static final String IZUM_BANK_NOTIFICATION_FORM = "Izum Bank - Notification Form";
+    
+    public void sendResponseEmail(String to, EmailAnswerDto emailAnswerDto) {
         try {
-            MimeMessage mimeMessage = createMimeMessage(to, supportAnswerDto.getResponseMessage());
+            MimeMessage mimeMessage = createMimeMessage(to, emailAnswerDto.getResponseMessage(), IZUM_BANK_SUPPORT_FORM);
             sendMimeMessage(mimeMessage);
             log.info("Email sent successfully to: {}", to);
         } catch (MessagingException | MailException e) {
             throw new EmailSendingException("Error while sending response email", e);
+        }
+    }
+    public void sendNotificationEmail(String to, EmailAnswerDto emailAnswerDto) {
+        try {
+            MimeMessage mimeMessage = createMimeMessage(to, emailAnswerDto.getResponseMessage(), IZUM_BANK_NOTIFICATION_FORM);
+            sendMimeMessage(mimeMessage);
+            log.info("Email sent successfully to: {}", to);
+        } catch (MessagingException | MailException e) {
+            throw new EmailSendingException("Error while sending notification email", e);
         }
     }
 
@@ -46,7 +56,7 @@ public class EmailSending {
         }
     }
 
-    private MimeMessage createMimeMessage(String to, String responseMessage) throws MessagingException {
+    private MimeMessage createMimeMessage(String to, String responseMessage, String subject) throws MessagingException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
         Context context = new Context();
@@ -54,7 +64,7 @@ public class EmailSending {
 
         String emailContent = templateEngine.process("responseEmail", context);
         helper.setTo(to);
-        helper.setSubject(EMAIL_SUBJECT);
+        helper.setSubject(subject);
         helper.setText(emailContent, true);
         return mimeMessage;
     }
@@ -69,7 +79,7 @@ public class EmailSending {
         String emailContent = templateEngine.process("supportEmail", context);
 
         helper.setTo(Objects.requireNonNull(environment.getProperty("spring.mail.to")));
-        helper.setSubject(EMAIL_SUBJECT);
+        helper.setSubject(IZUM_BANK_SUPPORT_FORM);
         helper.setText(emailContent, true);
         helper.setFrom(supportDto.getEmail());
 

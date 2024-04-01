@@ -15,8 +15,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class DepositServiceImpl implements DepositService {
+
     private final DepositRepository depositRepository;
     private final DepositMapper depositMapper;
+
     public List<DepositResponse> getAllDeposits(){
         log.info("Receiving all deposits");
         return depositRepository.findAll().stream().map(depositMapper::toResponseDto).toList();

@@ -11,5 +11,5 @@ databaseChangeLog:
       file: liquibase/changeset_v4/create_transactions_table.sql
   - include:
       file: liquibase/changeset_v4/create_deposit_table.sql
-#  - include:
-#      file: liquibase/changeset_v3/create_notifications_table.sql
+  - include:
+      file: liquibase/changeset_v4/create_notifications_table.sql

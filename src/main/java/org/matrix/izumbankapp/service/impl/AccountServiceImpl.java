@@ -1,11 +1,13 @@
 package org.matrix.izumbankapp.service.impl;
 
 import org.matrix.izumbankapp.dao.entities.AccountEntity;
+import org.matrix.izumbankapp.enumeration.NotificationType;
 import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.enumeration.accounts.AccountType;
 import org.matrix.izumbankapp.exception.*;
 import org.matrix.izumbankapp.exception.accounts.*;
 import org.matrix.izumbankapp.mapper.AccountMapper;
+import org.matrix.izumbankapp.model.NotificationRequest;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.dao.repository.AccountRepository;
 import org.matrix.izumbankapp.model.accounts.AccountStatusUpdate;
@@ -44,6 +46,7 @@ public class AccountServiceImpl implements AccountService {
     public final AccountRepository accountRepository;
     public final AccountMapper accountMapper;
     private final UserService userService;
+    private final NotificationService notificationService;
 
 
     @Override
@@ -95,12 +98,15 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
 
         if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            sendNotification(account.getId(), "Insufficient funds in the account for updating your money",
+                    NotificationType.ALERT);
             throw new InsufficientFundsException("Insufficient funds in the account");
         }
 
         account.setCurrentBalance(newBalance);
         try {
             accountRepository.save(account);
+            sendNotification(account.getId(), "Your balance updating successfully", NotificationType.UPDATE);
         } catch (DataAccessException ex) {
             throw new DatabaseException("Error saving account update", ex);
         }
@@ -142,6 +148,9 @@ public class AccountServiceImpl implements AccountService {
             accountEntity.setPin(passwordEncoder.encode(account.getPin()));
             accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
             accountRepository.save(accountEntity);
+            sendNotification(accountEntity.getId(),
+                    "Your account has been successfully created. Details:\n" + accountEntity,
+                    NotificationType.MESSAGE);
             log.info("Account created successfully");
             return accountMapper.toDto(accountEntity);
         } catch (NotFoundException ex) {
@@ -156,15 +165,16 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public ResponseDto updateAccount(Long accountId, AccountRequest account) {
         log.info("Updating account by ID: {}", accountId);
-        accountRepository.findById(accountId).ifPresentOrElse(
-                accountEntity -> {
-                    accountMapper.updateEntityFromDto(account, accountEntity);
-                    accountRepository.save(accountEntity);
-                    log.info("Successfully updated account {}", account);
-                }, () -> {
-                    throw new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId));
-                }
-        );
+
+        var updateAccount = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId)));
+        accountMapper.updateEntityFromDto(account, updateAccount);
+        accountRepository.save(updateAccount);
+
+        sendNotification(updateAccount.getId(), "Successfully update your account. Details:\n" + updateAccount,
+                NotificationType.MESSAGE);
+
+        log.info("Successfully updated account {}", account);
         return ResponseDto.builder()
                 .responseMessage("Account updated successfully").build();
     }
@@ -194,6 +204,7 @@ public class AccountServiceImpl implements AccountService {
         }
         account.setStatus(AccountStatus.CLOSED);
         accountRepository.save(account);
+        sendNotification(account.getId(), "Your account is closed", NotificationType.ALERT);
         return ResponseDto.builder().responseMessage("Account closed successfully").build();
     }
 
@@ -211,15 +222,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public ResponseDto updateStatus(String accountNumber, AccountStatusUpdate accountUpdate) {
         log.info("Updating status for account {}", accountNumber);
-        return accountRepository.findByAccountNumber(accountNumber)
-                .map(account -> {
-                    if (account.getStatus().equals(accountUpdate.getAccountStatus())) {
-                        throw new AccountStatusException("Account is already " + account.getStatus());
-                    }
-                    account.setStatus(accountUpdate.getAccountStatus());
-                    accountRepository.save(account);
-                    return ResponseDto.builder().responseMessage("Account updated successfully").build();
-                }).orElseThrow(() -> new NotFoundException(NOT_FOUND));
+        var account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND));
+        if (account.getStatus().equals(accountUpdate.getAccountStatus())) {
+            throw new AccountStatusException("Account is already " + account.getStatus());
+        }
+        account.setStatus(accountUpdate.getAccountStatus());
+        accountRepository.save(account);
+        sendNotification(account.getId(), "The status of your account is updated", NotificationType.ALERT);
+        return ResponseDto.builder().responseMessage("Account updated successfully").build();
     }
 
     @Override
@@ -255,6 +266,14 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND)));
 
         return accountEntities.stream().map(accountMapper::toDto).toList();
+    }
+
+    private void sendNotification(Long userId, String message, NotificationType notificationType) {
+        var notification = NotificationRequest.builder()
+                .message(message)
+                .type(notificationType)
+                .userId(userId).build();
+        notificationService.createNotification(notification);
     }
 
 }

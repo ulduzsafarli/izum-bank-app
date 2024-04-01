@@ -1,6 +1,5 @@
 package org.matrix.izumbankapp.controller;
 
-import org.matrix.izumbankapp.model.accounts.AccountsUserResponse;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.matrix.izumbankapp.model.users.UserCreateDto;
@@ -62,7 +61,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(userService.deleteUserById(id));
     }
 
-    @GetMapping("/accounts/{accountNumber}")
+    @GetMapping("/account/{accountNumber}")
     public ResponseEntity<UserAccountsResponse> readUserByAccountNumber(@PathVariable String accountNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.getUserByAccountNumber(accountNumber));
     }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SupportAnswerDto {
+public class EmailAnswerDto {
     @NotBlank(message = "Response message must not be null")
     private String responseMessage;
 }
