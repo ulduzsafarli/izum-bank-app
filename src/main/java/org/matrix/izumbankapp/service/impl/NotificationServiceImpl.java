@@ -62,6 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("Successfully receive all notifications");
         return notifications;
     }
+
     @Override
     @Transactional
     public ResponseDto deleteNotificationsByUserId(Long userId) {

@@ -267,6 +267,13 @@ public class AccountServiceImpl implements AccountService {
 
         return accountEntities.stream().map(accountMapper::toDto).toList();
     }
+//    @Override
+//    public List<AccountResponse> getDepositAccountsCreatedOnDate(int dayOfMonth) {
+//        log.info("Fetching deposit accounts created on day of month: {}", dayOfMonth);
+//        List<AccountEntity> accountEntities = accountRepository.findDepositAccountsCreatedOnDate(dayOfMonth);
+//        return accountEntities.stream().map(accountMapper::toDto).toList();
+//    }
+
 
     private void sendNotification(Long userId, String message, NotificationType notificationType) {
         var notification = NotificationRequest.builder()

@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "deposits", schema = "public")
+@NamedEntityGraph(name = "Deposit.withAccount", attributeNodes = @NamedAttributeNode("account"))
 public class DepositEntity {
 
     @Id

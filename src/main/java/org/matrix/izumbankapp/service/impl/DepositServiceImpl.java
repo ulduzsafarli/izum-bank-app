@@ -47,4 +47,13 @@ public class DepositServiceImpl implements DepositService {
         return depositMapper.toResponseDto(depositEntity);
     }
 
+    @Override
+    public List<DepositResponse> getDepositAccountsCreatedOnDate(int dayOfMonth) {
+        log.info("Fetching deposits created on day of month: {}", dayOfMonth);
+        var deposits = depositRepository.findDepositsCreatedOnDate(dayOfMonth)
+                .stream().map(depositMapper::toResponseDto).toList();
+        log.info("Successfully fetch deposits");
+        return deposits;
+    }
+
 }

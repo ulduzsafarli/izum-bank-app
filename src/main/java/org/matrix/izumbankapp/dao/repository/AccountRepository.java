@@ -27,9 +27,24 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
             @Param("status") AccountStatus status,
             @Param("expireDate") LocalDate expireDate,
             @Param("dayOfMonth") int dayOfMonth);
+//
+//    @Query("SELECT DISTINCT ae FROM AccountEntity ae " +
+//            "LEFT JOIN FETCH ae.depositEntity de " +
+//            "WHERE ae.accountType = :accountType " +
+//            "AND ae.status = :status " +
+//            "AND ae.accountExpireDate > :expireDate " +
+//            "AND DAY(ae.createdAt) = :dayOfMonth")
+//    Optional<List<AccountEntity>> findAccountsWithDepositsByDateAndTypeAndStatus(
+//            @Param("accountType") AccountType accountType,
+//            @Param("status") AccountStatus status,
+//            @Param("expireDate") LocalDate expireDate,
+//            @Param("dayOfMonth") int dayOfMonth);
 
 
     Optional<AccountEntity> findByAccountNumber(String accountNumber);
     @Query(value = "SELECT a FROM AccountEntity a WHERE a.accountType = 'DEPOSIT'")
     Optional<List<AccountEntity>> findAllDeposits();
+
+//    @Query("SELECT a FROM AccountEntity a LEFT JOIN FETCH a.depositEntity WHERE FUNCTION('DAY', a.createdAt) = :dayOfMonth")
+//    List<AccountEntity> findDepositAccountsCreatedOnDate(@Param("dayOfMonth") int dayOfMonth);
 }

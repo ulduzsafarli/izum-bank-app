@@ -28,7 +28,6 @@ import java.time.LocalDate;
 public class DepositScheduler {
 
     private final DepositService depositService;
-    private final AccountService accountService;
     private final TransactionService transactionService;
     private final NotificationService notificationService;
 
@@ -38,15 +37,15 @@ public class DepositScheduler {
         log.info("Starting deposit scheduler for today");
         LocalDate currentDate = LocalDate.now();
 
-        var accountResponses = accountService.getDepositAccountsCreatedOnDate(currentDate.getDayOfMonth());
+        var deposits = depositService.getDepositAccountsCreatedOnDate(currentDate.getDayOfMonth());
 
-        for (AccountResponse account : accountResponses) {
-            var deposit = depositService.getDepositByAccountId(account.getId());
+        for (DepositResponse deposit : deposits) {
+            AccountResponse accountResponse = deposit.getAccount();
             BigDecimal depositInterest = calculateInterest(deposit);
-            BigDecimal newBalance = account.getCurrentBalance().add(depositInterest);
-            account.setCurrentBalance(newBalance);
+            BigDecimal newBalance = accountResponse.getCurrentBalance().add(depositInterest);
+            accountResponse.setCurrentBalance(newBalance);
 
-            createTransactionAndNotification(deposit, account.getUserId());
+            createTransactionAndNotification(deposit, accountResponse.getUserId());
         }
         log.info("Successful deposit amount transfer operation");
     }

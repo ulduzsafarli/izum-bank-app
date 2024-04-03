@@ -14,4 +14,7 @@ public interface DepositService {
     void saveDeposit(DepositResponse depositResponse);
 
     DepositResponse getDepositByAccountId(Long id);
+
+    List<DepositResponse> getDepositAccountsCreatedOnDate(int dayOfMonth);
+
 }
