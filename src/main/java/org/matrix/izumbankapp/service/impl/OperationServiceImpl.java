@@ -59,7 +59,6 @@ public class OperationServiceImpl implements OperationService {
                 .accountExpireDate(depositRequest.getDepositExpireDate())
                 .availableBalance(calculateInterest(depositRequest.getAmount(), depositRequest.getInterest(),
                         depositRequest.getDepositExpireDate()))
-                //TODO yml
                 .branchCode("333")
                 .currencyType(depositRequest.getCurrencyType())
                 .currentBalance(BigDecimal.ZERO)

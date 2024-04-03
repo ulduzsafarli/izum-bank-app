@@ -9,9 +9,9 @@ import org.matrix.izumbankapp.model.NotificationRequest;
 import org.matrix.izumbankapp.model.NotificationResponse;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.support.EmailAnswerDto;
+import org.matrix.izumbankapp.service.EmailSendingService;
 import org.matrix.izumbankapp.service.NotificationService;
 import org.matrix.izumbankapp.service.UserService;
-import org.matrix.izumbankapp.service.EmailSendingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

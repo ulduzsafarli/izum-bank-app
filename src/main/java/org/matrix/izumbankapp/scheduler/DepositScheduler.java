@@ -10,7 +10,6 @@ import org.matrix.izumbankapp.model.accounts.AccountResponse;
 import org.matrix.izumbankapp.model.deposits.DepositResponse;
 import org.matrix.izumbankapp.model.transactions.TransactionAccountRequest;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
-import org.matrix.izumbankapp.service.AccountService;
 import org.matrix.izumbankapp.service.DepositService;
 import org.matrix.izumbankapp.service.NotificationService;
 import org.matrix.izumbankapp.service.TransactionService;
