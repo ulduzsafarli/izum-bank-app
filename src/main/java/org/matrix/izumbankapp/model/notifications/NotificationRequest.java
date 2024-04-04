@@ -1,4 +1,4 @@
-package org.matrix.izumbankapp.model;
+package org.matrix.izumbankapp.model.notifications;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

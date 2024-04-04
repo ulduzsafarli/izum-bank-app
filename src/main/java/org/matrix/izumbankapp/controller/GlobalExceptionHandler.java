@@ -40,7 +40,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final String EXCEPTION_OCCURRED_MESSAGE = "Exception occurred";
 
-    //for email handling
+    //TODO for email handling
 
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(

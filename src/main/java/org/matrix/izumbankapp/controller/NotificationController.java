@@ -1,8 +1,8 @@
 package org.matrix.izumbankapp.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.matrix.izumbankapp.model.NotificationRequest;
-import org.matrix.izumbankapp.model.NotificationResponse;
+import org.matrix.izumbankapp.model.notifications.NotificationRequest;
+import org.matrix.izumbankapp.model.notifications.NotificationResponse;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.service.NotificationService;
 import org.springframework.http.HttpStatus;

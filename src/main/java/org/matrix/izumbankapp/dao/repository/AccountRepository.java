@@ -27,9 +27,5 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
             @Param("status") AccountStatus status,
             @Param("expireDate") LocalDate expireDate,
             @Param("dayOfMonth") int dayOfMonth);
-
-
     Optional<AccountEntity> findByAccountNumber(String accountNumber);
-    @Query(value = "SELECT a FROM AccountEntity a WHERE a.accountType = 'DEPOSIT'")
-    Optional<List<AccountEntity>> findAllDeposits();
 }

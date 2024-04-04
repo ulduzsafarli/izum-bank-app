@@ -1,7 +1,7 @@
 package org.matrix.izumbankapp.service;
 
-import org.matrix.izumbankapp.model.NotificationRequest;
-import org.matrix.izumbankapp.model.NotificationResponse;
+import org.matrix.izumbankapp.model.notifications.NotificationRequest;
+import org.matrix.izumbankapp.model.notifications.NotificationResponse;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.springframework.stereotype.Service;
 

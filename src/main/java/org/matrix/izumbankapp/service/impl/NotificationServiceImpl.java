@@ -5,13 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.matrix.izumbankapp.dao.repository.NotificationRepository;
 import org.matrix.izumbankapp.exception.NotFoundException;
 import org.matrix.izumbankapp.mapper.NotificationMapper;
-import org.matrix.izumbankapp.model.NotificationRequest;
-import org.matrix.izumbankapp.model.NotificationResponse;
+import org.matrix.izumbankapp.model.notifications.NotificationRequest;
+import org.matrix.izumbankapp.model.notifications.NotificationResponse;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.support.EmailAnswerDto;
+import org.matrix.izumbankapp.service.EmailSendingService;
 import org.matrix.izumbankapp.service.NotificationService;
 import org.matrix.izumbankapp.service.UserService;
-import org.matrix.izumbankapp.service.EmailSendingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("Successfully receive all notifications");
         return notifications;
     }
+
     @Override
     @Transactional
     public ResponseDto deleteNotificationsByUserId(Long userId) {

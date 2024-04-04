@@ -75,41 +75,6 @@ public class SecurityConfiguration {
 //                )
         ;
 
-//        http.csrf(AbstractHttpConfigurer::disable)
-//                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers(AuthUrlMapping.PERMIT_ALL.getUrls()).permitAll()
-//                        .requestMatchers(AuthUrlMapping.ADMIN.getUrls()).hasAnyAuthority(ADMIN.name())
-//                        .requestMatchers(AuthUrlMapping.USER.getUrls()).hasAnyAuthority(USER.name())
-//                        .requestMatchers(AuthUrlMapping.MANAGER.getUrls()).hasAnyAuthority(MANAGER.name())
-//                        .requestMatchers(AuthUrlMapping.ANY_AUTHENTICATED.getUrls()).authenticated()
-//                )
-//                .exceptionHandling(exceptionHandling -> exceptionHandling
-//                        .authenticationEntryPoint((request, response, authException) ->
-//                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
-//                        )
-//                        .accessDeniedHandler((request, response, accessDeniedException) ->
-//                                response.setStatus(HttpServletResponse.SC_FORBIDDEN)
-//                        )
-//                );
-
         return http.build();
     }
 }
-//                .httpBasic(Customizer.withDefaults()).logout(lg -> lg
-//                        .logoutUrl("/api/v1/auth/logout")
-//                        .addLogoutHandler(logoutHandler)
-//                        .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()
-//                        )
-//                )
-
-
-//    }
-//}
-//authorize -> authorize
-//        .requestMatchers(AuthUrlMapping.PERMIT_ALL.getUrls()).permitAll()
-//                                .requestMatchers(AuthUrlMapping.ADMIN.getUrls()).hasAnyAuthority(ROLE.ROLE_ADMIN.name())
-//        .requestMatchers(AuthUrlMapping.CLIENT.getUrls()).hasAnyAuthority(ROLE.ROLE_CLIENT.name())
-//        .requestMatchers(AuthUrlMapping.ANY_AUTHENTICATED.getUrls()).authenticated()
-//                ).

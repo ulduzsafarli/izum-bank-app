@@ -4,7 +4,7 @@ CREATE TABLE accounts
     branch_code         VARCHAR(3)        NOT NULL,
     account_number      VARCHAR(7) UNIQUE NOT NULL,
     account_expire_date DATE              NOT NULL,
-    currency_type       VARCHAR(255),
+    currency_type       VARCHAR(255) NOT NULL,
     account_type        VARCHAR(255)      NOT NULL,
     status              VARCHAR(255) DEFAULT 'Active',
     available_balance   NUMERIC(38, 2)    NOT NULL,
