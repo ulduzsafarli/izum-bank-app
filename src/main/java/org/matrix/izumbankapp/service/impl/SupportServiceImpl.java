@@ -34,7 +34,7 @@ public class SupportServiceImpl implements SupportService {
             supportRepository.save(supportMapper.toEntity(supportDto));
             emailSendingService.sendSupportEmail(supportDto);
             log.info("Contact form sent successfully: {}", supportDto);
-            return ResponseDto.builder().responseMessage("Form submitted successfully").build();
+            return new ResponseDto("Form submitted successfully");
         } catch (RuntimeException e) {
             throw new EmailSendingException("Error while processing support request", e);
         }
@@ -51,7 +51,7 @@ public class SupportServiceImpl implements SupportService {
             supportEntity.setAnswered(true);
             supportRepository.save(supportEntity);
             log.info("Response email sent successfully to {}", supportEntity.getEmail());
-            return ResponseDto.builder().responseMessage("Form responses successfully").build();
+            return new ResponseDto("Form responses successfully");
         } catch (RuntimeException e) {
             log.error("Failed to send response email to {}", supportEntity.getEmail(), e);
             throw new EmailSendingException("Error while sending response email", e);

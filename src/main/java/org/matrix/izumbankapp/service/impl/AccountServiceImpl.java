@@ -10,7 +10,6 @@ import org.matrix.izumbankapp.mapper.AccountMapper;
 import org.matrix.izumbankapp.model.notifications.NotificationRequest;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.dao.repository.AccountRepository;
-import org.matrix.izumbankapp.model.accounts.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.matrix.izumbankapp.service.*;
@@ -140,12 +139,12 @@ public class AccountServiceImpl implements AccountService {
     @Override
     @Transactional
     public AccountResponse createAccount(AccountCreateDto account) {
-        log.info("Creating account for user: {}", account.getUserId());
+        log.info("Creating account for user: {}", account.userId());
         try {
-            userService.createCif(account.getUserId());
+            userService.createCif(account.userId());
             AccountEntity accountEntity = accountMapper.fromRequestDtoForUser(account);
             accountEntity.setStatus(AccountStatus.ACTIVE);
-            accountEntity.setPin(passwordEncoder.encode(account.getPin()));
+            accountEntity.setPin(passwordEncoder.encode(account.pin()));
             accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
             accountRepository.save(accountEntity);
             sendNotification(accountEntity.getId(),
@@ -154,7 +153,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("Account created successfully");
             return accountMapper.toDto(accountEntity);
         } catch (NotFoundException ex) {
-            throw new NotFoundException("Failed to find user with ID: " + account.getUserId());
+            throw new NotFoundException("Failed to find user with ID: " + account.userId());
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to add new account to the database", ex);
         }
@@ -175,8 +174,7 @@ public class AccountServiceImpl implements AccountService {
                 NotificationType.MESSAGE);
 
         log.info("Successfully updated account {}", account);
-        return ResponseDto.builder()
-                .responseMessage("Account updated successfully").build();
+        return new ResponseDto("Account updated successfully");
     }
 
     @Override
@@ -186,7 +184,7 @@ public class AccountServiceImpl implements AccountService {
         if (accountRepository.existsById(accountId)) {
             accountRepository.deleteById(accountId);
             log.info("Account deleted successfully");
-            return ResponseDto.builder().responseMessage("Account deleted successfully").build();
+            return new ResponseDto("Account deleted successfully");
         } else {
             throw new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId));
         }
@@ -205,7 +203,7 @@ public class AccountServiceImpl implements AccountService {
         account.setStatus(AccountStatus.CLOSED);
         accountRepository.save(account);
         sendNotification(account.getId(), "Your account is closed", NotificationType.ALERT);
-        return ResponseDto.builder().responseMessage("Account closed successfully").build();
+        return new ResponseDto("Account closed successfully");
     }
 
 
@@ -220,17 +218,17 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public ResponseDto updateStatus(String accountNumber, AccountStatusUpdate accountUpdate) {
+    public ResponseDto updateStatus(String accountNumber, AccountStatus accountUpdate) {
         log.info("Updating status for account {}", accountNumber);
         var account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND));
-        if (account.getStatus().equals(accountUpdate.getAccountStatus())) {
+        if (account.getStatus().equals(accountUpdate)) {
             throw new AccountStatusException("Account is already " + account.getStatus());
         }
-        account.setStatus(accountUpdate.getAccountStatus());
+        account.setStatus(accountUpdate);
         accountRepository.save(account);
         sendNotification(account.getId(), "The status of your account is updated", NotificationType.ALERT);
-        return ResponseDto.builder().responseMessage("Account updated successfully").build();
+        return new ResponseDto("Account updated successfully");
     }
 
     @Override

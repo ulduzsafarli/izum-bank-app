@@ -9,7 +9,6 @@ import org.matrix.izumbankapp.model.users.*;
 import org.matrix.izumbankapp.dao.repository.UserRepository;
 import org.matrix.izumbankapp.model.users.profile.UserProfileDto;
 import org.matrix.izumbankapp.model.users.profile.UserProfileFilterDto;
-import org.matrix.izumbankapp.service.NotificationService;
 import org.matrix.izumbankapp.service.UserProfileService;
 import org.matrix.izumbankapp.service.UserService;
 import org.matrix.izumbankapp.util.GenerateRandom;
@@ -34,7 +33,7 @@ public class UserServiceImpl implements UserService {
     private final UserProfileService userProfileService;
     private final UserMapper userMapper;
 
-    private static final String NOT_FOUND_WITH_ID = "User not found with ID: "; //TODO %s
+    private static final String NOT_FOUND_WITH_ID = "User with ID %d not found";
 
     @Override
     public Page<UserProfileDto> findUsersByFilter(UserProfileFilterDto filter, Pageable pageRequest) {
@@ -54,7 +53,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse getUserById(Long id) {
         log.info("Retrieving user by ID: {}", id);
         UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + id));
+                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_WITH_ID, id)));
         UserResponse userResponse = userMapper.toDto(userEntity);
         log.info("Successfully retrieved User with ID: {}", id);
         return userResponse;
@@ -63,7 +62,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserAccountsResponse getUserByIdForAccount(Long id) {
         log.info("Retrieving user by ID: {}", id);
-        var userEntity = userRepository.findById(id).orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + id));
+        var userEntity = userRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_WITH_ID, id)));
         UserAccountsResponse userResponse = userMapper.toAccountsDto(userEntity);
         log.info("Successfully retrieved User with ID: {}", id);
         return userResponse;
@@ -82,21 +81,21 @@ public class UserServiceImpl implements UserService {
     public ResponseDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         log.info("Updating user with ID {} to: {}", id, userUpdateDto);
         UserEntity userEntity = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + id));
+                .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_WITH_ID, id)));
         userEntity = userMapper.updateEntityFromRequest(userUpdateDto, userEntity);
         userRepository.save(userEntity);
         log.info("Successfully updated user with ID: {}", id);
-        return ResponseDto.builder().responseMessage("User updated successfully").build();
+        return new ResponseDto("User updated successfully");
     }
 
     @Override
     public ResponseDto deleteUserById(Long id) {
         log.info("Deleting user by ID: {}", id);
-        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + id));
+        var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_WITH_ID, id)));
         userRepository.deleteById(id);
         userProfileService.deleteUserProfileById(user.getUserProfile().getUserProfileId());
         log.info("Successfully deleted user with ID: {}", id);
-        return ResponseDto.builder().responseMessage("User deleted successfully").build();
+        return new ResponseDto("User deleted successfully");
     }
 
     @Override
@@ -109,8 +108,7 @@ public class UserServiceImpl implements UserService {
         try {
             userRepository.save(user);
             log.info("Successfully added new user");
-            return ResponseDto.builder()
-                    .responseMessage("User created successfully").build();
+            return new ResponseDto("User created successfully");
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to add new user to the database", ex);
         }
@@ -119,7 +117,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createCif(Long userId) {
         log.info("Creating cif for user with ID: {}", userId);
-        var user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(NOT_FOUND_WITH_ID + userId));
+        var user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_WITH_ID, userId)));
         if (user.getCif() == null) {
             user.setCif(GenerateRandom.generateCif());
             userRepository.save(user);

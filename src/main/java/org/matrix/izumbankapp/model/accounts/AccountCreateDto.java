@@ -1,39 +1,26 @@
 package org.matrix.izumbankapp.model.accounts;
 
-import lombok.Builder;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.matrix.izumbankapp.enumeration.accounts.AccountType;
 import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class AccountCreateDto {
-    @NotNull(message = "User ID cannot be null")
-    private Long userId;
-    @NotBlank(message = "Branch code must not be null")
-    @Pattern(regexp = "\\d{3}", message = "Branch code must contain 3 digits")
-    private String branchCode;
-    @Future(message = "Account expire date must be in the future")
-    private LocalDate accountExpireDate;
-    @NotNull(message = "Currency type must not be null")
-    private CurrencyType currencyType;
-    @NotNull(message = "Account type must not be null")
-    private AccountType accountType;
-    @NotNull(message = "Available balance must not be null")
-    private BigDecimal availableBalance;
-    @NotNull(message = "Current balance must not be null")
-    private BigDecimal currentBalance;
-    @DecimalMax(value = "10000", message = "Transaction limit must be at most 10000")
-    private BigDecimal transactionLimit;
-    @NotBlank(message = "PIN must not be null")
-    @Pattern(regexp = "\\d{4}", message = "PIN should contain 4 digits")
-    private String pin;
 
-}
+public record AccountCreateDto(
+        @NotNull(message = "User ID cannot be null") Long userId,
+        @NotBlank(message = "Branch code must not be null")
+        @Pattern(regexp = "\\d{3}", message = "Branch code must contain 3 digits") String branchCode,
+        @Future(message = "Account expire date must be in the future") LocalDate accountExpireDate,
+        @NotNull(message = "Currency type must not be null") CurrencyType currencyType,
+        @NotNull(message = "Account type must not be null") AccountType accountType,
+        @NotNull(message = "Available balance must not be null") BigDecimal availableBalance,
+        @NotNull(message = "Current balance must not be null") BigDecimal currentBalance,
+        @DecimalMax(value = "10000", message = "Transaction limit must be at most 10000") BigDecimal transactionLimit,
+        @NotBlank(message = "PIN must not be null")
+        @Pattern(regexp = "\\d{4}", message = "PIN should contain 4 digits") String pin
+) {}

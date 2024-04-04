@@ -1,15 +1,6 @@
 package org.matrix.izumbankapp.model.auth;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public record ResponseDto(
+        String responseMessage
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class ResponseDto {
-
-    private String responseMessage;
-}
+) {}

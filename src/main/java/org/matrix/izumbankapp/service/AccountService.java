@@ -1,8 +1,8 @@
 package org.matrix.izumbankapp.service;
 
+import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.exception.accounts.InsufficientFundsException;
 import org.matrix.izumbankapp.model.accounts.*;
-import org.matrix.izumbankapp.model.accounts.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.springframework.data.domain.Page;
@@ -30,7 +30,7 @@ public interface AccountService {
 
     ResponseDto closeAccount(String accountNumber);
 
-    ResponseDto updateStatus(String accountNumber, AccountStatusUpdate accountStatusUpdate);
+    ResponseDto updateStatus(String accountNumber, AccountStatus accountStatusUpdate);
 
     UserAccountsResponse getUserByAccountNumber(String accountNumber);
 

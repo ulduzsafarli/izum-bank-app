@@ -45,7 +45,7 @@ public class OperationServiceImpl implements OperationService {
     public ResponseDto activateDepositScheduler(){
         log.info("Starting deposit scheduler today: {}", LocalDate.now());
         depositScheduler.calculateDepositInterest();
-        return ResponseDto.builder().responseMessage("Successfully activate deposit scheduler").build();
+        return new ResponseDto("Successfully activate deposit scheduler");
     }
 
 
@@ -54,17 +54,17 @@ public class OperationServiceImpl implements OperationService {
     public ResponseDto createDepositAccount(DepositRequest depositRequest) {
         log.info("Creating deposit account for user: {}", depositRequest.getUserId());
 
-        AccountCreateDto accountDto = AccountCreateDto.builder()
-                .accountType(AccountType.DEPOSIT)
-                .accountExpireDate(depositRequest.getDepositExpireDate())
-                .availableBalance(calculateInterest(depositRequest.getAmount(), depositRequest.getInterest(),
-                        depositRequest.getDepositExpireDate()))
-                .branchCode("333")
-                .currencyType(depositRequest.getCurrencyType())
-                .currentBalance(BigDecimal.ZERO)
-                .pin(passwordEncoder.encode(depositRequest.getPin()))
-                .userId(depositRequest.getUserId())
-                .build();
+        AccountCreateDto accountDto = new AccountCreateDto(
+                depositRequest.getUserId(),
+                "333",
+                depositRequest.getDepositExpireDate(),
+                depositRequest.getCurrencyType(),
+                AccountType.DEPOSIT,
+                calculateInterest(depositRequest.getAmount(), depositRequest.getInterest(), depositRequest.getDepositExpireDate()),
+                BigDecimal.ZERO,
+                null,
+                passwordEncoder.encode(depositRequest.getPin())
+        );
 
         userService.createCif(depositRequest.getUserId());
 
@@ -78,7 +78,7 @@ public class OperationServiceImpl implements OperationService {
         depositService.saveDeposit(depositResponse);
 
         log.info("Deposit account created successfully");
-        return ResponseDto.builder().responseMessage("Successfully created a deposit account").build();
+        return new ResponseDto("Successfully created a deposit account");
     }
 
     @Override
@@ -131,7 +131,7 @@ public class OperationServiceImpl implements OperationService {
                 withdrawalRequest.getTransactionAccountRequest(), TransactionType.WITHDRAWAL);
 
         updateTransactionsStatus(List.of(fromTransaction), TransactionStatus.SUCCESSFUL);
-        return ResponseDto.builder().responseMessage("Successfully withdrew money").build();
+        return new ResponseDto("Successfully withdrew money");
     }
 
     private void validateAndDebitAccount(AccountResponse fromAccount, String pin, BigDecimal amount, CurrencyType currencyType) {
@@ -188,7 +188,7 @@ public class OperationServiceImpl implements OperationService {
             accountService.updateBalance(toAccount.getAccountNumber(), toAccount.getCurrentBalance().add(toTransaction.getAmount()));
 
             updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.SUCCESSFUL);
-            return ResponseDto.builder().responseMessage("Successfully transferred money").build();
+            return new ResponseDto("Successfully transferred money");
         } catch (Exception ex) {
             updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.FAILED);
             if (ex instanceof InsufficientFundsException) {

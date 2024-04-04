@@ -41,7 +41,7 @@ public class NotificationServiceImpl implements NotificationService {
         var emailForm = new EmailAnswerDto(notificationRequest.getMessage());
         emailSendingService.sendNotificationEmail(user.getEmail(), emailForm);
         log.info("Successfully create notification for user {}", notificationRequest.getUserId());
-        return ResponseDto.builder().responseMessage("Successfully send user notification ").build();
+        return new ResponseDto("Successfully send user notification ");
     }
 
     @Override
@@ -71,9 +71,7 @@ public class NotificationServiceImpl implements NotificationService {
         int deletedCount = notificationRepository.deleteByUserId(userId);
 
         log.info("Successfully removed {} notifications for the user {}", deletedCount, userId);
-        return ResponseDto.builder()
-                .responseMessage("Notifications for the user deleted successfully")
-                .build();
+        return new ResponseDto("Notifications for the user deleted successfully");
     }
 
 

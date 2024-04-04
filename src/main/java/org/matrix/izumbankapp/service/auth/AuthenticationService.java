@@ -58,29 +58,27 @@ public class AuthenticationService {
         String jwtToken = jwtService.generateToken(user);
         log.info("User registered successfully: {}", request.getEmail());
 
-        return AuthenticationResponseDto.builder()
-                .token(jwtToken)
-                .build();
+        return new AuthenticationResponseDto(jwtToken);
     }
 
     @Transactional
     public AuthenticationResponseDto authenticate(AuthenticationRequest request) {
-        log.info("Authenticating user: {}", request.getEmail());
+        log.info("Authenticating user: {}", request.email());
 
-        UserEntity user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new NotFoundException("User with email " + request.getEmail() + " not found"));
+        UserEntity user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new NotFoundException("User with email " + request.email() + " not found"));
 
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()
+                            request.email(),
+                            request.password()
                     )
             );
 
             String jwtToken = jwtService.generateToken(user);
-            log.info("User authenticated successfully: {}", request.getEmail());
-            return AuthenticationResponseDto.builder().token(jwtToken).build();
+            log.info("User authenticated successfully: {}", request.email());
+            return new AuthenticationResponseDto(jwtToken);
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Invalid username or password");
         }
@@ -92,16 +90,16 @@ public class AuthenticationService {
         UserEntity user = userRepository.findByEmail(connectedUser.getName())
                 .orElseThrow(() -> new NotFoundException("User with email " + connectedUser.getName() + " not found"));
 
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
             throw new IllegalStateException("Wrong password");
         }
-        if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
+        if (!request.newPassword().equals(request.confirmationPassword())) {
             throw new IllegalStateException("Passwords are not the same");
         }
-        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+        if (passwordEncoder.matches(request.newPassword(), user.getPassword())){
             throw new IllegalStateException("The same passwords");
         }
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         log.info("Changed the password for user: {} successfully", user.getEmail());
     }

@@ -4,6 +4,5 @@ public enum Nationality {
     AZERBAIJAN,
     TURKISH,
     AMERICAN,
-    BRITISH,
-    GERMAN
+    BRITISH
 }

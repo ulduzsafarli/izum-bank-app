@@ -1,7 +1,7 @@
 package org.matrix.izumbankapp.controller;
 
+import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.model.accounts.*;
-import org.matrix.izumbankapp.model.accounts.AccountStatusUpdate;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.service.AccountService;
 import jakarta.validation.Valid;
@@ -59,7 +59,7 @@ public class AccountController {
     }
 
     @PatchMapping("/status")
-    public ResponseEntity<ResponseDto> updateAccountStatus(@RequestParam String accountNumber, @RequestBody AccountStatusUpdate accountStatusUpdate) {
+    public ResponseEntity<ResponseDto> updateAccountStatus(@RequestParam String accountNumber, @RequestParam AccountStatus accountStatusUpdate) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.updateStatus(accountNumber, accountStatusUpdate));
     }
 

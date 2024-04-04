@@ -46,11 +46,6 @@ public class UserEntity extends Auditable implements UserDetails {
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
     private List<AccountEntity> accounts;
 
-    public UserEntity(Long id) {
-        super();
-        this.id = id;
-    }
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<NotificationEntity> notifications;
 
