@@ -1,4 +1,4 @@
-package org.matrix.izumbankapp.model;
+package org.matrix.izumbankapp.model.notifications;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

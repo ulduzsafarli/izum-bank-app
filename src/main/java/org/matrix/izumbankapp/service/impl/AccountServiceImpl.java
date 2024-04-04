@@ -7,7 +7,7 @@ import org.matrix.izumbankapp.enumeration.accounts.AccountType;
 import org.matrix.izumbankapp.exception.*;
 import org.matrix.izumbankapp.exception.accounts.*;
 import org.matrix.izumbankapp.mapper.AccountMapper;
-import org.matrix.izumbankapp.model.NotificationRequest;
+import org.matrix.izumbankapp.model.notifications.NotificationRequest;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.dao.repository.AccountRepository;
 import org.matrix.izumbankapp.model.accounts.AccountStatusUpdate;

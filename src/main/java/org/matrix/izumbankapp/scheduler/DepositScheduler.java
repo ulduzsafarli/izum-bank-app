@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.matrix.izumbankapp.enumeration.NotificationType;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionStatus;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionType;
-import org.matrix.izumbankapp.model.NotificationRequest;
+import org.matrix.izumbankapp.model.notifications.NotificationRequest;
 import org.matrix.izumbankapp.model.accounts.AccountResponse;
 import org.matrix.izumbankapp.model.deposits.DepositResponse;
 import org.matrix.izumbankapp.model.transactions.TransactionAccountRequest;

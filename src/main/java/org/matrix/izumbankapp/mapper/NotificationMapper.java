@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.matrix.izumbankapp.dao.entities.NotificationEntity;
-import org.matrix.izumbankapp.model.NotificationRequest;
-import org.matrix.izumbankapp.model.NotificationResponse;
+import org.matrix.izumbankapp.model.notifications.NotificationRequest;
+import org.matrix.izumbankapp.model.notifications.NotificationResponse;
 
 
 @Mapper(componentModel = "spring",
