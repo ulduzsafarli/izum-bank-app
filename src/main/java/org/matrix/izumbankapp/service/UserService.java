@@ -7,9 +7,10 @@ import jakarta.transaction.Transactional;
 import org.matrix.izumbankapp.model.users.profile.UserProfileFilterDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public interface UserService {
     Page<UserProfileDto> findUsersByFilter(UserProfileFilterDto filter, Pageable pageRequest);
 

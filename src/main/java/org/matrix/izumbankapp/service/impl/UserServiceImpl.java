@@ -14,6 +14,9 @@ import org.matrix.izumbankapp.service.UserService;
 import org.matrix.izumbankapp.util.GenerateRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,9 +26,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
@@ -42,6 +45,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "'all'")
     public List<UserResponse> getAllUser() {
         log.info("Retrieving all users");
         var userResponse = userRepository.findAll().stream().map(userMapper::toDto).toList();
@@ -50,6 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "#id")
     public UserResponse getUserById(Long id) {
         log.info("Retrieving user by ID: {}", id);
         UserEntity userEntity = userRepository.findById(id)
@@ -60,6 +65,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "#id")
     public UserAccountsResponse getUserByIdForAccount(Long id) {
         log.info("Retrieving user by ID: {}", id);
         var userEntity = userRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_WITH_ID, id)));
@@ -69,6 +75,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Cacheable(value = "users", key = "#email")
     public UserResponse getUserByEmail(String email) {
         log.info("Retrieving user by email: {}", email);
         var userEntity = userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found with email: " + email));
@@ -78,6 +85,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CachePut(value = "users", key = "#id")
     public ResponseDto updateUser(Long id, UserUpdateDto userUpdateDto) {
         log.info("Updating user with ID {} to: {}", id, userUpdateDto);
         UserEntity userEntity = userRepository.findById(id)
@@ -89,6 +97,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users", key = "#id", allEntries = true)
     public ResponseDto deleteUserById(Long id) {
         log.info("Deleting user by ID: {}", id);
         var user = userRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_WITH_ID, id)));
@@ -99,6 +108,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users", allEntries = true)
     public ResponseDto addUser(UserCreateDto userCreateDto) {
         log.info("Adding new user: {}", userCreateDto);
         validateNewUserData(userCreateDto);
@@ -115,6 +125,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @CacheEvict(value = "users", key = "#userId", allEntries = true)
     public void createCif(Long userId) {
         log.info("Creating cif for user with ID: {}", userId);
         var user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND_WITH_ID, userId)));
@@ -127,7 +138,6 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    //to-do: Cache system
     private synchronized void validateNewUserData(UserCreateDto userCreateDto) {
         Optional<UserEntity> existingUserByEmail = userRepository.findByEmail(userCreateDto.getEmail());
         if (existingUserByEmail.isPresent())

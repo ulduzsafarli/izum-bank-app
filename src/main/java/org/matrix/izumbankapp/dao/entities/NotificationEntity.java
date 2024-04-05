@@ -4,12 +4,13 @@ import org.matrix.izumbankapp.enumeration.NotificationType;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Data
 @Entity
 @Table(name = "notifications", schema = "public")
-public class NotificationEntity {
+public class NotificationEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

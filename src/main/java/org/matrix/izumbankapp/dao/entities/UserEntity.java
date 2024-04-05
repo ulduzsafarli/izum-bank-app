@@ -39,7 +39,7 @@ public class UserEntity extends Auditable implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToOne(cascade = CascadeType.ALL, optional = false)
+    @OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_profile_id", referencedColumnName = "user_profile_id")
     private UserProfileEntity userProfile;
 

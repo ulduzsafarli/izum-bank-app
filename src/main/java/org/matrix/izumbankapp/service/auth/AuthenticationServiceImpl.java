@@ -9,6 +9,8 @@ import org.matrix.izumbankapp.model.auth.*;
 import org.matrix.izumbankapp.enumeration.auth.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.matrix.izumbankapp.service.AuthenticationService;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +23,7 @@ import java.security.Principal;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthenticationService {
+public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -84,7 +86,7 @@ public class AuthenticationService {
         }
     }
 
-    public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
+    public ResponseDto changePassword(ChangePasswordRequest request, Principal connectedUser) {
         log.info("Changing the password for user: {}", connectedUser.toString());
 
         UserEntity user = userRepository.findByEmail(connectedUser.getName())
@@ -102,5 +104,6 @@ public class AuthenticationService {
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         log.info("Changed the password for user: {} successfully", user.getEmail());
+        return new ResponseDto("Successfully changed the password");
     }
 }
