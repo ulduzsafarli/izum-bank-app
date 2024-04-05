@@ -21,7 +21,7 @@ import java.util.List;
 @Table(name = "accounts", schema = "public")
 @EqualsAndHashCode(callSuper = true)
 @EntityListeners(AuditingEntityListener.class)
-public class AccountEntity extends Auditable implements Serializable {
+public class Account extends Auditable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -58,13 +58,13 @@ public class AccountEntity extends Auditable implements Serializable {
     private BigDecimal transactionLimit;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
-    private List<TransactionEntity> transactions;
+    private List<Transaction> transactions;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private User user;
 
-    public AccountEntity(Long accountId) {
+    public Account(Long accountId) {
         super();
         this.id = accountId;
     }

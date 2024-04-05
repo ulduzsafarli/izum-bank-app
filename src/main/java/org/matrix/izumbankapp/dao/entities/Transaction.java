@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "transactions", schema = "public")
-public class TransactionEntity extends Auditable implements Serializable {
+public class Transaction extends Auditable implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,5 +32,5 @@ public class TransactionEntity extends Auditable implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "account_id")
-    private AccountEntity account;
+    private Account account;
 }

@@ -1,6 +1,6 @@
 package org.matrix.izumbankapp.service.impl;
 
-import org.matrix.izumbankapp.dao.entities.UserProfileEntity;
+import org.matrix.izumbankapp.dao.entities.UserProfile;
 import org.matrix.izumbankapp.dao.repository.UserProfileRepository;
 import org.matrix.izumbankapp.mapper.UserProfileMapper;
 import org.matrix.izumbankapp.model.users.profile.UserProfileDto;
@@ -22,15 +22,15 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final UserProfileRepository userProfileRepository;
 
     @Override
-    public Page<UserProfileDto> findUsersProfileByFilter(UserProfileFilterDto filterDto, Pageable pageRequest) {
-        Specification<UserProfileEntity> userProfileSpecification = UserProfileSpecifications.getUserProfileSpecification(filterDto);
-        Page<UserProfileEntity> userProfileEntity = userProfileRepository.findAll(userProfileSpecification, pageRequest);
+    public Page<UserProfileDto> findByFilter(UserProfileFilterDto filterDto, Pageable pageRequest) {
+        Specification<UserProfile> userProfileSpecification = UserProfileSpecifications.getUserProfileSpecification(filterDto);
+        Page<UserProfile> userProfileEntity = userProfileRepository.findAll(userProfileSpecification, pageRequest);
         log.info("Successfully found users");
         return userProfileEntity.map(userProfileMapper::toDto);
     }
 
     @Override
-    public boolean existingUserprofileByPhoneNumber(String phoneNumber) {
+    public boolean existsByPhoneNumber(String phoneNumber) {
         return userProfileRepository.existsByPhoneNumber(phoneNumber);
     }
 

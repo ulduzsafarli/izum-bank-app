@@ -2,7 +2,7 @@ package org.matrix.izumbankapp.scheduler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.matrix.izumbankapp.service.impl.ExchangeServiceImpl;
+import org.matrix.izumbankapp.service.FetchingService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -12,11 +12,11 @@ import java.time.LocalDate;
 @Component
 @RequiredArgsConstructor
 public class CurrencyScheduler {
-    private final ExchangeServiceImpl exchangeService;
+    private final FetchingService fetchingService;
 
     @Scheduled(cron = "${CURRENCY_SCHEDULER}")
     public void fetchAndSaveCurrencyData() {
-        exchangeService.fetchCurrenciesAndSave();
+        fetchingService.fetchCurrencies();
         log.info("Successfully fetch data for: {}", LocalDate.now());
     }
 }

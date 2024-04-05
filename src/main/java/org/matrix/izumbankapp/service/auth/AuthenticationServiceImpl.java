@@ -1,7 +1,7 @@
 package org.matrix.izumbankapp.service.auth;
 
-import org.matrix.izumbankapp.dao.entities.UserEntity;
-import org.matrix.izumbankapp.dao.entities.UserProfileEntity;
+import org.matrix.izumbankapp.dao.entities.User;
+import org.matrix.izumbankapp.dao.entities.UserProfile;
 import org.matrix.izumbankapp.dao.repository.UserRepository;
 import org.matrix.izumbankapp.exception.DuplicateDataException;
 import org.matrix.izumbankapp.exception.NotFoundException;
@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matrix.izumbankapp.service.AuthenticationService;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new DuplicateDataException("User with email address already exists: " + request.getEmail());
         }
 
-        UserProfileEntity userProfile = UserProfileEntity.builder()
+        UserProfile userProfile = UserProfile.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .birthDate(request.getBirthDate())
@@ -46,7 +45,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .nationality(request.getNationality())
                 .build();
 
-        UserEntity user = UserEntity.builder()
+        User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .cif(null)
@@ -66,10 +65,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponseDto authenticate(AuthenticationRequest request) {
         log.info("Authenticating user: {}", request.email());
 
-        UserEntity user = userRepository.findByEmail(request.email())
+        User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new NotFoundException("User with email " + request.email() + " not found"));
-
-        try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.email(),
@@ -80,15 +77,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             String jwtToken = jwtService.generateToken(user);
             log.info("User authenticated successfully: {}", request.email());
             return new AuthenticationResponseDto(jwtToken);
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
     }
 
-    public ResponseDto changePassword(ChangePasswordRequest request, Principal connectedUser) {
+    public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
         log.info("Changing the password for user: {}", connectedUser.getName());
 
-        UserEntity user = userRepository.findByEmail(connectedUser.getName())
+        User user = userRepository.findByEmail(connectedUser.getName())
                 .orElseThrow(() -> new NotFoundException("User with email " + connectedUser.getName() + " not found"));
 
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
@@ -103,6 +97,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         log.info("Changed the password for user: {} successfully", user.getEmail());
-        return new ResponseDto("Successfully changed the password");
     }
 }

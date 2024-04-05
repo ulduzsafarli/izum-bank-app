@@ -1,6 +1,5 @@
 package org.matrix.izumbankapp.controller;
 
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.matrix.izumbankapp.model.users.UserCreateDto;
 import org.matrix.izumbankapp.model.users.UserUpdateDto;
@@ -13,10 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -25,43 +22,44 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/search")
-    public Page<UserProfileDto> getUsersByFilter(UserProfileFilterDto filter, Pageable pageable) {
-        return userService.findUsersByFilter(filter, pageable);
+    public Page<UserProfileDto> getByFilter(UserProfileFilterDto filter, Pageable pageable) {
+        return userService.findByFilter(filter, pageable);
     }
 
-    @GetMapping("/userId")
-    public ResponseEntity<UserResponse> getUserById(@RequestParam Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(userId));
+    @GetMapping("/id/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse getById(@PathVariable Long id) {
+        return userService.getById(id);
     }
 
-    @GetMapping("/email")
-    public ResponseEntity<UserResponse> getUserByEmail(@Valid @RequestParam String email) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserByEmail(email));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUser() {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUser());
+    @GetMapping("/email/{email}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse getByEmail(@Valid @PathVariable String email) {
+        return userService.getByEmail(email);
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto> createUser(@Valid @RequestBody UserCreateDto user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.addUser(user));
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse create(@Valid @RequestBody UserCreateDto user) {
+        return userService.create(user);
     }
 
     @PutMapping
-    public ResponseEntity<ResponseDto> updateUser(@RequestParam Long id, @Valid @RequestBody UserUpdateDto user) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(id, user));
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse update(@RequestParam Long id, @Valid @RequestBody UserUpdateDto user) {
+        return userService.update(id, user);
     }
 
     @DeleteMapping
-    public ResponseEntity<ResponseDto> deleteUserById(@RequestParam Long id) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(userService.deleteUserById(id));
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@RequestParam Long id) {
+        userService.delete(id);
     }
 
     @GetMapping("/account/{accountNumber}")
-    public ResponseEntity<UserAccountsResponse> readUserByAccountNumber(@PathVariable String accountNumber) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserByAccountNumber(accountNumber));
+    @ResponseStatus(HttpStatus.OK)
+    public UserAccountsResponse getByAccountNumber(@PathVariable String accountNumber) {
+        return userService.getByAccountNumber(accountNumber);
     }
 
 }

@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Data
 @Entity
 @Table(name = "notifications", schema = "public")
-public class NotificationEntity implements Serializable {
+public class Notification implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,6 +22,6 @@ public class NotificationEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private User user;
 
 }

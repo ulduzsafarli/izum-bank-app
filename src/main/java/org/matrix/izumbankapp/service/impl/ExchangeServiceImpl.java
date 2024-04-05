@@ -1,11 +1,9 @@
 package org.matrix.izumbankapp.service.impl;
 
 import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
-import org.matrix.izumbankapp.exception.currencies.CurrencyFetchingException;
 import org.matrix.izumbankapp.exception.currencies.UnsupportedCurrencyException;
 import org.matrix.izumbankapp.model.exchange.ExchangeRequestDto;
 import org.matrix.izumbankapp.model.exchange.ExchangeResponseDto;
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.service.ExchangeService;
 import org.matrix.izumbankapp.util.FetchingUtil;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 
 
@@ -23,45 +19,14 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class ExchangeServiceImpl implements ExchangeService {
-    private static final String URL_PREFIX = "https://www.cbar.az/currencies/";
-
-
-    private String generateUrlWithDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-        String formattedDate = dateFormat.format(new Date());
-        return URL_PREFIX + formattedDate + ".xml";
-    }
 
     @Override
-    public ResponseDto fetchCurrenciesAndSave() {
-        String currentUrl = generateUrlWithDate();
-        log.info("Fetching and saving from URL: {}", currentUrl);
-        String xmlData = FetchingUtil.fetchXmlData(currentUrl);
-        if (xmlData != null) {
-            String filteredCurrencies = FetchingUtil.filterCurrencies(xmlData);
-            FetchingUtil.saveCurrenciesToFile(filteredCurrencies);
-            log.info("Successfully fetch and save currency from URL: {}", currentUrl);
-            return new ResponseDto("Data fetched successfully!");
-        } else {
-            throw new CurrencyFetchingException("Failed to fetch XML data from URL");
-        }
-    }
-
-    @Override
-    public String getCurrencyFileContent() {
-        log.info("Getting the latest currency file");
-        String content = FetchingUtil.readCurrencyFile();
-        log.info("Successfully read the latest currency file");
-        return content;
-    }
-
-    @Override
-    public ExchangeResponseDto performExchangeFromAZN(ExchangeRequestDto exchange) {
+    public ExchangeResponseDto fromAZN(ExchangeRequestDto exchange) {
         return performExchange(exchange, true);
     }
 
     @Override
-    public ExchangeResponseDto performExchangeToAZN(ExchangeRequestDto exchange) {
+    public ExchangeResponseDto toAZN(ExchangeRequestDto exchange) {
         return performExchange(exchange, false);
     }
 

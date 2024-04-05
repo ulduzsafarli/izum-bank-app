@@ -4,7 +4,7 @@ import org.matrix.izumbankapp.model.auth.*;
 import org.matrix.izumbankapp.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -13,24 +13,27 @@ import java.security.Principal;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
+
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponseDto> register(@RequestBody @Valid RegisterRequest request) {
-        return ResponseEntity.ok(authenticationService.register(request));
+    @ResponseStatus(HttpStatus.OK)
+    public AuthenticationResponseDto register(@RequestBody @Valid RegisterRequest request) {
+        return authenticationService.register(request);
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody @Valid AuthenticationRequest request) {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+    @ResponseStatus(HttpStatus.OK)
+    public AuthenticationResponseDto authenticate(@RequestBody @Valid AuthenticationRequest request) {
+        return authenticationService.authenticate(request);
     }
 
     //log out
 
-    @PatchMapping("/change-password")
-    public ResponseEntity<ResponseDto> changePassword(@RequestBody ChangePasswordRequest request,
-                                                      Principal connectedUser) {
-        return ResponseEntity.ok(authenticationService.changePassword(request, connectedUser));
+    @PutMapping("/change-password")
+    @ResponseStatus(HttpStatus.OK)
+    public void changePassword(@RequestBody @Valid ChangePasswordRequest request, Principal connectedUser) {
+        authenticationService.changePassword(request, connectedUser);
     }
 
 

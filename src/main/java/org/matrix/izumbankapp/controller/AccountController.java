@@ -2,7 +2,6 @@ package org.matrix.izumbankapp.controller;
 
 import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.model.accounts.*;
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,60 +10,49 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/accounts")
 public class AccountController {
+
     private final AccountService accountService;
 
     @GetMapping("/search")
-    public Page<AccountResponse> getAccountByFilter(AccountFilterDto accountFilterDto,
+    public Page<AccountResponse> getByFilter(AccountFilterDto accountFilterDto,
                                                     @PageableDefault(direction = Sort.Direction.ASC) Pageable pageable) {
-        return accountService.findAccountsByFilter(accountFilterDto, pageable);
+        return accountService.findByFilter(accountFilterDto, pageable);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public AccountResponse getById(@PathVariable Long id) {
-        return accountService.getAccountById(id);
+        return accountService.getById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountResponse create(@Valid @RequestBody AccountCreateDto account) {
-        return accountService.createAccount(account);
+    public AccountResponse create(@RequestBody @Valid AccountCreateDto account) {
+        return accountService.create(account);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void updateAccount(@RequestParam Long accountId, @Valid @RequestBody AccountRequest account) {//TODO name
-        accountService.updateAccount(accountId, account);
+    public AccountResponse update(@PathVariable Long id, @Valid @RequestBody AccountRequest account) {
+        return accountService.update(id, account);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAccount(@RequestParam Long accountId) {
-        accountService.deleteAccount(accountId);
+    public void delete(@PathVariable Long id) {
+        accountService.delete(id);
     }
 
-    @PutMapping("/closure")
-    public ResponseEntity<ResponseDto> closeAccount(@RequestParam String accountNumber) { //TODO update
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.closeAccount(accountNumber));
-    }
-
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<ResponseDto> updateAccountStatus(@RequestParam String accountNumber, @RequestParam AccountStatus accountStatusUpdate) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.updateStatus(accountNumber, accountStatusUpdate));
-    }
-
-    @GetMapping("/{id}/balance")
-    public ResponseEntity<String> getAccountBalance(@RequestParam String accountNumber) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.getBalance(accountNumber));
+    @PutMapping("/{accountNumber}/status/{status}")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateStatus(@PathVariable String accountNumber, @PathVariable AccountStatus status) {
+        accountService.updateStatus(accountNumber, status);
     }
 
 }

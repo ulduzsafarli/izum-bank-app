@@ -11,7 +11,7 @@ public interface AuthenticationService {
 
     AuthenticationResponseDto authenticate(AuthenticationRequest request);
 
-    ResponseDto changePassword(ChangePasswordRequest request, Principal connectedUser);
+    void changePassword(ChangePasswordRequest request, Principal connectedUser);
 
 
 }

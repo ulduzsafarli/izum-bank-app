@@ -1,40 +1,43 @@
 package org.matrix.izumbankapp.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.matrix.izumbankapp.model.notifications.NotificationRequest;
 import org.matrix.izumbankapp.model.notifications.NotificationResponse;
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.service.NotificationService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/users")
+@RequestMapping("/api/v1/notifications")
 public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping("/notification")
-    public ResponseEntity<List<NotificationResponse>> getAllNotifications() {
-        return ResponseEntity.status(HttpStatus.OK).body(notificationService.getAllNotifications());
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<NotificationResponse> getAll() {
+        return notificationService.getAll();
     }
 
     @GetMapping("/{userId}/notification")
-    public ResponseEntity<List<NotificationResponse>> getAllNotificationsForUser(@PathVariable Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(notificationService.getNotificationsByUserId(userId));
+    @ResponseStatus(HttpStatus.OK)
+    public List<NotificationResponse> getByUserId(@PathVariable Long userId) {
+        return notificationService.getByUserId(userId);
     }
 
-    @PostMapping("/notification")
-    public ResponseEntity<ResponseDto> getAllNotificationsForUser(@RequestBody NotificationRequest notificationRequest) {
-        return ResponseEntity.status(HttpStatus.OK).body(notificationService.createNotification(notificationRequest));
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public void create(@Valid @RequestBody NotificationRequest notificationRequest) {
+        notificationService.create(notificationRequest);
     }
 
     @DeleteMapping("/{userId}/notification")
-    public ResponseEntity<ResponseDto> deleteNotification(@PathVariable Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(notificationService.deleteNotificationsByUserId(userId));
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteNotification(@PathVariable Long userId) {
+        notificationService.deleteUserId(userId);
     }
 }

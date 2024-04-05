@@ -2,13 +2,11 @@ package org.matrix.izumbankapp.controller;
 
 import org.matrix.izumbankapp.model.support.SupportDto;
 import org.matrix.izumbankapp.model.support.EmailAnswerDto;
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.support.SupportResponseDto;
 import org.matrix.izumbankapp.service.SupportService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,24 +18,27 @@ public class SupportController {
 
     private final SupportService supportService;
 
-    @PostMapping
-    public ResponseEntity<ResponseDto> submitSupportForm(@RequestBody @Valid SupportDto supportDto) {
-        return ResponseEntity.status(HttpStatus.OK).body(supportService.sendSupport(supportDto));
+    @PostMapping("/request")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void sendRequest(@Valid @RequestBody SupportDto supportDto) {
+        supportService.sendRequest(supportDto);
     }
 
-    @PostMapping("/respond")
-    public ResponseEntity<ResponseDto> respondToSupportRequest(@RequestParam Long supportId,
-                                                               EmailAnswerDto emailAnswerDto) {
-        return ResponseEntity.status(HttpStatus.OK).body(supportService.sendResponse(supportId, emailAnswerDto));
+    @PostMapping("/respond/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void sendResponse(@PathVariable Long id, @Valid @RequestBody EmailAnswerDto emailAnswerDto) {
+        supportService.sendResponse(id, emailAnswerDto);
     }
 
-    @GetMapping("/all-requests")
-    public ResponseEntity<List<SupportResponseDto>> getAllSupportRequests(){
-        return ResponseEntity.status(HttpStatus.OK).body(supportService.getAllSupportRequests());
+    @GetMapping("/requests")
+    @ResponseStatus(HttpStatus.OK)
+    public List<SupportResponseDto> getRequests(){
+        return supportService.getRequests();
     }
-    @GetMapping("/all-unanswered-requests")
-    public ResponseEntity<List<SupportResponseDto>> getUnAnsweredSupportRequests(){
-        return ResponseEntity.status(HttpStatus.OK).body(supportService.getUnAnsweredSupportRequests());
+    @GetMapping("/unanswered-requests")
+    @ResponseStatus(HttpStatus.OK)
+    public List<SupportResponseDto> getUnAnsweredRequests(){
+        return supportService.getUnAnsweredRequests();
     }
 
 

@@ -19,7 +19,7 @@ public class DepositServiceImpl implements DepositService {
     private final DepositMapper depositMapper;
 
     @Override
-    public void saveDeposit(DepositResponse depositResponse) {
+    public void save(DepositResponse depositResponse) {
         log.info("Saving deposit");
         var deposit = depositMapper.toEntity(depositResponse);
         var account = depositRepository.findById(deposit.getId())
@@ -32,7 +32,7 @@ public class DepositServiceImpl implements DepositService {
     }
 
     @Override
-    public List<DepositResponse> getDepositAccountsCreatedOnDate(int dayOfMonth) {
+    public List<DepositResponse> getByCreatedOnDate(int dayOfMonth) {
         log.info("Fetching deposits created on day of month: {}", dayOfMonth);
         var deposits = depositRepository.findDepositsCreatedOnDate(dayOfMonth)
                 .stream().map(depositMapper::toResponseDto).toList();

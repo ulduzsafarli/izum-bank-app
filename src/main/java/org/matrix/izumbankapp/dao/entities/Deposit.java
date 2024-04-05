@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Table(name = "deposits", schema = "public")
 @NamedEntityGraph(name = "Deposit.withAccount", attributeNodes = @NamedAttributeNode("account"))
-public class DepositEntity {
+public class Deposit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +32,6 @@ public class DepositEntity {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id")
-    private AccountEntity account;
+    private Account account;
 
 }

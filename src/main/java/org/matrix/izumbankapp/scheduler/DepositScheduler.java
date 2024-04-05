@@ -35,14 +35,14 @@ public class DepositScheduler {
         log.info("Starting deposit scheduler for today");
         LocalDate currentDate = LocalDate.now();
 
-        var deposits = depositService.getDepositAccountsCreatedOnDate(currentDate.getDayOfMonth());
+        var deposits = depositService.getByCreatedOnDate(currentDate.getDayOfMonth());
 
         for (DepositResponse deposit : deposits) {
             AccountResponse accountResponse = deposit.getAccount();
             BigDecimal depositInterest = calculateInterest(deposit);
             BigDecimal newBalance = accountResponse.getCurrentBalance().add(depositInterest);
             accountResponse.setCurrentBalance(newBalance);
-            depositService.saveDeposit(deposit);
+            depositService.save(deposit);
             createTransactionAndNotification(deposit, accountResponse.getUserId(), depositInterest);
         }
         log.info("Successful deposit amount transfer operation");
@@ -65,12 +65,12 @@ public class DepositScheduler {
         transactionRequest.setAmount(depositInterest);
         transactionRequest.setComments("Deposit interest");
 
-        var transactionResponse = transactionService.createTransaction(account.getId(),
+        var transactionResponse = transactionService.create(account.getId(),
                 transactionRequest, TransactionType.DEPOSIT);
 
         if (transactionResponse != null) {
-            transactionService.updateTransactionStatus(transactionResponse.getId(), TransactionStatus.SUCCESSFUL);
-            notificationService.createNotification(createNotification(userId));
+            transactionService.updateStatus(transactionResponse.getId(), TransactionStatus.SUCCESSFUL);
+            notificationService.create(createNotification(userId));
         } else {
             log.error("Failed to create transaction for deposit: {}", deposit.getId());
         }

@@ -1,7 +1,7 @@
 package org.matrix.izumbankapp.util.specifications;
 
 import lombok.experimental.UtilityClass;
-import org.matrix.izumbankapp.dao.entities.TransactionEntity;
+import org.matrix.izumbankapp.dao.entities.Transaction;
 import org.matrix.izumbankapp.model.transactions.TransactionFilterDto;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -11,8 +11,8 @@ import static org.matrix.izumbankapp.util.specifications.SpecificationUtil.*;
 public class TransactionSpecifications {
 
 
-    public static Specification<TransactionEntity> getAccountSpecification(TransactionFilterDto transactionFilterDto) {
-        var spec = Specification.<TransactionEntity>where(
+    public static Specification<Transaction> getAccountSpecification(TransactionFilterDto transactionFilterDto) {
+        var spec = Specification.<Transaction>where(
                         isEqual("status", transactionFilterDto.getStatus()))
                 .and(isEqual("type", transactionFilterDto.getType()));
 
