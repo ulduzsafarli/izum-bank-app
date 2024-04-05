@@ -20,7 +20,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "users", schema = "public")
 @EntityListeners(AuditingEntityListener.class)
-@NamedEntityGraph(name = "UserEntity.userProfile", attributeNodes = @NamedAttributeNode("userProfile"))
+@NamedEntityGraph(name = "User.userProfile", attributeNodes = @NamedAttributeNode("userProfile"))
 public class User extends Auditable implements UserDetails {
 
     @Id
