@@ -10,7 +10,6 @@ import org.matrix.izumbankapp.enumeration.auth.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matrix.izumbankapp.service.AuthenticationService;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -87,7 +86,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     public ResponseDto changePassword(ChangePasswordRequest request, Principal connectedUser) {
-        log.info("Changing the password for user: {}", connectedUser.toString());
+        log.info("Changing the password for user: {}", connectedUser.getName());
 
         UserEntity user = userRepository.findByEmail(connectedUser.getName())
                 .orElseThrow(() -> new NotFoundException("User with email " + connectedUser.getName() + " not found"));

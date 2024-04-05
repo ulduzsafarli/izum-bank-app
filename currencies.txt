@@ -6,30 +6,30 @@ Currency Rate: 1.7
 Currency Code: EUR
 Currency Nominal: 1
 Currency Name: 1 Avro
-Currency Rate: 1.8477
+Currency Rate: 1.8407
 ---------------------------
 Currency Code: GBP
 Currency Nominal: 1
 Currency Name: 1 Ä°ngiltÉrÉ funt sterlinqi
-Currency Rate: 2.162
+Currency Rate: 2.1467
 ---------------------------
 Currency Code: CHF
 Currency Nominal: 1
 Currency Name: 1 Ä°sveÃ§rÉ frankÄ±
-Currency Rate: 1.9137
+Currency Rate: 1.8836
 ---------------------------
 Currency Code: CAD
 Currency Nominal: 1
 Currency Name: 1 Kanada dollarÄ±
-Currency Rate: 1.2545
+Currency Rate: 1.2528
 ---------------------------
 Currency Code: RUB
 Currency Nominal: 1
 Currency Name: 1 Rusiya rublu
-Currency Rate: 0.0185
+Currency Rate: 0.0184
 ---------------------------
 Currency Code: JPY
 Currency Nominal: 100
 Currency Name: 100 Yaponiya yeni
-Currency Rate: 1.1323
+Currency Rate: 1.1243
 ---------------------------

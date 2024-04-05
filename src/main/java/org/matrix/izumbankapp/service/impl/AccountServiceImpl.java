@@ -10,15 +10,11 @@ import org.matrix.izumbankapp.model.notifications.NotificationRequest;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.dao.repository.AccountRepository;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
-import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.matrix.izumbankapp.service.*;
 import org.matrix.izumbankapp.util.GenerateRandom;
 import org.matrix.izumbankapp.util.specifications.AccountSpecifications;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,7 +59,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Cacheable(value = "accounts", key = "#accountId", unless = "#result==null")
     public AccountResponse getAccountById(Long accountId) {
         log.info("Retrieving account by ID: {}", accountId);
         try {
@@ -72,13 +67,12 @@ public class AccountServiceImpl implements AccountService {
             AccountResponse accountResponse = accountMapper.toDto(accountEntity);
             log.info("Successfully retrieved account");
             return accountResponse;
-        } catch (DataAccessException ex) {
+        } catch (DataAccessException ex) { //TODO remove
             throw new DatabaseException("Failed to get accounts by ID from the database", ex);
         }
     }
 
     @Override
-    @Cacheable(value = "accounts", key = "#accountNumber",  unless = "#result==null")
     public AccountResponse getAccountByAccountNumber(String accountNumber) {
         log.info("Retrieving account by account number: {}", accountNumber);
         try {
@@ -93,7 +87,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @CachePut(value = "accounts", key = "#accountNumber")
     public void updateBalance(String accountNumber, BigDecimal newBalance)
             throws NotFoundException, DatabaseException, InsufficientFundsException {
 
@@ -116,7 +109,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Cacheable(value = "accounts", key = "#account.id")
     public void validatePin(AccountResponse account, String pin) throws InvalidPinException {
         log.info("Validating PIN for account number: {}", account.getAccountNumber());
         var accountEntity = accountRepository.findById(account.getId())
@@ -142,7 +134,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "accounts", key = "#account.userId", allEntries = true)
     public AccountResponse createAccount(AccountCreateDto account) {
         log.info("Creating account for user: {}", account.userId());
         try {
@@ -152,7 +143,7 @@ public class AccountServiceImpl implements AccountService {
             accountEntity.setPin(passwordEncoder.encode(account.pin()));
             accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
             accountRepository.save(accountEntity);
-            sendNotification(accountEntity.getId(),
+            sendNotification(account.userId(),
                     "Your account has been successfully created. Details:\n" + accountEntity,
                     NotificationType.MESSAGE);
             log.info("Account created successfully");
@@ -161,13 +152,14 @@ public class AccountServiceImpl implements AccountService {
             throw new NotFoundException("Failed to find user with ID: " + account.userId());
         } catch (DataAccessException ex) {
             throw new DatabaseException("Failed to add new account to the database", ex);
+        } catch (AccountCreationException ex) {
+            throw new AccountCreationException("Failed to create new account");
         }
     }
 
     @Override
     @Transactional
-
-    public ResponseDto updateAccount(Long accountId, AccountRequest account) {
+    public void updateAccount(Long accountId, AccountRequest account) {
         log.info("Updating account by ID: {}", accountId);
 
         var updateAccount = accountRepository.findById(accountId)
@@ -179,28 +171,21 @@ public class AccountServiceImpl implements AccountService {
                 NotificationType.MESSAGE);
 
         log.info("Successfully updated account {}", account);
-        return new ResponseDto("Account updated successfully");
+//        return new ResponseDto("Account updated successfully");
     }
 
     @Override
     @Transactional
-    @CacheEvict(value = "accounts", key = "#accountId")
     public ResponseDto deleteAccount(Long accountId) {
         log.info("Deleting account by ID: {}", accountId);
-        if (accountRepository.existsById(accountId)) {
-            accountRepository.deleteById(accountId);
-            log.info("Account deleted successfully");
-            return new ResponseDto("Account deleted successfully");
-        } else {
-            throw new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId));
-        }
+        accountRepository.deleteById(accountId);
+        log.info("Account deleted successfully");
+        return new ResponseDto("Account deleted successfully");
     }
 
     @Override
-    @CacheEvict(value = "accounts", allEntries = true)
     public ResponseDto closeAccount(String accountNumber) {
         log.info("Closing account: {}", accountNumber);
-
         var account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
 
@@ -224,7 +209,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @CacheEvict(value = "account", key = "#accountNumber", allEntries = true)
     public ResponseDto updateStatus(String accountNumber, AccountStatus accountUpdate) {
         log.info("Updating status for account {}", accountNumber);
         var account = accountRepository.findByAccountNumber(accountNumber)
@@ -236,22 +220,6 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(account);
         sendNotification(account.getId(), "The status of your account is updated", NotificationType.ALERT);
         return new ResponseDto("Account updated successfully");
-    }
-
-    @Override
-    public UserAccountsResponse getUserByAccountNumber(String accountNumber) {
-        log.info("Reading user by account number {}", accountNumber);
-
-        try {
-            var userAccountsDto = accountRepository.findByAccountNumber(accountNumber)
-                    .map(AccountEntity::getUser)
-                    .map(userEntity -> userService.getUserByIdForAccount(userEntity.getId()))
-                    .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
-            log.info("Read user by account number {} successfully", accountNumber);
-            return userAccountsDto;
-        } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to read user by account number", ex);
-        }
     }
 
     private void sendNotification(Long userId, String message, NotificationType notificationType) {

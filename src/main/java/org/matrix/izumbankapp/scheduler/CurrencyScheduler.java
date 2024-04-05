@@ -11,10 +11,10 @@ import java.time.LocalDate;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FetchingCurrencyScheduler {
+public class CurrencyScheduler {
     private final ExchangeServiceImpl exchangeService;
 
-    @Scheduled(cron = "0 0 9 * * *")
+    @Scheduled(cron = "${CURRENCY_SCHEDULER}")
     public void fetchAndSaveCurrencyData() {
         exchangeService.fetchCurrenciesAndSave();
         log.info("Successfully fetch data for: {}", LocalDate.now());

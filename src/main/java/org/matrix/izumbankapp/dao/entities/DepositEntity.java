@@ -30,7 +30,7 @@ public class DepositEntity {
     @Column(nullable = false)
     private boolean yearlyInterest;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id")
     private AccountEntity account;
 

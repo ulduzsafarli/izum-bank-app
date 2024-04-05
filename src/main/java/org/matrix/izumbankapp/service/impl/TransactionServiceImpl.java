@@ -32,7 +32,6 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
 
-    private static final String WITH_ID_NOT_FOUND = "Account with ID %d not found."; //change
     private static final String WITH_ACCOUNT_ID_NOT_FOUND = "Transactions for account ID %s not found.";
 
     @Override

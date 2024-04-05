@@ -9,7 +9,6 @@ import org.matrix.izumbankapp.model.notifications.NotificationRequest;
 import org.matrix.izumbankapp.model.accounts.AccountResponse;
 import org.matrix.izumbankapp.model.deposits.DepositResponse;
 import org.matrix.izumbankapp.model.transactions.TransactionAccountRequest;
-import org.matrix.izumbankapp.model.transactions.TransactionResponse;
 import org.matrix.izumbankapp.service.DepositService;
 import org.matrix.izumbankapp.service.NotificationService;
 import org.matrix.izumbankapp.service.TransactionService;
@@ -30,7 +29,7 @@ public class DepositScheduler {
     private final TransactionService transactionService;
     private final NotificationService notificationService;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "${DEPOSIT_SCHEDULER}")
     @Transactional
     public void calculateDepositInterest() {
         log.info("Starting deposit scheduler for today");
@@ -43,8 +42,8 @@ public class DepositScheduler {
             BigDecimal depositInterest = calculateInterest(deposit);
             BigDecimal newBalance = accountResponse.getCurrentBalance().add(depositInterest);
             accountResponse.setCurrentBalance(newBalance);
-
-            createTransactionAndNotification(deposit, accountResponse.getUserId());
+            depositService.saveDeposit(deposit);
+            createTransactionAndNotification(deposit, accountResponse.getUserId(), depositInterest);
         }
         log.info("Successful deposit amount transfer operation");
     }
@@ -54,22 +53,19 @@ public class DepositScheduler {
         BigDecimal interestRate = deposit.getInterestRate();
         boolean yearlyInterest = deposit.isYearlyInterest();
 
-        if (yearlyInterest) {
-            return amount.multiply(interestRate);
-        } else {
-            return amount.multiply(interestRate.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP));
-        }
+        BigDecimal value = amount.multiply(interestRate).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+        return yearlyInterest ? value : value.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_UP);
     }
 
-    private void createTransactionAndNotification(DepositResponse deposit, Long userId) {
-        BigDecimal depositInterest = calculateInterest(deposit);
+    private void createTransactionAndNotification(DepositResponse deposit, Long userId, BigDecimal depositInterest) {
         AccountResponse account = deposit.getAccount();
 
         TransactionAccountRequest transactionRequest = new TransactionAccountRequest();
         transactionRequest.setAmount(depositInterest);
         transactionRequest.setComments("Deposit interest");
 
-        TransactionResponse transactionResponse = transactionService.createTransaction(account.getId(),
+        var transactionResponse = transactionService.createTransaction(account.getId(),
                 transactionRequest, TransactionType.DEPOSIT);
 
         if (transactionResponse != null) {

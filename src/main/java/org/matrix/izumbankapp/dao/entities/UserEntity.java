@@ -20,6 +20,7 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "users", schema = "public")
 @EntityListeners(AuditingEntityListener.class)
+@NamedEntityGraph(name = "UserEntity.userProfile", attributeNodes = @NamedAttributeNode("userProfile"))
 public class UserEntity extends Auditable implements UserDetails {
 
     @Id
@@ -39,11 +40,11 @@ public class UserEntity extends Auditable implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "user_profile_id", referencedColumnName = "user_profile_id")
     private UserProfileEntity userProfile;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<AccountEntity> accounts;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

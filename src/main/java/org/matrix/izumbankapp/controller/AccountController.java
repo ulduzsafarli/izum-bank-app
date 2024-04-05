@@ -14,11 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/user/account")
+@RequestMapping("/api/v1/accounts")
 public class AccountController {
     private final AccountService accountService;
 
@@ -28,42 +28,41 @@ public class AccountController {
         return accountService.findAccountsByFilter(accountFilterDto, pageable);
     }
 
-    @GetMapping
-    public ResponseEntity<List<AccountResponse>> getAllAccounts() {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.getAllAccounts());
-    }
-
-    @GetMapping("/accountId")
-    public ResponseEntity<AccountResponse> getAccountById(@RequestParam Long accountId) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.getAccountById(accountId));
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AccountResponse getById(@PathVariable Long id) {
+        return accountService.getAccountById(id);
     }
 
     @PostMapping
-    public ResponseEntity<AccountResponse> createAccount(@Valid @RequestBody AccountCreateDto account) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(account));
+    @ResponseStatus(HttpStatus.CREATED)
+    public AccountResponse create(@Valid @RequestBody AccountCreateDto account) {
+        return accountService.createAccount(account);
     }
 
     @PutMapping
-    public ResponseEntity<ResponseDto> updateAccount(@RequestParam Long accountId, @Valid @RequestBody AccountRequest account) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.updateAccount(accountId, account));
+    @ResponseStatus(HttpStatus.OK)
+    public void updateAccount(@RequestParam Long accountId, @Valid @RequestBody AccountRequest account) {//TODO name
+        accountService.updateAccount(accountId, account);
     }
 
     @DeleteMapping
-    public ResponseEntity<ResponseDto> deleteAccount(@RequestParam Long accountId) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(accountService.deleteAccount(accountId));
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAccount(@RequestParam Long accountId) {
+        accountService.deleteAccount(accountId);
     }
 
     @PutMapping("/closure")
-    public ResponseEntity<ResponseDto> closeAccount(@RequestParam String accountNumber) {
+    public ResponseEntity<ResponseDto> closeAccount(@RequestParam String accountNumber) { //TODO update
         return ResponseEntity.status(HttpStatus.OK).body(accountService.closeAccount(accountNumber));
     }
 
-    @PatchMapping("/status")
+    @PatchMapping("/{id}/status")
     public ResponseEntity<ResponseDto> updateAccountStatus(@RequestParam String accountNumber, @RequestParam AccountStatus accountStatusUpdate) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.updateStatus(accountNumber, accountStatusUpdate));
     }
 
-    @GetMapping("/balance")
+    @GetMapping("/{id}/balance")
     public ResponseEntity<String> getAccountBalance(@RequestParam String accountNumber) {
         return ResponseEntity.status(HttpStatus.OK).body(accountService.getBalance(accountNumber));
     }

@@ -4,7 +4,6 @@ import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.exception.accounts.InsufficientFundsException;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.matrix.izumbankapp.model.auth.ResponseDto;
-import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,15 +24,13 @@ public interface AccountService {
 
     AccountResponse createAccount(AccountCreateDto account);
 
-    ResponseDto updateAccount(Long accountId, AccountRequest account);
+    void updateAccount(Long accountId, AccountRequest account);
 
     ResponseDto deleteAccount(Long accountId);
 
     ResponseDto closeAccount(String accountNumber);
 
     ResponseDto updateStatus(String accountNumber, AccountStatus accountStatusUpdate);
-
-    UserAccountsResponse getUserByAccountNumber(String accountNumber);
 
     String getBalance(String accountNumber);
 

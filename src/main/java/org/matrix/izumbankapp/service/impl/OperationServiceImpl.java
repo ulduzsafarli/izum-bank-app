@@ -38,7 +38,6 @@ public class OperationServiceImpl implements OperationService {
     private final ExchangeService exchangeService;
     private final DepositService depositService;
     private final AccountService accountService;
-    private final UserService userService;
     private final DepositScheduler depositScheduler;
 
     @Override
@@ -65,8 +64,6 @@ public class OperationServiceImpl implements OperationService {
                 null,
                 passwordEncoder.encode(depositRequest.getPin())
         );
-
-        userService.createCif(depositRequest.getUserId());
 
         AccountResponse accountResponse = accountService.createAccount(accountDto);
         DepositResponse depositResponse = DepositResponse.builder()

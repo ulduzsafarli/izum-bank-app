@@ -18,8 +18,6 @@ public interface UserService {
 
     UserResponse getUserById(Long id);
 
-    UserAccountsResponse getUserByIdForAccount(Long id);
-
     UserResponse getUserByEmail(String email);
 
     @Transactional
@@ -30,8 +28,7 @@ public interface UserService {
 
     @Transactional
     ResponseDto addUser(UserCreateDto userCreateDto);
-
-
+    UserAccountsResponse getUserByAccountNumber(String accountNumber);
     void createCif(Long userId);
 
 }

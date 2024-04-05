@@ -7,7 +7,6 @@ import org.matrix.izumbankapp.model.users.UserUpdateDto;
 import org.matrix.izumbankapp.model.users.UserResponse;
 import org.matrix.izumbankapp.model.users.profile.UserProfileDto;
 import org.matrix.izumbankapp.model.users.profile.UserProfileFilterDto;
-import org.matrix.izumbankapp.service.AccountService;
 import org.matrix.izumbankapp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final AccountService accountService;
 
     @GetMapping("/search")
     public Page<UserProfileDto> getUsersByFilter(UserProfileFilterDto filter, Pageable pageable) {
@@ -63,7 +61,7 @@ public class UserController {
 
     @GetMapping("/account/{accountNumber}")
     public ResponseEntity<UserAccountsResponse> readUserByAccountNumber(@PathVariable String accountNumber) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.getUserByAccountNumber(accountNumber));
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserByAccountNumber(accountNumber));
     }
 
 }
