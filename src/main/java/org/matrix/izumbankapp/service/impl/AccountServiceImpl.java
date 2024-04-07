@@ -44,35 +44,35 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Page<AccountResponse> findByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest) {
         log.info("Searching accounts by filter: {}", accountFilterDto);
-            Specification<Account> accountSpecification = AccountSpecifications.getAccountSpecification(accountFilterDto);
-            Page<Account> accountEntityPage = accountRepository.findAll(accountSpecification, pageRequest);
-            log.info("Successfully found accounts");
-            return accountEntityPage.map(accountMapper::toDto);
+        Specification<Account> accountSpecification = AccountSpecifications.getAccountSpecification(accountFilterDto);
+        Page<Account> accountEntityPage = accountRepository.findAll(accountSpecification, pageRequest);
+        log.info("Successfully found accounts");
+        return accountEntityPage.map(accountMapper::toDto);
     }
 
     @Override
     public AccountResponse getById(Long accountId) {
         log.info("Retrieving account by ID: {}", accountId);
-            Account account = accountRepository.findById(accountId)
-                    .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId)));
-            AccountResponse accountResponse = accountMapper.toDto(account);
-            log.info("Successfully retrieved account");
-            return accountResponse;
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId)));
+        AccountResponse accountResponse = accountMapper.toDto(account);
+        log.info("Successfully retrieved account");
+        return accountResponse;
     }
 
     @Override
     public AccountResponse getByAccountNumber(String accountNumber) {
         log.info("Retrieving account by account number: {}", accountNumber);
-            Account account = accountRepository.findByAccountNumber(accountNumber)
-                    .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
-            AccountResponse accountResponse = accountMapper.toDto(account);
-            log.info("Successfully retrieved account");
-            return accountResponse;
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
+        AccountResponse accountResponse = accountMapper.toDto(account);
+        log.info("Successfully retrieved account");
+        return accountResponse;
     }
 
     @Override
     public void updateBalance(String accountNumber, BigDecimal newBalance)
-            throws NotFoundException, DatabaseException, InsufficientFundsException {
+            throws NotFoundException, InsufficientFundsException {
 
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
@@ -83,8 +83,8 @@ public class AccountServiceImpl implements AccountService {
             throw new InsufficientFundsException("Insufficient funds in the account");
         }
         account.setCurrentBalance(newBalance);
-            accountRepository.save(account);
-            sendNotification(account.getId(), "Your balance updating successfully", NotificationType.UPDATE);
+        accountRepository.save(account);
+        sendNotification(account.getId(), "Your balance updating successfully", NotificationType.UPDATE);
     }
 
     @Override
@@ -103,17 +103,17 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public AccountResponse create(AccountCreateDto account) {
         log.info("Creating account for user: {}", account.userId());
-            userService.createCif(account.userId());
-            Account accountEntity = accountMapper.fromRequestDtoForUser(account);
-            accountEntity.setStatus(AccountStatus.ACTIVE);
-            accountEntity.setPin(passwordEncoder.encode(account.pin()));
-            accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
-            accountRepository.save(accountEntity);
-            sendNotification(account.userId(),
-                    "Your account has been successfully created. Details:\n" + accountEntity,
-                    NotificationType.MESSAGE);
-            log.info("Account created successfully");
-            return accountMapper.toDto(accountEntity);
+        userService.createCif(account.userId());
+        Account accountEntity = accountMapper.fromRequestDtoForUser(account);
+        accountEntity.setStatus(AccountStatus.ACTIVE);
+        accountEntity.setPin(passwordEncoder.encode(account.pin()));
+        accountEntity.setAccountNumber(GenerateRandom.generateAccountNumber());
+        accountRepository.save(accountEntity);
+        sendNotification(account.userId(),
+                "Your account has been successfully created. Details:\n" + accountEntity,
+                NotificationType.MESSAGE);
+        log.info("Account created successfully");
+        return accountMapper.toDto(accountEntity);
     }
 
     @Override

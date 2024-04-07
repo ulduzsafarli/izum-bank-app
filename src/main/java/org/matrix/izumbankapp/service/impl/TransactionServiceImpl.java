@@ -4,7 +4,6 @@ import org.matrix.izumbankapp.dao.entities.Transaction;
 import org.matrix.izumbankapp.dao.repository.TransactionRepository;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionStatus;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionType;
-import org.matrix.izumbankapp.exception.DatabaseException;
 import org.matrix.izumbankapp.exception.NotFoundException;
 import org.matrix.izumbankapp.mapper.TransactionMapper;
 import org.matrix.izumbankapp.model.transactions.TransactionAccountRequest;
@@ -15,7 +14,6 @@ import org.matrix.izumbankapp.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matrix.izumbankapp.util.specifications.TransactionSpecifications;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -89,14 +87,10 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public Page<TransactionResponse> findByFilter(TransactionFilterDto transactionFilterDto, Pageable pageable) {
         log.info("Searching transactions by filter: {}", transactionFilterDto);
-        try {
-            Specification<Transaction> accountSpecification = TransactionSpecifications.getAccountSpecification(transactionFilterDto);
-            Page<Transaction> transactionsPage = transactionRepository.findAll(accountSpecification, pageable);
-            log.info("Successfully found accounts");
-            return transactionsPage.map(transactionMapper::toResponseDto);
-        } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to find an account in the database", ex);
-        }
+        Specification<Transaction> accountSpecification = TransactionSpecifications.getAccountSpecification(transactionFilterDto);
+        Page<Transaction> transactionsPage = transactionRepository.findAll(accountSpecification, pageable);
+        log.info("Successfully found accounts");
+        return transactionsPage.map(transactionMapper::toResponseDto);
     }
 
     @Override

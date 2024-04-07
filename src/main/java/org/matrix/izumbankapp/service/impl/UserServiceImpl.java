@@ -13,7 +13,6 @@ import org.matrix.izumbankapp.service.UserService;
 import org.matrix.izumbankapp.util.GenerateRandom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,14 +53,10 @@ public class UserServiceImpl implements UserService {
     public UserAccountsResponse getByAccountNumber(String accountNumber) {
         log.info("Reading user by account number {}", accountNumber);
 
-        try {
-            var userAccountsDto = userRepository.findByAccountNumber(accountNumber)
-                    .orElseThrow(() -> new NotFoundException("Account not fount with number " + accountNumber));
-            log.info("Read user by account number {} successfully", accountNumber);
-            return userMapper.toAccountsDto(userAccountsDto);
-        } catch (DataAccessException ex) {
-            throw new DatabaseException("Failed to read user by account number", ex);
-        }
+        var userAccountsDto = userRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new NotFoundException("Account not fount with number " + accountNumber));
+        log.info("Read user by account number {} successfully", accountNumber);
+        return userMapper.toAccountsDto(userAccountsDto);
     }
 
     @Override
