@@ -13,10 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 import static org.matrix.izumbankapp.enumeration.auth.AuthUrlMapping.*;
-import static org.matrix.izumbankapp.enumeration.auth.Permission.*;
-import static org.springframework.http.HttpMethod.*;
 
 
 @Configuration
@@ -26,6 +23,7 @@ import static org.springframework.http.HttpMethod.*;
 public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -37,10 +35,6 @@ public class SecurityConfiguration {
                                 .requestMatchers(PERMIT_ALL.getUrls()).permitAll()
                                 .requestMatchers(ADMIN.getUrls()).hasRole(Role.ADMIN.name())
                                 .requestMatchers(MANAGER.getUrls()).hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
-//                                .requestMatchers(GET, "/api/v1/accounts/{id}").hasAnyAuthority(ADMIN_READ.name(), MANAGER_READ.name())
-//                                .requestMatchers(PUT, "/api/v1/accounts/{id}").hasAnyAuthority(ADMIN_UPDATE.name(), MANAGER_UPDATE.name())
-//                                .requestMatchers(DELETE, "/api/v1/accounts/{id}").hasAuthority(ADMIN_DELETE.name())
-                                .requestMatchers(GET, "/api/v1/notifications/{userId}").hasAnyAuthority(ADMIN_READ.name(), MANAGER_READ.name())
                                 .requestMatchers(ANY_AUTHENTICATED.getUrls()).authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
@@ -51,12 +45,6 @@ public class SecurityConfiguration {
                                 response.setStatus(HttpServletResponse.SC_FORBIDDEN)
                         )
                 );
-//                .httpBasic(Customizer.withDefaults()).logout(lg -> lg
-//                        .logoutUrl("/api/v1/auth/logout")
-//                        .addLogoutHandler(logoutHandler)
-//                        .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()
-//                        )
-//                );
         return http.build();
     }
 }

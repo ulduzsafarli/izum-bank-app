@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -84,11 +85,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         log.info("Deleting user by ID: {}", id);
-        userRepository.deleteById(id);
-        log.info("Successfully deleted user with ID: {}", id);
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            log.info("Successfully deleted user with ID: {}", id);
+        } else {
+            throw new NotFoundException(NOT_FOUND_WITH_ID + id);
+        }
     }
+
 
     @Override
     public UserResponse create(UserCreateDto userCreateDto) {

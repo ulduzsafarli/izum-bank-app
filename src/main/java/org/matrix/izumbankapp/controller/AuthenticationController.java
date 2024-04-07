@@ -28,8 +28,6 @@ public class AuthenticationController {
         return authenticationService.authenticate(request);
     }
 
-    //log out
-
     @PutMapping("/change-password")
     @ResponseStatus(HttpStatus.OK)
     public void changePassword(@RequestBody @Valid ChangePasswordRequest request, Principal connectedUser) {

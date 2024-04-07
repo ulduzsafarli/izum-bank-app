@@ -137,8 +137,12 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public void delete(Long accountId) {
         log.info("Deleting account by ID: {}", accountId);
-        accountRepository.deleteById(accountId);
-        log.info("Account deleted successfully");
+        if (accountRepository.existsById(accountId)) {
+            accountRepository.deleteById(accountId);
+            log.info("Account deleted successfully");
+        } else {
+            throw new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId));
+        }
     }
 
     @Override
