@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class Auditable {
-    //TODO @Embeddable and @Embedded
     @CreatedDate
     private LocalDateTime createdAt;
 

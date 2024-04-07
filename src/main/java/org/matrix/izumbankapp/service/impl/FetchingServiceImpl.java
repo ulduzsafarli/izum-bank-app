@@ -25,7 +25,7 @@ public class FetchingServiceImpl implements FetchingService {
     }
 
     @Override
-    public void fetchCurrencies() {
+    public void fetch() {
         String currentUrl = generateUrlWithDate();
         log.info("Fetching and saving from URL: {}", currentUrl);
         String xmlData = FetchingUtil.fetchXmlData(currentUrl);

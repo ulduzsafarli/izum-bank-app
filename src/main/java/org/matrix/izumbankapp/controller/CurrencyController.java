@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/currency")
 @RequiredArgsConstructor
-public class FetchingController {
+public class CurrencyController {
     private final FetchingService fetchingService;
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public void fetchCurrencies() {
-        fetchingService.fetchCurrencies();
+    public void fetch() {
+        fetchingService.fetch();
     }
     @GetMapping("/file")
     @ResponseStatus(HttpStatus.OK)

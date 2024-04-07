@@ -23,7 +23,7 @@ public class NotificationController {
         return notificationService.getAll();
     }
 
-    @GetMapping("/{userId}/notification")
+    @GetMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public List<NotificationResponse> getByUserId(@PathVariable Long userId) {
         return notificationService.getByUserId(userId);
@@ -35,9 +35,9 @@ public class NotificationController {
         notificationService.create(notificationRequest);
     }
 
-    @DeleteMapping("/{userId}/notification")
+    @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteNotification(@PathVariable Long userId) {
+    public void delete(@PathVariable Long userId) {
         notificationService.deleteUserId(userId);
     }
 }

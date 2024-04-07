@@ -31,7 +31,6 @@ public enum Permission {
     @JsonProperty("management:delete")
     MANAGER_DELETE("management:delete");
 
-    ;
 
     private final String value;
 }

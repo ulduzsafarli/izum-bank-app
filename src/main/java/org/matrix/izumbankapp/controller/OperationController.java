@@ -34,7 +34,7 @@ public class OperationController {
        operationService.createDeposit(depositRequest);
     }
 
-    @PostMapping("/deposit/scheduler")
+    @PostMapping("/deposit-scheduler")
     @ResponseStatus(HttpStatus.OK)
     public void depositScheduler() {
       operationService.activateDepositScheduler();
