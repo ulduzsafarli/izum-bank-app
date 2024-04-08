@@ -7,7 +7,6 @@ public enum AuthUrlMapping {
     MANAGER(Role.MANAGER.name(), new String[]{
             "/api/v1/accounts/{accountNumber}/status/{status}",
             "/api/v1/accounts/search",
-            "/api/v1/accounts/{id}",
             "/api/v1/accounts",
             "/api/v1/support/**",
             "/api/v1/currency/file",
@@ -21,7 +20,8 @@ public enum AuthUrlMapping {
             "/api/v1/currency",
             "/api/v1/exchange/**",
     }),
-    PERMIT_ALL(null, new String[]{
+
+    PERMIT_ALL(new String[]{
             "/api/v1/auth/authenticate",
             "/api/v1/auth/register",
             "/api/v1/support/request",
@@ -36,12 +36,19 @@ public enum AuthUrlMapping {
             "/swagger-ui.html"
     }),
 
-    ANY_AUTHENTICATED(null, new String[]{
+    ANY_AUTHENTICATED(new String[]{
             "/api/v1/auth/change-password",
             "/api/v1/operations/transfer",
             "/api/v1/operations/withdrawal",
             "/api/v1/operations/deposit",
             "/api/v1/operations/{accountNumber}/balance"
+    }),
+
+    LIST_URL(new String[]{
+            "/api/v1/accounts/{id}",
+            "/api/v1/notifications/{userId}",
+            "/api/v1/notifications/{userId}",
+            "/api/v1/users"
     });
 
     private final String role;
@@ -52,4 +59,8 @@ public enum AuthUrlMapping {
         this.urls = urls;
     }
 
+    AuthUrlMapping(String[] urls) {
+        this.role = null;
+        this.urls = urls;
+    }
 }

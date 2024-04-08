@@ -14,6 +14,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static org.matrix.izumbankapp.enumeration.auth.AuthUrlMapping.*;
+import static org.matrix.izumbankapp.enumeration.auth.Permission.*;
+import static org.springframework.http.HttpMethod.*;
 
 
 @Configuration
@@ -35,6 +37,9 @@ public class SecurityConfiguration {
                                 .requestMatchers(PERMIT_ALL.getUrls()).permitAll()
                                 .requestMatchers(ADMIN.getUrls()).hasRole(Role.ADMIN.name())
                                 .requestMatchers(MANAGER.getUrls()).hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
+                                .requestMatchers(GET, LIST_URL.getUrls()).hasAnyAuthority(ADMIN_READ.getValue(), MANAGER_READ.getValue())
+                                .requestMatchers(PUT, LIST_URL.getUrls()).hasAnyAuthority(ADMIN_UPDATE.getValue(), MANAGER_UPDATE.getValue())
+                                .requestMatchers(DELETE, LIST_URL.getUrls()).hasAuthority(ADMIN_DELETE.getValue())
                                 .requestMatchers(ANY_AUTHENTICATED.getUrls()).authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling

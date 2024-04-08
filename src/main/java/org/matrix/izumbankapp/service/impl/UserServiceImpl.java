@@ -83,12 +83,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void delete(Long id) {
         log.info("Deleting user by ID: {}", id);
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-            log.info("Successfully deleted user with ID: {}", id);
-        } else {
-            throw new NotFoundException(NOT_FOUND_WITH_ID + id);
-        }
+        userRepository.deleteById(id);
+        log.info("Successfully deleted user with ID: {}", id);
     }
 
 
