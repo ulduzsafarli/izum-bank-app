@@ -9,36 +9,37 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/accounts")
+@RequestMapping("/api/v1/transactions")
 public class TransactionController {
+
     private final TransactionService transactionService;
-    @GetMapping("/{accountId}/transactions")
-    public ResponseEntity<List<TransactionResponse>> getTransactionsFromAccountId(@PathVariable Long accountId) {
-        return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionsFromAccountId(accountId));
+    @GetMapping("/search")
+    public Page<TransactionResponse> getByFilter(TransactionFilterDto transactionFilterDto,
+                                                 @PageableDefault(direction = Sort.Direction.ASC) Pageable pageable) {
+        return transactionService.findByFilter(transactionFilterDto, pageable);
     }
-    @GetMapping("/transactions/ID/{transactionId}")
-    public ResponseEntity<TransactionResponse> getTransactions(@PathVariable Long transactionId) {
-        return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionsByID(transactionId));
+    @GetMapping("/accounts/{accountId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<TransactionResponse> getFromAccountId(@PathVariable Long accountId) {
+        return transactionService.getFromAccountId(accountId);
+    }
+    @GetMapping("/ID/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public TransactionResponse getById(@PathVariable Long id) {
+        return transactionService.getByID(id);
     }
 
-    @GetMapping("/transactions/transactionUUID/{transactionUUID}")
-    public ResponseEntity<TransactionResponse> getTransactions(@PathVariable String transactionUUID) {
-        return ResponseEntity.status(HttpStatus.OK).body(transactionService.getTransactionByUUID(transactionUUID));
+    @GetMapping("/UUID/{uuid}")
+    @ResponseStatus(HttpStatus.OK)
+    public TransactionResponse getByUUID(@PathVariable String uuid) {
+        return transactionService.getByUUID(uuid);
     }
 
-    @GetMapping("/transactions/search")
-    public Page<TransactionResponse> getTransactionsByFilter(TransactionFilterDto transactionFilterDto,
-                                                    @PageableDefault(direction = Sort.Direction.ASC) Pageable pageable) {
-        return transactionService.findTransactionByFilter(transactionFilterDto, pageable);
-    }
+
 }

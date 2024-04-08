@@ -9,11 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface UserProfileService {
-    Page<UserProfileDto> findUsersProfileByFilter(UserProfileFilterDto filterDto, Pageable pageRequest);
-
-    void deleteUserProfileById(Long id);
-
-    UserProfileDto getUserProfileByPhoneNumber(String phoneNumber);
-    boolean existingUserprofileByPhoneNumber(String phoneNumber);
+    Page<UserProfileDto> findByFilter(UserProfileFilterDto filterDto, Pageable pageRequest);
+    boolean existsByPhoneNumber(String phoneNumber);
 
 }

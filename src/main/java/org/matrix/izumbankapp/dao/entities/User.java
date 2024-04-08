@@ -20,7 +20,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "users", schema = "public")
 @EntityListeners(AuditingEntityListener.class)
-public class UserEntity extends Auditable implements UserDetails {
+@NamedEntityGraph(name = "User.userProfile", attributeNodes = @NamedAttributeNode("userProfile"))
+public class User extends Auditable implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,18 +42,13 @@ public class UserEntity extends Auditable implements UserDetails {
 
     @OneToOne(cascade = CascadeType.ALL, optional = false)
     @JoinColumn(name = "user_profile_id", referencedColumnName = "user_profile_id")
-    private UserProfileEntity userProfile;
+    private UserProfile userProfile;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
-    private List<AccountEntity> accounts;
-
-    public UserEntity(Long id) {
-        super();
-        this.id = id;
-    }
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<Account> accounts;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<NotificationEntity> notifications;
+    private List<Notification> notifications;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

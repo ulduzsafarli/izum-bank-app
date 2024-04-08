@@ -1,35 +1,27 @@
 package org.matrix.izumbankapp.service;
 
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.users.*;
 import org.matrix.izumbankapp.model.users.profile.UserProfileDto;
-import jakarta.transaction.Transactional;
 import org.matrix.izumbankapp.model.users.profile.UserProfileFilterDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
-
+@Service
 public interface UserService {
-    Page<UserProfileDto> findUsersByFilter(UserProfileFilterDto filter, Pageable pageRequest);
+    Page<UserProfileDto> findByFilter(UserProfileFilterDto filter, Pageable pageRequest);
 
-    List<UserResponse> getAllUser();
+    UserResponse getById(Long id);
 
-    UserResponse getUserById(Long id);
+    UserResponse getByEmail(String email);
 
-    UserAccountsResponse getUserByIdForAccount(Long id);
+    UserResponse update(Long id, UserUpdateDto userCreateDto);
 
-    UserResponse getUserByEmail(String email);
+    void delete(Long id);
 
-    @Transactional
-    ResponseDto updateUser(Long id, UserUpdateDto userCreateDto);
+    UserResponse create(UserCreateDto userCreateDto);
 
-    @Transactional
-    ResponseDto deleteUserById(Long id);
-
-    @Transactional
-    ResponseDto addUser(UserCreateDto userCreateDto);
-
+    UserAccountsResponse getByAccountNumber(String accountNumber);
 
     void createCif(Long userId);
 

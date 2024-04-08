@@ -1,13 +1,11 @@
 package org.matrix.izumbankapp.service.impl;
 
-import org.matrix.izumbankapp.dao.entities.SupportEntity;
+import org.matrix.izumbankapp.dao.entities.Support;
 import org.matrix.izumbankapp.dao.repository.SupportRepository;
-import org.matrix.izumbankapp.exception.supports.EmailSendingException;
 import org.matrix.izumbankapp.exception.NotFoundException;
 import org.matrix.izumbankapp.mapper.SupportMapper;
 import org.matrix.izumbankapp.model.support.SupportDto;
 import org.matrix.izumbankapp.model.support.EmailAnswerDto;
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.support.SupportResponseDto;
 import org.matrix.izumbankapp.service.EmailSendingService;
 import org.matrix.izumbankapp.service.SupportService;
@@ -27,39 +25,28 @@ public class SupportServiceImpl implements SupportService {
     private final EmailSendingService emailSendingService;
 
     @Override
-    public ResponseDto sendSupport(SupportDto supportDto) {
+    public void sendRequest(SupportDto supportDto) {
         log.info("Processing support request: {}", supportDto);
 
-        try {
-            supportRepository.save(supportMapper.toEntity(supportDto));
-            emailSendingService.sendSupportEmail(supportDto);
-            log.info("Contact form sent successfully: {}", supportDto);
-            return ResponseDto.builder().responseMessage("Form submitted successfully").build();
-        } catch (RuntimeException e) {
-            throw new EmailSendingException("Error while processing support request", e);
-        }
+        supportRepository.save(supportMapper.toEntity(supportDto));
+        emailSendingService.sendSupportEmail(supportDto);
+        log.info("Contact form sent successfully: {}", supportDto);
     }
 
     @Override
-    public ResponseDto sendResponse(Long supportID, EmailAnswerDto emailAnswerDto) {
+    public void sendResponse(Long supportID, EmailAnswerDto emailAnswerDto) {
         log.info("Sending answer for support request: {}", emailAnswerDto);
-        SupportEntity supportEntity = supportRepository.findById(supportID)
+        Support support = supportRepository.findById(supportID)
                 .orElseThrow(() -> new NotFoundException("Support message not found with ID " + supportID));
 
-        try {
-            emailSendingService.sendResponseEmail(supportEntity.getEmail(), emailAnswerDto);
-            supportEntity.setAnswered(true);
-            supportRepository.save(supportEntity);
-            log.info("Response email sent successfully to {}", supportEntity.getEmail());
-            return ResponseDto.builder().responseMessage("Form responses successfully").build();
-        } catch (RuntimeException e) {
-            log.error("Failed to send response email to {}", supportEntity.getEmail(), e);
-            throw new EmailSendingException("Error while sending response email", e);
-        }
+        emailSendingService.sendResponseEmail(support.getEmail(), emailAnswerDto);
+        support.setAnswered(true);
+        supportRepository.save(support);
+        log.info("Response email sent successfully to {}", support.getEmail());
     }
 
     @Override
-    public List<SupportResponseDto> getAllSupportRequests() {
+    public List<SupportResponseDto> getRequests() {
         log.info("Retrieving all support requests");
         var supports = supportRepository.findAll().stream().map(supportMapper::toResponseList).toList();
         log.info("Successfully retrieve all support requests");
@@ -67,7 +54,7 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
-    public List<SupportResponseDto> getUnAnsweredSupportRequests() {
+    public List<SupportResponseDto> getUnAnsweredRequests() {
         log.info("Retrieving all support requests");
         var supports = supportRepository.findUnAnsweredRequests().stream().map(supportMapper::toResponseList).toList();
         log.info("Successfully retrieve all support requests");

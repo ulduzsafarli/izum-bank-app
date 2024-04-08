@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
@@ -16,13 +15,8 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
                         email = "ulduzsafarli.dv@gmail.com",
                         url = "https://github.com/ulduzsafarli"
                 ),
-                description = "My Izum Bank application service",
-                title = "Bank application",
-                version = "1.0",
-                license = @License(
-                        name = "Licence name"
-                ),
-                termsOfService = "Terms of service"
+                description = "Izum Bank application service",
+                version = "1.0"
         ),
         security = {
                 @SecurityRequirement(

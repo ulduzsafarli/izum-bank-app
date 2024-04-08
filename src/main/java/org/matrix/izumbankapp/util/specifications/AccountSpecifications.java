@@ -1,6 +1,6 @@
 package org.matrix.izumbankapp.util.specifications;
 
-import org.matrix.izumbankapp.dao.entities.AccountEntity;
+import org.matrix.izumbankapp.dao.entities.Account;
 import org.matrix.izumbankapp.model.accounts.AccountFilterDto;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
@@ -9,9 +9,9 @@ import static org.matrix.izumbankapp.util.specifications.SpecificationUtil.*;
 
 @UtilityClass
 public class AccountSpecifications {
-    public static Specification<AccountEntity> getAccountSpecification(AccountFilterDto filter) {
+    public static Specification<Account> getAccountSpecification(AccountFilterDto filter) {
 
-        var spec = Specification.<AccountEntity>where(
+        var spec = Specification.<Account>where(
                         likeIgnoreCase("branchCode", filter.getBranchCode()))
                 .and(isEqual("accountNumber", filter.getAccountNumber()))
                 .and(isEqual("currencyType", filter.getCurrencyType()))

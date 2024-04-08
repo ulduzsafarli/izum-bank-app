@@ -1,5 +1,6 @@
 package org.matrix.izumbankapp.controller;
 
+import jakarta.mail.MessagingException;
 import org.matrix.izumbankapp.error.ErrorDetails;
 import org.matrix.izumbankapp.error.ValidationError;
 import org.matrix.izumbankapp.exception.*;
@@ -23,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -40,11 +42,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final String EXCEPTION_OCCURRED_MESSAGE = "Exception occurred";
 
-    //TODO for email handling
-
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
-            DatabaseException ex, WebRequest webRequest) {
+            MessagingException ex, WebRequest webRequest) {
         log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
@@ -87,6 +87,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorDetails> handle(
             WithdrawException ex, WebRequest webRequest) {
+        log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
+        return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler
+    public ResponseEntity<ErrorDetails> handle(
+            BadCredentialsException ex, WebRequest webRequest) {
         log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
@@ -160,7 +166,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorDetails> handleInvalidFormatException(
+    public ResponseEntity<ErrorDetails> handle(
             InvalidFormatException ex, WebRequest webRequest) {
         log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
 
@@ -169,21 +175,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 
     @ExceptionHandler
-    public ResponseEntity<ErrorDetails> handleNotDataFoundException(
+    public ResponseEntity<ErrorDetails> handle(
             NotFoundException ex, WebRequest webRequest) {
         log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.NOT_FOUND), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorDetails> handleDuplicateDataException(
+    public ResponseEntity<ErrorDetails> handle(
             DuplicateDataException ex, WebRequest webRequest) {
         log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return new ResponseEntity<>(createErrorDetails(ex, webRequest, HttpStatus.CONFLICT), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({RuntimeException.class})
-    public ResponseEntity<Object> handleRuntimeException(RuntimeException ex) {
+    public ResponseEntity<Object> handle(RuntimeException ex) {
         log.error(EXCEPTION_OCCURRED_MESSAGE, ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }

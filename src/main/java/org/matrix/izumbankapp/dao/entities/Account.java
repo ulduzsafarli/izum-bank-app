@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.List;
 @Table(name = "accounts", schema = "public")
 @EqualsAndHashCode(callSuper = true)
 @EntityListeners(AuditingEntityListener.class)
-public class AccountEntity extends Auditable {
+public class Account extends Auditable implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -57,13 +58,13 @@ public class AccountEntity extends Auditable {
     private BigDecimal transactionLimit;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
-    private List<TransactionEntity> transactions;
+    private List<Transaction> transactions;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private User user;
 
-    public AccountEntity(Long accountId) {
+    public Account(Long accountId) {
         super();
         this.id = accountId;
     }

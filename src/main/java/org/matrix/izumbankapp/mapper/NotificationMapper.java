@@ -3,7 +3,7 @@ package org.matrix.izumbankapp.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.matrix.izumbankapp.dao.entities.NotificationEntity;
+import org.matrix.izumbankapp.dao.entities.Notification;
 import org.matrix.izumbankapp.model.notifications.NotificationRequest;
 import org.matrix.izumbankapp.model.notifications.NotificationResponse;
 
@@ -12,9 +12,9 @@ import org.matrix.izumbankapp.model.notifications.NotificationResponse;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface NotificationMapper {
 
-    @Mapping(source = "notificationEntity.user.id", target = "userId")
-    NotificationResponse toDto(NotificationEntity notificationEntity);
+    @Mapping(source = "notification.user.id", target = "userId")
+    NotificationResponse toDto(Notification notification);
 
     @Mapping(source = "notificationRequest.userId", target = "user.id")
-    NotificationEntity toEntity(NotificationRequest notificationRequest);
+    Notification toEntity(NotificationRequest notificationRequest);
 }

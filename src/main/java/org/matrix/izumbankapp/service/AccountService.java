@@ -1,46 +1,32 @@
 package org.matrix.izumbankapp.service;
 
+import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.exception.accounts.InsufficientFundsException;
 import org.matrix.izumbankapp.model.accounts.*;
-import org.matrix.izumbankapp.model.accounts.AccountStatusUpdate;
-import org.matrix.izumbankapp.model.auth.ResponseDto;
-import org.matrix.izumbankapp.model.users.UserAccountsResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
 
-
+@Service
 public interface AccountService {
 
-    Page<AccountResponse> findAccountsByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest);
+    Page<AccountResponse> findByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest);
 
-    List<AccountResponse> getAllAccounts();
+    AccountResponse getById(Long accountId);
 
-    AccountResponse getAccountById(Long accountId);
+    AccountResponse getByAccountNumber(String accountNumber);
 
-    AccountResponse getAccountByAccountNumber(String accountNumber);
+    AccountResponse create(AccountCreateDto account);
 
-    AccountResponse createAccount(AccountCreateDto account);
+    AccountResponse update(Long accountId, AccountRequest account);
 
-    ResponseDto updateAccount(Long accountId, AccountRequest account);
+    void delete(Long accountId);
 
-    ResponseDto deleteAccount(Long accountId);
-
-    ResponseDto closeAccount(String accountNumber);
-
-    ResponseDto updateStatus(String accountNumber, AccountStatusUpdate accountStatusUpdate);
-
-    UserAccountsResponse getUserByAccountNumber(String accountNumber);
-
-    String getBalance(String accountNumber);
-
-    void saveAccount(AccountResponse account);
+    void updateStatus(String accountNumber, AccountStatus accountStatusUpdate);
 
     void validatePin(AccountResponse account, String pin);
-
-    List<AccountResponse> getDepositAccountsCreatedOnDate(int dayOfMonth);
 
     void updateBalance(String accountNumber, BigDecimal subtract) throws InsufficientFundsException;
 }

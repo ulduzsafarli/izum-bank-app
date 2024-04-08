@@ -1,7 +1,7 @@
 package org.matrix.izumbankapp.mapper;
 
 import org.mapstruct.*;
-import org.matrix.izumbankapp.dao.entities.AccountEntity;
+import org.matrix.izumbankapp.dao.entities.Account;
 import org.matrix.izumbankapp.model.accounts.AccountRequest;
 import org.matrix.izumbankapp.model.accounts.AccountCreateDto;
 import org.matrix.izumbankapp.model.accounts.AccountResponse;
@@ -11,13 +11,13 @@ import org.matrix.izumbankapp.model.accounts.AccountResponse;
 public interface AccountMapper {
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "transactions", target = "transactionResponseList")
-    AccountResponse toDto(AccountEntity accountEntity);
+    AccountResponse toDto(Account account);
 
     @InheritInverseConfiguration
-    AccountEntity toEntity(AccountResponse accountResponse);
+    Account toEntity(AccountResponse accountResponse);
 
     @Mapping(target = "user.id", source = "userId")
-    AccountEntity fromRequestDtoForUser(AccountCreateDto accountCreateDto);
+    Account fromRequestDtoForUser(AccountCreateDto accountCreateDto);
 
-    void updateEntityFromDto(AccountRequest account, @MappingTarget AccountEntity accountEntity);
+    Account updateEntityFromDto(AccountRequest account, @MappingTarget Account accountEntity);
 }

@@ -7,7 +7,6 @@ import org.matrix.izumbankapp.exception.NotFoundException;
 import org.matrix.izumbankapp.mapper.NotificationMapper;
 import org.matrix.izumbankapp.model.notifications.NotificationRequest;
 import org.matrix.izumbankapp.model.notifications.NotificationResponse;
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.support.EmailAnswerDto;
 import org.matrix.izumbankapp.service.EmailSendingService;
 import org.matrix.izumbankapp.service.NotificationService;
@@ -23,29 +22,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
-    private static final String NOT_FOUND = "Notification %s by ID not found.";
-
     private final NotificationMapper notificationMapper;
     private final NotificationRepository notificationRepository;
     private final UserService userService;
     private final EmailSendingService emailSendingService;
 
+    private static final String NOT_FOUND = "Notification %s by ID not found.";
+
     @Override
     @Transactional
-    public ResponseDto createNotification(NotificationRequest notificationRequest) {
+    public void create(NotificationRequest notificationRequest) {
         log.info("Creating notification for user {}", notificationRequest.getUserId());
-        var user = userService.getUserById(notificationRequest.getUserId());
+        var user = userService.getById(notificationRequest.getUserId());
         var notification = notificationMapper.toEntity(notificationRequest);
         notification.setSentDate(LocalDate.now());
         notificationRepository.save(notification);
         var emailForm = new EmailAnswerDto(notificationRequest.getMessage());
         emailSendingService.sendNotificationEmail(user.getEmail(), emailForm);
         log.info("Successfully create notification for user {}", notificationRequest.getUserId());
-        return ResponseDto.builder().responseMessage("Successfully send user notification ").build();
     }
 
     @Override
-    public List<NotificationResponse> getAllNotifications() {
+    public List<NotificationResponse> getAll() {
         log.info("Receiving all notifications");
         var notifications = notificationRepository.findAll()
                 .stream().map(notificationMapper::toDto).toList();
@@ -54,7 +52,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<NotificationResponse> getNotificationsByUserId(Long userId) {
+    public List<NotificationResponse> getByUserId(Long userId) {
         log.info("Receiving all notifications for user {}", userId);
         var notifications = notificationRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException(String.format(NOT_FOUND, userId)))
@@ -65,19 +63,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public ResponseDto deleteNotificationsByUserId(Long userId) {
+    public void deleteUserId(Long userId) {
         log.info("Removing all notifications for user {}", userId);
-
         int deletedCount = notificationRepository.deleteByUserId(userId);
-
         log.info("Successfully removed {} notifications for the user {}", deletedCount, userId);
-        return ResponseDto.builder()
-                .responseMessage("Notifications for the user deleted successfully")
-                .build();
     }
-
-
-
-
 
 }

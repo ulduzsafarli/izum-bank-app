@@ -1,8 +1,7 @@
 package org.matrix.izumbankapp.controller;
 
+import org.matrix.izumbankapp.enumeration.accounts.AccountStatus;
 import org.matrix.izumbankapp.model.accounts.*;
-import org.matrix.izumbankapp.model.accounts.AccountStatusUpdate;
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,61 +10,49 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/user/account")
+@RequestMapping("/api/v1/accounts")
 public class AccountController {
+
     private final AccountService accountService;
 
     @GetMapping("/search")
-    public Page<AccountResponse> getAccountByFilter(AccountFilterDto accountFilterDto,
+    public Page<AccountResponse> getByFilter(AccountFilterDto accountFilterDto,
                                                     @PageableDefault(direction = Sort.Direction.ASC) Pageable pageable) {
-        return accountService.findAccountsByFilter(accountFilterDto, pageable);
+        return accountService.findByFilter(accountFilterDto, pageable);
     }
 
-    @GetMapping
-    public ResponseEntity<List<AccountResponse>> getAllAccounts() {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.getAllAccounts());
-    }
-
-    @GetMapping("/accountId")
-    public ResponseEntity<AccountResponse> getAccountById(@RequestParam Long accountId) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.getAccountById(accountId));
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AccountResponse getById(@PathVariable Long id) {
+        return accountService.getById(id);
     }
 
     @PostMapping
-    public ResponseEntity<AccountResponse> createAccount(@Valid @RequestBody AccountCreateDto account) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(accountService.createAccount(account));
+    @ResponseStatus(HttpStatus.CREATED)
+    public AccountResponse create(@RequestBody @Valid AccountCreateDto account) {
+        return accountService.create(account);
     }
 
-    @PutMapping
-    public ResponseEntity<ResponseDto> updateAccount(@RequestParam Long accountId, @Valid @RequestBody AccountRequest account) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.updateAccount(accountId, account));
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AccountResponse update(@PathVariable Long id, @Valid @RequestBody AccountRequest account) {
+        return accountService.update(id, account);
     }
 
-    @DeleteMapping
-    public ResponseEntity<ResponseDto> deleteAccount(@RequestParam Long accountId) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(accountService.deleteAccount(accountId));
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        accountService.delete(id);
     }
 
-    @PutMapping("/closure")
-    public ResponseEntity<ResponseDto> closeAccount(@RequestParam String accountNumber) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.closeAccount(accountNumber));
-    }
-
-    @PatchMapping("/status")
-    public ResponseEntity<ResponseDto> updateAccountStatus(@RequestParam String accountNumber, @RequestBody AccountStatusUpdate accountStatusUpdate) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.updateStatus(accountNumber, accountStatusUpdate));
-    }
-
-    @GetMapping("/balance")
-    public ResponseEntity<String> getAccountBalance(@RequestParam String accountNumber) {
-        return ResponseEntity.status(HttpStatus.OK).body(accountService.getBalance(accountNumber));
+    @PutMapping("/{accountNumber}/status/{status}")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateStatus(@PathVariable String accountNumber, @PathVariable AccountStatus status) {
+        accountService.updateStatus(accountNumber, status);
     }
 
 }

@@ -13,13 +13,13 @@ import java.util.List;
 
 @Service
 public interface TransactionService {
-    List<TransactionResponse> getTransactionsFromAccountId(Long accountId);
-    TransactionResponse createTransaction(Long accountId, TransactionAccountRequest transactionAccountRequest,
-                                          TransactionType transactionType);
+    List<TransactionResponse> getFromAccountId(Long accountId);
+    TransactionResponse create(Long accountId, TransactionAccountRequest transactionAccountRequest,
+                               TransactionType transactionType);
 
-    void updateTransactionStatus(Long id, TransactionStatus transactionStatus);
-    TransactionResponse getTransactionsByID(Long transactionId);
-    Page<TransactionResponse> findTransactionByFilter(TransactionFilterDto transactionFilterDto, Pageable pageable);
+    void updateStatus(Long id, TransactionStatus transactionStatus);
+    TransactionResponse getByID(Long transactionId);
+    Page<TransactionResponse> findByFilter(TransactionFilterDto transactionFilterDto, Pageable pageable);
 
-    TransactionResponse getTransactionByUUID(String transactionUUID);
+    TransactionResponse getByUUID(String transactionUUID);
 }

@@ -2,6 +2,7 @@ package org.matrix.izumbankapp.config;
 
 import org.matrix.izumbankapp.dao.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @RequiredArgsConstructor
 @EnableScheduling
+@EnableCaching
 public class ApplicationConfig {
     private final UserRepository userRepository;
 

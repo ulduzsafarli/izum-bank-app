@@ -4,14 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matrix.izumbankapp.enumeration.accounts.*;
 import org.matrix.izumbankapp.enumeration.transaction.*;
-import org.matrix.izumbankapp.exception.accounts.InsufficientFundsException;
 import org.matrix.izumbankapp.exception.accounts.TransferException;
 import org.matrix.izumbankapp.exception.transactions.*;
 import org.matrix.izumbankapp.model.accounts.AccountCreateDto;
 import org.matrix.izumbankapp.model.accounts.AccountResponse;
 import org.matrix.izumbankapp.model.accounts.TransferMoneyRequest;
 import org.matrix.izumbankapp.model.accounts.WithdrawalRequest;
-import org.matrix.izumbankapp.model.auth.ResponseDto;
 import org.matrix.izumbankapp.model.deposits.*;
 import org.matrix.izumbankapp.model.exchange.ExchangeRequestDto;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
@@ -38,60 +36,62 @@ public class OperationServiceImpl implements OperationService {
     private final ExchangeService exchangeService;
     private final DepositService depositService;
     private final AccountService accountService;
-    private final UserService userService;
     private final DepositScheduler depositScheduler;
 
     @Override
-    public ResponseDto activateDepositScheduler(){
-        log.info("Starting deposit scheduler today: {}", LocalDate.now());
-        depositScheduler.calculateDepositInterest();
-        return ResponseDto.builder().responseMessage("Successfully activate deposit scheduler").build();
+    public String getBalance(String accountNumber) {
+        log.info("Getting current balance from account {}", accountNumber);
+        var account = accountService.getByAccountNumber(accountNumber);
+        log.info("Get current balance from account {} successfully", accountNumber);
+        return account.getCurrentBalance().toString();
     }
 
+    @Override
+    public void activateDepositScheduler() {
+        log.info("Starting deposit scheduler today: {}", LocalDate.now());
+        depositScheduler.calculateDepositInterest();
+    }
 
     @Override
     @Transactional
-    public ResponseDto createDepositAccount(DepositRequest depositRequest) {
+    public void createDeposit(DepositRequest depositRequest) {
         log.info("Creating deposit account for user: {}", depositRequest.getUserId());
 
-        AccountCreateDto accountDto = AccountCreateDto.builder()
-                .accountType(AccountType.DEPOSIT)
-                .accountExpireDate(depositRequest.getDepositExpireDate())
-                .availableBalance(calculateInterest(depositRequest.getAmount(), depositRequest.getInterest(),
-                        depositRequest.getDepositExpireDate()))
-                .branchCode("333")
-                .currencyType(depositRequest.getCurrencyType())
-                .currentBalance(BigDecimal.ZERO)
-                .pin(passwordEncoder.encode(depositRequest.getPin()))
-                .userId(depositRequest.getUserId())
-                .build();
+        AccountCreateDto accountDto = new AccountCreateDto(
+                depositRequest.getUserId(),
+                "333",
+                depositRequest.getDepositExpireDate(),
+                depositRequest.getCurrencyType(),
+                AccountType.DEPOSIT,
+                calculateInterest(depositRequest.getAmount(), depositRequest.getInterest(), depositRequest.getDepositExpireDate()),
+                BigDecimal.ZERO,
+                null,
+                passwordEncoder.encode(depositRequest.getPin())
+        );
 
-        userService.createCif(depositRequest.getUserId());
-
-        AccountResponse accountResponse = accountService.createAccount(accountDto);
+        AccountResponse accountResponse = accountService.create(accountDto);
         DepositResponse depositResponse = DepositResponse.builder()
-                .account(accountService.getAccountById(accountResponse.getId()))
+                .account(accountService.getById(accountResponse.getId()))
                 .amount(depositRequest.getAmount())
                 .interestRate(depositRequest.getInterest())
                 .yearlyInterest(depositRequest.isYearlyInterest()).build();
 
-        depositService.saveDeposit(depositResponse);
+        depositService.save(depositResponse);
 
         log.info("Deposit account created successfully");
-        return ResponseDto.builder().responseMessage("Successfully created a deposit account").build();
     }
 
     @Override
     @Transactional(rollbackFor = {TransactionAmountException.class, TransactionLimitException.class})
-    public ResponseDto transferToAccount(TransferMoneyRequest transferMoneyRequest) {
+    public void transferMoney(TransferMoneyRequest transferMoneyRequest) {
 
         log.info("Transferring money from {} to {}. Details: {}",
                 transferMoneyRequest.getFromAccountNumber(),
                 transferMoneyRequest.getToAccountNumber(),
                 transferMoneyRequest.getTransactionAccountRequest());
 
-        var fromAccount = accountService.getAccountByAccountNumber(transferMoneyRequest.getFromAccountNumber());
-        var toAccount = accountService.getAccountByAccountNumber(transferMoneyRequest.getToAccountNumber());
+        var fromAccount = accountService.getByAccountNumber(transferMoneyRequest.getFromAccountNumber());
+        var toAccount = accountService.getByAccountNumber(transferMoneyRequest.getToAccountNumber());
         if (fromAccount.getAccountType() == AccountType.DEPOSIT || toAccount.getAccountType() == AccountType.DEPOSIT) {
             throw new TransferException("Invalid account type: " + AccountType.DEPOSIT);
         }
@@ -103,48 +103,47 @@ public class OperationServiceImpl implements OperationService {
         validateAndDebitAccount(fromAccount, transferMoneyRequest.getPin(), transferAmount, toAccount.getCurrencyType());
 
         transferMoneyRequest.getTransactionAccountRequest().setAmount(transferAmount);
-        var fromTransaction = transactionService.createTransaction(fromAccount.getId(),
+        var fromTransaction = transactionService.create(fromAccount.getId(),
                 transferMoneyRequest.getTransactionAccountRequest(), TransactionType.TRANSFER);
 
         BigDecimal updateAmount = toAccount.getCurrentBalance().add(transferAmount);
         accountService.updateBalance(toAccount.getAccountNumber(), updateAmount);
-        var toTransaction = transactionService.createTransaction(toAccount.getId(),
+        var toTransaction = transactionService.create(toAccount.getId(),
                 transferMoneyRequest.getTransactionAccountRequest(), TransactionType.TRANSFER);
 
-        return executeTransfer(fromAccount, toAccount, fromTransaction, toTransaction);
+        executeTransfer(fromAccount, toAccount, fromTransaction, toTransaction);
     }
 
     @Override
     @Transactional
-    public ResponseDto withdrawal(WithdrawalRequest withdrawalRequest) {
+    public void withdrawal(WithdrawalRequest withdrawalRequest) {
         log.info("Withdrawals from {}. Details: {}",
                 withdrawalRequest.getFromAccountNumber(),
                 withdrawalRequest.getTransactionAccountRequest());
 
-        AccountResponse fromAccount = accountService.getAccountByAccountNumber(withdrawalRequest.getFromAccountNumber());
+        AccountResponse fromAccount = accountService.getByAccountNumber(withdrawalRequest.getFromAccountNumber());
         BigDecimal transferAmount = withdrawalRequest.getTransactionAccountRequest().getAmount();
 
         validateAndDebitAccount(fromAccount, withdrawalRequest.getPin(), transferAmount, withdrawalRequest.getCurrencyType());
 
         withdrawalRequest.getTransactionAccountRequest().setAmount(transferAmount);
-        var fromTransaction = transactionService.createTransaction(fromAccount.getId(),
+        var fromTransaction = transactionService.create(fromAccount.getId(),
                 withdrawalRequest.getTransactionAccountRequest(), TransactionType.WITHDRAWAL);
 
         updateTransactionsStatus(List.of(fromTransaction), TransactionStatus.SUCCESSFUL);
-        return ResponseDto.builder().responseMessage("Successfully withdrew money").build();
     }
 
     private void validateAndDebitAccount(AccountResponse fromAccount, String pin, BigDecimal amount, CurrencyType currencyType) {
         accountService.validatePin(fromAccount, pin);
-        BigDecimal transferAmount = performCurrencyExchangeIfNeeded(fromAccount, amount, currencyType);
+        BigDecimal transferAmount = performExchangeIfNeeded(fromAccount, amount, currencyType);
         validateTransaction(fromAccount, transferAmount);
         BigDecimal updateAmount = fromAccount.getCurrentBalance().subtract(transferAmount);
         accountService.updateBalance(fromAccount.getAccountNumber(), updateAmount);
     }
 
-    private BigDecimal performCurrencyExchangeIfNeeded(AccountResponse fromAccount, BigDecimal amount, CurrencyType toCurrency) {
+    private BigDecimal performExchangeIfNeeded(AccountResponse fromAccount, BigDecimal amount, CurrencyType toCurrency) {
         if (fromAccount.getCurrencyType() != toCurrency) {
-            return performCurrencyExchange(fromAccount.getCurrencyType(), amount, toCurrency);
+            return performExchange(fromAccount.getCurrencyType(), amount, toCurrency);
         } else {
             return amount;
         }
@@ -165,37 +164,31 @@ public class OperationServiceImpl implements OperationService {
     }
 
 
-    private BigDecimal performCurrencyExchange(CurrencyType fromCurrency, BigDecimal amount, CurrencyType toCurrency) {
+    private BigDecimal performExchange(CurrencyType fromCurrency, BigDecimal amount, CurrencyType toCurrency) {
         if (fromCurrency == CurrencyType.AZN) {
-            return BigDecimal.valueOf(exchangeService.performExchangeFromAZN(
+            return BigDecimal.valueOf(exchangeService.fromAZN(
                     ExchangeRequestDto.builder().amount(amount.doubleValue())
                             .currencyType(toCurrency).build()).getConvertedAmount());
         } else {
-            return BigDecimal.valueOf(exchangeService.performExchangeToAZN(
+            return BigDecimal.valueOf(exchangeService.toAZN(
                     ExchangeRequestDto.builder().amount(amount.doubleValue())
                             .currencyType(fromCurrency).build()).getConvertedAmount());
         }
     }
 
     private void updateTransactionsStatus(List<TransactionResponse> transactions, TransactionStatus transactionStatus) {
-        transactions.forEach(transaction -> transactionService.updateTransactionStatus(transaction.getId(), transactionStatus));
+        transactions.forEach(transaction -> transactionService.updateStatus(transaction.getId(), transactionStatus));
     }
 
-    private ResponseDto executeTransfer(AccountResponse fromAccount, AccountResponse toAccount,
-                                        TransactionResponse fromTransaction, TransactionResponse toTransaction) {
+    private void executeTransfer(AccountResponse fromAccount, AccountResponse toAccount,
+                                 TransactionResponse fromTransaction, TransactionResponse toTransaction) {
         try {
             accountService.updateBalance(fromAccount.getAccountNumber(), fromAccount.getCurrentBalance().subtract(fromTransaction.getAmount()));
             accountService.updateBalance(toAccount.getAccountNumber(), toAccount.getCurrentBalance().add(toTransaction.getAmount()));
 
             updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.SUCCESSFUL);
-            return ResponseDto.builder().responseMessage("Successfully transferred money").build();
         } catch (Exception ex) {
             updateTransactionsStatus(List.of(fromTransaction, toTransaction), TransactionStatus.FAILED);
-            if (ex instanceof InsufficientFundsException) {
-                throw new InsufficientFundsException("Insufficient funds in the source account");
-            } else {
-                throw new TransferException("Unexpected error during transfer", ex);
-            }
         }
     }
 

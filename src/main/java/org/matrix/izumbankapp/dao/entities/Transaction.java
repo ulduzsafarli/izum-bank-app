@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Data
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 @EqualsAndHashCode(callSuper = true)
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "transactions", schema = "public")
-public class TransactionEntity extends Auditable {
+public class Transaction extends Auditable implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,5 +32,5 @@ public class TransactionEntity extends Auditable {
 
     @ManyToOne
     @JoinColumn(name = "account_id")
-    private AccountEntity account;
+    private Account account;
 }

@@ -1,7 +1,7 @@
 package org.matrix.izumbankapp.service.auth;
 
-import org.matrix.izumbankapp.dao.entities.UserEntity;
-import org.matrix.izumbankapp.dao.entities.UserProfileEntity;
+import org.matrix.izumbankapp.dao.entities.User;
+import org.matrix.izumbankapp.dao.entities.UserProfile;
 import org.matrix.izumbankapp.dao.repository.UserRepository;
 import org.matrix.izumbankapp.exception.DuplicateDataException;
 import org.matrix.izumbankapp.exception.NotFoundException;
@@ -9,8 +9,8 @@ import org.matrix.izumbankapp.model.auth.*;
 import org.matrix.izumbankapp.enumeration.auth.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.matrix.izumbankapp.service.AuthenticationService;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.security.Principal;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthenticationService {
+public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -36,7 +36,7 @@ public class AuthenticationService {
             throw new DuplicateDataException("User with email address already exists: " + request.getEmail());
         }
 
-        UserProfileEntity userProfile = UserProfileEntity.builder()
+        UserProfile userProfile = UserProfile.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .birthDate(request.getBirthDate())
@@ -45,7 +45,7 @@ public class AuthenticationService {
                 .nationality(request.getNationality())
                 .build();
 
-        UserEntity user = UserEntity.builder()
+        User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .cif(null)
@@ -58,50 +58,43 @@ public class AuthenticationService {
         String jwtToken = jwtService.generateToken(user);
         log.info("User registered successfully: {}", request.getEmail());
 
-        return AuthenticationResponseDto.builder()
-                .token(jwtToken)
-                .build();
+        return new AuthenticationResponseDto(jwtToken);
     }
 
     @Transactional
     public AuthenticationResponseDto authenticate(AuthenticationRequest request) {
-        log.info("Authenticating user: {}", request.getEmail());
+        log.info("Authenticating user: {}", request.email());
 
-        UserEntity user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new NotFoundException("User with email " + request.getEmail() + " not found"));
-
-        try {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new NotFoundException("User with email " + request.email() + " not found"));
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getEmail(),
-                            request.getPassword()
+                            request.email(),
+                            request.password()
                     )
             );
 
             String jwtToken = jwtService.generateToken(user);
-            log.info("User authenticated successfully: {}", request.getEmail());
-            return AuthenticationResponseDto.builder().token(jwtToken).build();
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
+            log.info("User authenticated successfully: {}", request.email());
+            return new AuthenticationResponseDto(jwtToken);
     }
 
     public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
-        log.info("Changing the password for user: {}", connectedUser.toString());
+        log.info("Changing the password for user: {}", connectedUser.getName());
 
-        UserEntity user = userRepository.findByEmail(connectedUser.getName())
+        User user = userRepository.findByEmail(connectedUser.getName())
                 .orElseThrow(() -> new NotFoundException("User with email " + connectedUser.getName() + " not found"));
 
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
             throw new IllegalStateException("Wrong password");
         }
-        if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
+        if (!request.newPassword().equals(request.confirmationPassword())) {
             throw new IllegalStateException("Passwords are not the same");
         }
-        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+        if (passwordEncoder.matches(request.newPassword(), user.getPassword())){
             throw new IllegalStateException("The same passwords");
         }
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         log.info("Changed the password for user: {} successfully", user.getEmail());
     }

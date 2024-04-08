@@ -8,7 +8,7 @@ import java.util.List;
 @Service
 public interface DepositService {
 
-    void saveDeposit(DepositResponse depositResponse);
-    List<DepositResponse> getDepositAccountsCreatedOnDate(int dayOfMonth);
+    void save(DepositResponse depositResponse);
+    List<DepositResponse> getByCreatedOnDate(int dayOfMonth);
 
 }

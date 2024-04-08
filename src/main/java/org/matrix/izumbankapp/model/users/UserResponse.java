@@ -18,5 +18,5 @@ public class UserResponse {
 
     private Role role;
 
-    private UserProfileDto userProfile;
+    private UserProfileDto userProfileDto;
 }

@@ -3,7 +3,6 @@ package org.matrix.izumbankapp.util;
 import lombok.experimental.UtilityClass;
 
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 @UtilityClass
 public class GenerateRandom {
