@@ -9,7 +9,9 @@ public class AdultBirthDateValidator implements ConstraintValidator<AdultBirthDa
 
     @Override
     public void initialize(AdultBirthDate constraintAnnotation) {
-        // No initialization is necessary for this annotation
+        /*
+            No initialization is necessary for this annotation
+         */
     }
 
     @Override
