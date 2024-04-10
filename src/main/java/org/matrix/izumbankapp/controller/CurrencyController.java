@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class CurrencyController {
     private final FetchingService fetchingService;
+
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public void fetch() {
         fetchingService.fetch();
     }
+
     @GetMapping("/file")
     @ResponseStatus(HttpStatus.OK)
     public String getFile() {
