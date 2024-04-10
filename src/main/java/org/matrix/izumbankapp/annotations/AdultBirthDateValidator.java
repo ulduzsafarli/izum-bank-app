@@ -8,7 +8,11 @@ import java.time.Period;
 public class AdultBirthDateValidator implements ConstraintValidator<AdultBirthDate, LocalDate> {
 
     @Override
-    public void initialize(AdultBirthDate constraintAnnotation) {}
+    public void initialize(AdultBirthDate constraintAnnotation) {
+        /*
+            No initialization is necessary for this annotation
+         */
+    }
 
     @Override
     public boolean isValid(LocalDate birthDate, ConstraintValidatorContext context) {
