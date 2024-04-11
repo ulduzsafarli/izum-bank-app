@@ -2,7 +2,6 @@ package org.matrix.izumbankapp.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.matrix.izumbankapp.exception.currencies.CurrencyFetchingException;
 import org.matrix.izumbankapp.service.FetchingService;
 import org.matrix.izumbankapp.util.FetchingUtil;
 import org.springframework.stereotype.Service;
