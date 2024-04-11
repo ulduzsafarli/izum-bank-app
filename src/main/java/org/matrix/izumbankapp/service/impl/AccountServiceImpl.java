@@ -29,7 +29,6 @@ import java.math.BigDecimal;
 @Slf4j
 public class AccountServiceImpl implements AccountService {
 
-    private static final String NOT_FOUND = "Account not found.";
     private static final String WITH_ID_NOT_FOUND = "Account with ID %s not found.";
     private static final String WITH_NUMBER_NOT_FOUND = "Account with number %s not found.";
 
@@ -51,12 +50,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountResponse getById(Long accountId) {
-        log.info("Retrieving account by ID: {}", accountId);
-        Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId)));
+    public AccountResponse getById(Long id) {
+        log.info("Retrieving account by ID: {}", id);
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, id)));
         AccountResponse accountResponse = accountMapper.toDto(account);
-        log.info("Successfully retrieved account");
+        log.info("Successfully retrieved account by id");
         return accountResponse;
     }
 
@@ -66,7 +65,7 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new NotFoundException(String.format(WITH_NUMBER_NOT_FOUND, accountNumber)));
         AccountResponse accountResponse = accountMapper.toDto(account);
-        log.info("Successfully retrieved account");
+        log.info("Successfully retrieved account by account number");
         return accountResponse;
     }
 
@@ -118,11 +117,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public AccountResponse update(Long accountId, AccountRequest account) {
-        log.info("Updating account by ID: {}", accountId);
+    public AccountResponse update(Long id, AccountRequest account) {
+        log.info("Updating account by ID: {}", id);
 
-        var updateAccount = accountRepository.findById(accountId)
-                .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, accountId)));
+        var updateAccount = accountRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, id)));
         var accountEntity = accountMapper.updateEntityFromDto(account, updateAccount);
         accountRepository.save(updateAccount);
 
@@ -142,10 +141,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void updateStatus(String accountNumber, AccountStatus accountUpdate) {
-        log.info("Updating status for account {}", accountNumber);
-        var account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND));
+    public void updateStatus(Long id, AccountStatus accountUpdate) {
+        log.info("Updating status for account {}", id);
+        var account = accountRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format(WITH_ID_NOT_FOUND, id)));
         if (account.getStatus().equals(accountUpdate)) {
             throw new AccountStatusException("Account is already " + account.getStatus());
         }

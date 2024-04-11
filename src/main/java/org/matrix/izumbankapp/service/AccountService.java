@@ -24,7 +24,7 @@ public interface AccountService {
 
     void delete(Long accountId);
 
-    void updateStatus(String accountNumber, AccountStatus accountStatusUpdate);
+    void updateStatus(Long id, AccountStatus accountStatusUpdate);
 
     void validatePin(AccountResponse account, String pin);
 
