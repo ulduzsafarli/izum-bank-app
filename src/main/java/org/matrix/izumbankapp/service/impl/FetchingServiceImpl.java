@@ -36,7 +36,6 @@ public class FetchingServiceImpl implements FetchingService {
         }
     }
 
-
     @Override
     public String getFile() {
         log.info("Getting the latest currency file");
