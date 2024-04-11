@@ -13,7 +13,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.matrix.izumbankapp.enumeration.auth.AuthUrlMapping.*;
+import static org.matrix.izumbankapp.enumeration.auth.UrlMapping.*;
 import static org.matrix.izumbankapp.enumeration.auth.Permission.*;
 import static org.springframework.http.HttpMethod.*;
 
