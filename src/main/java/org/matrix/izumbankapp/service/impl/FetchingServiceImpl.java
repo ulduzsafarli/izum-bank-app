@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -29,12 +30,10 @@ public class FetchingServiceImpl implements FetchingService {
         String currentUrl = generateUrlWithDate();
         log.info("Fetching and saving from URL: {}", currentUrl);
         String xmlData = FetchingUtil.fetchXmlData(currentUrl);
-        if (xmlData != null) {
+        if (Objects.nonNull(xmlData)) {
             String filteredCurrencies = FetchingUtil.filterCurrencies(xmlData);
             FetchingUtil.saveCurrenciesToFile(filteredCurrencies);
             log.info("Successfully fetch and save currency from URL: {}", currentUrl);
-        } else {
-            throw new CurrencyFetchingException("Failed to fetch XML data from URL");
         }
     }
 
