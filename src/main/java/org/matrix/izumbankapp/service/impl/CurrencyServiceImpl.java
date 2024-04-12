@@ -2,7 +2,7 @@ package org.matrix.izumbankapp.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.matrix.izumbankapp.service.FetchingService;
+import org.matrix.izumbankapp.service.CurrencyService;
 import org.matrix.izumbankapp.util.FetchingUtil;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import java.util.Objects;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FetchingServiceImpl implements FetchingService {
+public class CurrencyServiceImpl implements CurrencyService {
 
     private static final String URL_PREFIX = "https://www.cbar.az/currencies/";
 
