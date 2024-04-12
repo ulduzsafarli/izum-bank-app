@@ -12,6 +12,7 @@ import org.matrix.izumbankapp.model.accounts.TransferMoneyRequest;
 import org.matrix.izumbankapp.model.accounts.WithdrawalRequest;
 import org.matrix.izumbankapp.model.deposits.*;
 import org.matrix.izumbankapp.model.exchange.ExchangeRequestDto;
+import org.matrix.izumbankapp.model.transactions.TransactionAccountRequest;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
 import org.matrix.izumbankapp.scheduler.DepositScheduler;
 import org.matrix.izumbankapp.service.*;
@@ -119,16 +120,16 @@ public class OperationServiceImpl implements OperationService {
     public void withdrawal(WithdrawalRequest withdrawalRequest) {
         log.info("Withdrawals from {}. Details: {}",
                 withdrawalRequest.getFromAccountNumber(),
-                withdrawalRequest.getTransactionAccountRequest());
+                withdrawalRequest);
 
         AccountResponse fromAccount = accountService.getByAccountNumber(withdrawalRequest.getFromAccountNumber());
-        BigDecimal transferAmount = withdrawalRequest.getTransactionAccountRequest().getAmount();
+        BigDecimal transferAmount = withdrawalRequest.getAmount();
 
         validateAndDebitAccount(fromAccount, withdrawalRequest.getPin(), transferAmount, withdrawalRequest.getCurrencyType());
 
-        withdrawalRequest.getTransactionAccountRequest().setAmount(transferAmount);
-        var fromTransaction = transactionService.create(fromAccount.getId(),
-                withdrawalRequest.getTransactionAccountRequest(), TransactionType.WITHDRAWAL);
+        withdrawalRequest.setAmount(transferAmount);
+        var transaction = new TransactionAccountRequest(transferAmount, "Withdrawal");
+        var fromTransaction = transactionService.create(fromAccount.getId(), transaction, TransactionType.WITHDRAWAL);
 
         updateTransactionsStatus(List.of(fromTransaction), TransactionStatus.SUCCESSFUL);
     }
