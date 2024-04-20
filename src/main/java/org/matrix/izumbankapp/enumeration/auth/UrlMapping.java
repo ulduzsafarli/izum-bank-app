@@ -3,9 +3,9 @@ package org.matrix.izumbankapp.enumeration.auth;
 import lombok.Getter;
 
 @Getter
-public enum AuthUrlMapping {
+public enum UrlMapping {
     MANAGER(Role.MANAGER.name(), new String[]{
-            "/api/v1/accounts/{accountNumber}/status/{status}",
+            "/api/v1/accounts/{id}/{status}",
             "/api/v1/accounts/search",
             "/api/v1/accounts",
             "/api/v1/support/**",
@@ -40,7 +40,7 @@ public enum AuthUrlMapping {
             "/api/v1/auth/change-password",
             "/api/v1/operations/transfer",
             "/api/v1/operations/withdrawal",
-            "/api/v1/operations/deposit",
+            "/api/v1/deposits",
             "/api/v1/operations/{accountNumber}/balance"
     }),
 
@@ -54,12 +54,12 @@ public enum AuthUrlMapping {
     private final String role;
     private final String[] urls;
 
-    AuthUrlMapping(String role, String[] urls) {
+    UrlMapping(String role, String[] urls) {
         this.role = role;
         this.urls = urls;
     }
 
-    AuthUrlMapping(String[] urls) {
+    UrlMapping(String[] urls) {
         this.role = null;
         this.urls = urls;
     }

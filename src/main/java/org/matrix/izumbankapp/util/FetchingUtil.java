@@ -59,7 +59,7 @@ public class FetchingUtil {
         } catch (IOException e) {
             throw new CurrencyFilteringException("Failed to filter currencies: " + e.getMessage(), e);
         }
-        return filteredData.toString().trim(); // Trim any trailing spaces from the final string
+        return filteredData.toString().trim();
     }
 
     private static String extractAttribute(String line) {

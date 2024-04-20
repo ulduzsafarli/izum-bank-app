@@ -1,10 +1,7 @@
 package org.matrix.izumbankapp.dao.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -30,7 +27,7 @@ public class Deposit {
     @Column(nullable = false)
     private boolean yearlyInterest;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "account_id")
     private Account account;
 

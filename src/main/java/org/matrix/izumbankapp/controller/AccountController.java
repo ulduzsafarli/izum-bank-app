@@ -49,10 +49,10 @@ public class AccountController {
         accountService.delete(id);
     }
 
-    @PutMapping("/{accountNumber}/status/{status}")
+    @PutMapping("/{id}/{status}")
     @ResponseStatus(HttpStatus.OK)
-    public void updateStatus(@PathVariable String accountNumber, @PathVariable AccountStatus status) {
-        accountService.updateStatus(accountNumber, status);
+    public void updateStatus(@PathVariable Long id, @PathVariable AccountStatus status) {
+        accountService.updateStatus(id, status);
     }
 
 }

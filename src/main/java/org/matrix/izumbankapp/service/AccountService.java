@@ -5,11 +5,9 @@ import org.matrix.izumbankapp.exception.accounts.InsufficientFundsException;
 import org.matrix.izumbankapp.model.accounts.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-@Service
 public interface AccountService {
 
     Page<AccountResponse> findByFilter(AccountFilterDto accountFilterDto, Pageable pageRequest);
@@ -24,7 +22,7 @@ public interface AccountService {
 
     void delete(Long accountId);
 
-    void updateStatus(String accountNumber, AccountStatus accountStatusUpdate);
+    void updateStatus(Long id, AccountStatus accountStatusUpdate);
 
     void validatePin(AccountResponse account, String pin);
 

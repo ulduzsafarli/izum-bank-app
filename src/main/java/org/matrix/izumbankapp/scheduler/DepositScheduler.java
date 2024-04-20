@@ -72,7 +72,7 @@ public class DepositScheduler {
             transactionService.updateStatus(transactionResponse.getId(), TransactionStatus.SUCCESSFUL);
             notificationService.create(createNotification(userId));
         } else {
-            log.error("Failed to create transaction for deposit: {}", deposit.getId());
+            log.error("Failed to create transaction for deposit: {}", deposit);
         }
     }
 

@@ -7,11 +7,9 @@ import org.matrix.izumbankapp.model.transactions.TransactionFilterDto;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public interface TransactionService {
     List<TransactionResponse> getFromAccountId(Long accountId);
     TransactionResponse create(Long accountId, TransactionAccountRequest transactionAccountRequest,

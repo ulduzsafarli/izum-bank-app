@@ -10,5 +10,4 @@ public interface DepositMapper {
     DepositResponse toResponseDto(Deposit deposit);
     @Mapping(source = "account", target = "account")
     Deposit toEntity(DepositResponse depositResponse);
-
 }

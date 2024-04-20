@@ -2,18 +2,18 @@ package org.matrix.izumbankapp.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.matrix.izumbankapp.exception.currencies.CurrencyFetchingException;
-import org.matrix.izumbankapp.service.FetchingService;
+import org.matrix.izumbankapp.service.CurrencyService;
 import org.matrix.izumbankapp.util.FetchingUtil;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FetchingServiceImpl implements FetchingService {
+public class CurrencyServiceImpl implements CurrencyService {
 
     private static final String URL_PREFIX = "https://www.cbar.az/currencies/";
 
@@ -29,15 +29,12 @@ public class FetchingServiceImpl implements FetchingService {
         String currentUrl = generateUrlWithDate();
         log.info("Fetching and saving from URL: {}", currentUrl);
         String xmlData = FetchingUtil.fetchXmlData(currentUrl);
-        if (xmlData != null) {
+        if (Objects.nonNull(xmlData)) {
             String filteredCurrencies = FetchingUtil.filterCurrencies(xmlData);
             FetchingUtil.saveCurrenciesToFile(filteredCurrencies);
             log.info("Successfully fetch and save currency from URL: {}", currentUrl);
-        } else {
-            throw new CurrencyFetchingException("Failed to fetch XML data from URL");
         }
     }
-
 
     @Override
     public String getFile() {

@@ -1,12 +1,14 @@
 package org.matrix.izumbankapp.model.accounts;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.matrix.izumbankapp.enumeration.accounts.CurrencyType;
-import org.matrix.izumbankapp.model.transactions.TransactionAccountRequest;
+
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -21,5 +23,6 @@ public class WithdrawalRequest {
     private String pin;
     @NotNull(message = "Currency type must not be null")
     private CurrencyType currencyType;
-    TransactionAccountRequest transactionAccountRequest;
+    @NotBlank(message = "Amount must not be blank")
+    private BigDecimal amount;
 }

@@ -35,11 +35,10 @@ public class SupportController {
     public List<SupportResponseDto> getRequests(){
         return supportService.getRequests();
     }
+
     @GetMapping("/unanswered-requests")
     @ResponseStatus(HttpStatus.OK)
     public List<SupportResponseDto> getUnAnsweredRequests(){
         return supportService.getUnAnsweredRequests();
     }
-
-
 }
