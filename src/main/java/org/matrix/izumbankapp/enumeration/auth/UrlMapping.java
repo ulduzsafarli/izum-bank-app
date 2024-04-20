@@ -40,7 +40,7 @@ public enum UrlMapping {
             "/api/v1/auth/change-password",
             "/api/v1/operations/transfer",
             "/api/v1/operations/withdrawal",
-            "/api/v1/operations/deposit",
+            "/api/v1/deposits",
             "/api/v1/operations/{accountNumber}/balance"
     }),
 

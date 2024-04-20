@@ -6,24 +6,19 @@ import org.matrix.izumbankapp.enumeration.accounts.*;
 import org.matrix.izumbankapp.enumeration.transaction.*;
 import org.matrix.izumbankapp.exception.accounts.TransferException;
 import org.matrix.izumbankapp.exception.transactions.*;
-import org.matrix.izumbankapp.model.accounts.AccountCreateDto;
 import org.matrix.izumbankapp.model.accounts.AccountResponse;
 import org.matrix.izumbankapp.model.accounts.TransferMoneyRequest;
 import org.matrix.izumbankapp.model.accounts.WithdrawalRequest;
-import org.matrix.izumbankapp.model.deposits.*;
 import org.matrix.izumbankapp.model.exchange.ExchangeRequestDto;
 import org.matrix.izumbankapp.model.transactions.TransactionAccountRequest;
 import org.matrix.izumbankapp.model.transactions.TransactionResponse;
 import org.matrix.izumbankapp.scheduler.DepositScheduler;
 import org.matrix.izumbankapp.service.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,10 +27,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OperationServiceImpl implements OperationService {
 
-    private final PasswordEncoder passwordEncoder;
     private final TransactionService transactionService;
     private final ExchangeService exchangeService;
-    private final DepositService depositService;
     private final AccountService accountService;
     private final DepositScheduler depositScheduler;
 
@@ -51,35 +44,6 @@ public class OperationServiceImpl implements OperationService {
     public void activateDepositScheduler() {
         log.info("Starting deposit scheduler today: {}", LocalDate.now());
         depositScheduler.calculateDepositInterest();
-    }
-
-    @Override
-    @Transactional
-    public void createDeposit(DepositRequest depositRequest) {
-        log.info("Creating deposit account for user: {}", depositRequest.getUserId());
-
-        AccountCreateDto accountDto = new AccountCreateDto(
-                depositRequest.getUserId(),
-                "333",
-                depositRequest.getDepositExpireDate(),
-                depositRequest.getCurrencyType(),
-                AccountType.DEPOSIT,
-                calculateInterest(depositRequest.getAmount(), depositRequest.getInterest(), depositRequest.getDepositExpireDate()),
-                BigDecimal.ZERO,
-                null,
-                passwordEncoder.encode(depositRequest.getPin())
-        );
-
-        AccountResponse accountResponse = accountService.create(accountDto);
-        DepositResponse depositResponse = DepositResponse.builder()
-                .account(accountService.getById(accountResponse.getId()))
-                .amount(depositRequest.getAmount())
-                .interestRate(depositRequest.getInterest())
-                .yearlyInterest(depositRequest.isYearlyInterest()).build();
-
-        depositService.save(depositResponse);
-
-        log.info("Deposit account created successfully");
     }
 
     @Override
@@ -150,20 +114,6 @@ public class OperationServiceImpl implements OperationService {
         }
 
     }
-
-    private BigDecimal calculateInterest(BigDecimal amount, BigDecimal interest, LocalDate depositExpireDate) {
-        LocalDate currentDate = LocalDate.now();
-        Period period = Period.between(currentDate, depositExpireDate);
-        int months = period.getMonths() + period.getYears() * 12;
-
-        BigDecimal interestRate = BigDecimal.ZERO.add(interest.divide(BigDecimal.valueOf(100),
-                2, RoundingMode.HALF_UP));
-        BigDecimal monthlyAmount = amount.multiply(interestRate);
-        BigDecimal calculatedInterest = monthlyAmount.multiply(BigDecimal.valueOf(months));
-
-        return amount.add(calculatedInterest);
-    }
-
 
     private BigDecimal performExchange(CurrencyType fromCurrency, BigDecimal amount, CurrencyType toCurrency) {
         if (fromCurrency == CurrencyType.AZN) {
