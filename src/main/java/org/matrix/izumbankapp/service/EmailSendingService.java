@@ -9,6 +9,4 @@ public interface EmailSendingService {
     void sendNotificationEmail(String to, EmailAnswerDto emailAnswerDto);
 
     void sendSupportEmail(SupportDto supportDto);
-
-
 }
