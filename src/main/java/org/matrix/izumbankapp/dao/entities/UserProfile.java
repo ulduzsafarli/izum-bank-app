@@ -8,11 +8,12 @@ import lombok.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+@Getter
+@Setter
+@Builder
 @Entity(name = "user_profile")
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class UserProfile implements Serializable {
 
     @Id

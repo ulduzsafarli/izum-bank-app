@@ -1,17 +1,19 @@
 package org.matrix.izumbankapp.dao.entities;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.matrix.izumbankapp.dao.entities.abstractentity.Auditable;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionStatus;
 import org.matrix.izumbankapp.enumeration.transaction.TransactionType;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @EntityListeners(AuditingEntityListener.class)

@@ -1,12 +1,9 @@
 package org.matrix.izumbankapp.dao.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.matrix.izumbankapp.dao.entities.abstractentity.Auditable;
 import org.matrix.izumbankapp.enumeration.accounts.*;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.io.Serializable;
@@ -14,7 +11,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor

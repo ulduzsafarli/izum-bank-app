@@ -1,13 +1,15 @@
 package org.matrix.izumbankapp.dao.entities;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.matrix.izumbankapp.enumeration.NotificationType;
 import jakarta.persistence.*;
-import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "notifications", schema = "public")
 public class Notification implements Serializable {
