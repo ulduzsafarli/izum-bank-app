@@ -16,10 +16,9 @@ spring:
     password: ${POSTGRES_PASSWORD}
   jpa:
     open-in-view: true
-    properties:
-      hibernate:
-        show_sql: true
-        ddl-auto: update
+    show_sql: true
+    hibernate:
+      ddl-auto: update
   mail:
     host: ${SPRING_MAIL_HOST}
     port: ${SPRING_MAIL_PORT}
